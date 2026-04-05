@@ -118,6 +118,7 @@
   }
   html {
     scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
   }
 }
 
@@ -328,6 +329,128 @@
 .section-divider {
   height: 1px;
   background: linear-gradient(90deg, transparent, #d4922a33, transparent);
+}
+
+/* FAQ Accordion smooth animation using grid-template-rows */
+.faq-answer-wrapper {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.faq-answer-wrapper.open {
+  grid-template-rows: 1fr;
+}
+
+.faq-answer-wrapper > div {
+  overflow: hidden;
+}
+
+/* Mobile menu slide-in animation */
+@keyframes mobileMenuSlideIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes mobileMenuSlideOut {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes backdropFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes backdropFadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.mobile-menu-enter {
+  animation: mobileMenuSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.mobile-menu-exit {
+  animation: mobileMenuSlideOut 0.25s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.backdrop-enter {
+  animation: backdropFadeIn 0.3s ease forwards;
+}
+
+.backdrop-exit {
+  animation: backdropFadeOut 0.25s ease forwards;
+}
+
+/* Scroll-to-top button animation */
+@keyframes scrollToTopAppear {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.scroll-top-btn {
+  animation: scrollToTopAppear 0.3s ease forwards;
+}
+
+/* Global scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0a0a0a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2a2a2a;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3a3a3a;
+}
+
+/* Selection color */
+::selection {
+  background: rgba(212, 146, 42, 0.3);
+  color: #e8e6e1;
+}
+
+/* Body scroll lock for mobile menu */
+body.menu-open {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+}
+
+/* iOS safe area support */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
 }
 
 /* Noise texture overlay */
