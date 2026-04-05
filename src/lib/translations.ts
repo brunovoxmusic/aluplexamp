@@ -99,8 +99,8 @@ export const translations: Record<Language, Record<string, string>> = {
     'soundlib.track3.insight': 'S ALUPLEXom dostanete high gain, ktorý neznie ako digitálny hromada. Koncový stupeň stále pracuje v optimálnom bode – a to počujete v sustaine, ktorý reverzuje priamymi harmonickými frekvenciami, nie umelými artefaktmi. Pre mňa je to definícia „pure tone".',
 
     // Artist / Testimonial Section
-    'artist.title': 'Naši umelci',
-    'artist.subtitle': 'Profesionáli, ktorí si vybrali ALUPLEX – ľudia, ktorí rozumejú zvuku na najvyššej úrovni.',
+    'artist.title': 'S kým hráme',
+    'artist.subtitle': 'Profesionálni gitaristi, ktorí dôverujú ALUPLEX – ľudia, ktorí rozpoznajú skutočný tón.',
     'artist.vadim.bio': 'Vadim Bušovský je legenda slovenskej rockovej scény. Po desaťročiach pôsobenia v kapielách Dorian Gray a The Gang sa presadil ako jeden z najrespektovanejších gitaristov v regióne. Jeho víťazstvo na prestížnej pražskej gitarovej súťaži mu prinieslo uznanie aj za hranicami Slovenska. Vadim je známy svojím nekompromisným prístupom k tónu – ako skúsený tone-chaser testuje a vyberá aparáty s rovnakou precíznosťou, s akou pristupuje k hudbe.',
     'artist.vadim.quote': 'Hľadal som aparáť, ktorý znie tak, ako som ho vždy mal v hlave – živý, organický, s tým pravým „Plexi" charakterom. ALUPLEX mi dal presne to: pure tone bez kompromisov, ručná výroba, ktorú vidíte aj cítime. Keď naň zahrám, viem, že zvuk, ktorý počujem, je naozaj skutočný – nielen digitálna aproximácia.',
     'artist.vadim.band1': 'Dorian Gray',
@@ -262,8 +262,8 @@ export const translations: Record<Language, Record<string, string>> = {
     'soundlib.track3.insight': 'With the ALUPLEX you get high gain that doesn\'t sound like a digital pile. The power section still operates in its sweet spot – and you hear it in the sustain, which resonates with natural harmonic frequencies, not artificial artifacts. For me, that\'s the definition of "pure tone."',
 
     // Artist / Testimonial Section
-    'artist.title': 'Our Artists',
-    'artist.subtitle': 'Professionals who chose ALUPLEX – people who understand sound at the highest level.',
+    'artist.title': 'Who Plays ALUPLEX',
+    'artist.subtitle': 'Professional guitarists who trust ALUPLEX – people who recognize true tone when they hear it.',
     'artist.vadim.bio': 'Vadim Bušovský is a legend of the Slovak rock scene. After decades performing with bands Dorian Gray and The Gang, he has established himself as one of the most respected guitarists in the region. His victory at the prestigious Prague guitar competition brought him recognition beyond Slovakia\'s borders. Vadim is known for his uncompromising approach to tone – as an experienced tone-chaser, he tests and selects amplifiers with the same precision he brings to music.',
     'artist.vadim.quote': 'I was looking for an amp that sounds the way I always had in my head – alive, organic, with that true Plexi character. ALUPLEX gave me exactly that: pure tone, no compromises, handcrafted construction you can see and feel. When I play through it, I know the sound I\'m hearing is real – not just a digital approximation.',
     'artist.vadim.band1': 'Dorian Gray',
@@ -427,8 +427,8 @@ export const translations: Record<Language, Record<string, string>> = {
     'soundlib.track3.insight': 'Mit dem ALUPLEX bekommen Sie High Gain, der nicht wie ein digitaler Haufen klingt. Die Endstufe arbeitet immer noch im Sweet Spot – und das hören Sie im Sustain, der mit natürlichen harmonischen Frequenzen schwingt, nicht mit künstlichen Artefakten. Für mich ist das die Definition von „pure tone."',
 
     // Artist / Testimonial Section
-    'artist.title': 'Unsere Künstler',
-    'artist.subtitle': 'Professionals, die sich für ALUPLEX entschieden haben – Menschen, die den Ton auf höchstem Niveau verstehen.',
+    'artist.title': 'Wer auf ALUPLEX spielt',
+    'artist.subtitle': 'Professionelle Gitarristen, die ALUPLEX vertrauen – Menschen, die den echten Ton erkennen.',
     'artist.vadim.bio': 'Vadim Bušovský ist eine Legende der slowakischen Rock-Szene. Nach Jahrzehnten in den Bands Dorian Gray und The Gang hat er sich als einer der respektiertesten Gitarristen der Region etabliert. Sein Sieg beim prestigeträchtigen Prager Gitarrenwettbewerb brachte ihm Anerkennung auch über die Grenzen der Slowakei hinaus. Vadim ist bekannt für seinen kompromisslosen Ansatz beim Ton – als erfahrener Tone-Chaser testet und wählt er Verstärker mit der gleichen Präzision, die er in die Musik bringt.',
     'artist.vadim.quote': 'Ich suchte einen Amp, der so klingt, wie ich ihn immer im Kopf hatte – lebendig, organisch, mit dem echten Plexi-Charakter. ALUPLEX hat mir genau das gegeben: pure tone ohne Kompromisse, handgefertigte Konstruktion, die man sehen und fühlen kann. Wenn ich darüber spiele, weiß ich, dass der Ton, den ich höre, echt ist – nicht nur eine digitale Annäherung.',
     'artist.vadim.band1': 'Dorian Gray',
