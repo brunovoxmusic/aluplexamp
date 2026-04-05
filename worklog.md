@@ -66,3 +66,35 @@ Rewrite page.tsx completely to replace all AI-generated/placeholder images with 
 - Lint passes clean with zero errors
 - Dev server compiles successfully (200 responses on /)
 - Image assets verified present in `/public/aluplex/real/` (15 files)
+
+---
+## Task ID: 3 - Main Agent
+### Work Task
+Add Vadim Bušovský artist integration, Sound Library, and hero teaser to page.tsx
+
+### Work Log:
+- Fixed JSX comment syntax error: `{/* Vadim teaser */` → `{/* Vadim teaser */}`  (missing closing `}`)
+- Renamed `AudioPlayerSection` → `SoundLibrarySection` with updated translation keys (`soundlib.*` instead of `audio.*`)
+- Updated track colors: track1 = `#3a9a5c` (green/clean), track2 = `#d4922a` (amber/crunch), track3 = `#c62828` (red/lead)
+- Changed section ID from `demos` to `soundlib`
+- Updated title/subtitle keys to `soundlib.title` and `soundlib.subtitle`
+- Added "Recorded live by Vadim" badge (Disc3 icon + `soundlib.recorded` translation key) after subtitle
+- Replaced `Star` icon with `Award` icon in Vadim Insight area
+- Changed label from "Vadim Insight:" to "Vadim Bušovský:"
+- Updated decorative amp image: overlay opacity 60→70, added Vadim Bušovský attribution overlay with Award icon
+- Added `ArtistsSection` component with:
+  - Background image (dsc6790.jpg) with 92% dark overlay
+  - Profile visual with Trophy icon, Tone-Chaser badge, name/role
+  - Credits badges: band1, band2, award
+  - Bio text, Quote with Quote icon
+  - Social proof line ("Chosen by professionals") with Users icon
+- Updated main `Home` component section order:
+  Hero → ValueProp → Engineering → Sound → Expert → **Artists** → **SoundLibrary** → Configurator → Gallery → FAQ → CTA
+- Confirmed edits 1-3 (icons, nav items, Vadim teaser) were already applied by prior agent
+- Lint passes clean, dev server compiles successfully
+
+Stage Summary:
+- Sound Library: Clean/Crunch/Lead tracks with Expert Insights from Vadim Bušovský
+- Artist Section: Full testimonial block with bio, credits (Dorian Gray, The Gang), Prague competition award, and personal quote
+- Hero: Vadim teaser badge linking to Sound Library
+- All new content uses translation keys ready for SK/EN/DE localization

@@ -14,30 +14,35 @@ import {
   ChevronLeft,
   ChevronRight,
   Globe,
-  Menu,
-  Zap,
-  Shield,
+ Menu,
+ Zap,
+ Shield,
   Target,
-  Music,
-  Settings,
+ Music,
+ Settings,
   Cpu,
-  ThermometerSun,
+ ThermometerSun,
   Weight,
   Magnet,
   ShieldCheck,
-  Mic2,
+ Mic2,
   Headphones,
   MessageCircle,
-  Send,
+ Send,
   ChevronRight as ArrowRight,
   Star,
-  Heart,
-  Award,
-  Wrench,
-  Power,
-  Palette,
-  ToggleLeft,
-  ToggleRight,
+ Heart,
+ Award,
+ Wrench,
+ Power,
+ Palette,
+ ToggleLeft,
+ ToggleRight,
+ Quote,
+ Users,
+ Trophy,
+ Guitar,
+ Disc3,
 } from 'lucide-react';
 
 // ─── Language Context Hook ───────────────────────────
@@ -102,7 +107,8 @@ function Navigation({
   }, []);
 
   const navItems = [
-    { key: 'nav.demos', href: '#demos' },
+    { key: 'nav.soundlib', href: '#soundlib' },
+    { key: 'nav.artists', href: '#artists' },
     { key: 'nav.specs', href: '#specs' },
     { key: 'nav.config', href: '#config' },
     { key: 'nav.gallery', href: '#gallery' },
@@ -229,6 +235,18 @@ function HeroSection({ t }: { t: (k: string) => string }) {
             <p className="text-lg text-muted-foreground max-w-xl leading-relaxed">
               {t('hero.subheadline')}
             </p>
+
+            {/* Vadim teaser */}
+            <a
+              href="#soundlib"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#d4922a33] bg-[#d4922a0d] hover:bg-[#d4922a1a] transition-all duration-300 group w-fit"
+            >
+              <Guitar className="w-4 h-4 text-[#d4922a]" />
+              <span className="text-xs text-[#d4922a]/90 group-hover:text-[#d4922a] transition-colors">
+                {t('hero.vadim.teaser')}
+              </span>
+              <ArrowRight className="w-3 h-3 text-[#d4922a]/70 group-hover:text-[#d4922a] transition-transform group-hover:translate-x-0.5" />
+            </a>
 
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
               <a
@@ -523,8 +541,8 @@ function ExpertSection({ t }: { t: (k: string) => string }) {
   );
 }
 
-// ─── Audio Player Section ────────────────────────────
-function AudioPlayerSection({ t }: { t: (k: string) => string }) {
+// ─── Sound Library Section ───────────────────────────
+function SoundLibrarySection({ t }: { t: (k: string) => string }) {
   const [activeTrack, setActiveTrack] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -532,31 +550,31 @@ function AudioPlayerSection({ t }: { t: (k: string) => string }) {
 
   const tracks = [
     {
-      nameKey: 'audio.track1.name',
-      gearKey: 'audio.track1.gear',
-      descKey: 'audio.track1.desc',
-      settingsKey: 'audio.track1.settings',
-      insightKey: 'audio.track1.insight',
+      nameKey: 'soundlib.track1.name',
+      gearKey: 'soundlib.track1.gear',
+      descKey: 'soundlib.track1.desc',
+      settingsKey: 'soundlib.track1.settings',
+      insightKey: 'soundlib.track1.insight',
       duration: 45,
-      color: '#c62828',
+      color: '#3a9a5c',
     },
     {
-      nameKey: 'audio.track2.name',
-      gearKey: 'audio.track2.gear',
-      descKey: 'audio.track2.desc',
-      settingsKey: 'audio.track2.settings',
-      insightKey: 'audio.track2.insight',
+      nameKey: 'soundlib.track2.name',
+      gearKey: 'soundlib.track2.gear',
+      descKey: 'soundlib.track2.desc',
+      settingsKey: 'soundlib.track2.settings',
+      insightKey: 'soundlib.track2.insight',
       duration: 52,
       color: '#d4922a',
     },
     {
-      nameKey: 'audio.track3.name',
-      gearKey: 'audio.track3.gear',
-      descKey: 'audio.track3.desc',
-      settingsKey: 'audio.track3.settings',
-      insightKey: 'audio.track3.insight',
+      nameKey: 'soundlib.track3.name',
+      gearKey: 'soundlib.track3.gear',
+      descKey: 'soundlib.track3.desc',
+      settingsKey: 'soundlib.track3.settings',
+      insightKey: 'soundlib.track3.insight',
       duration: 38,
-      color: '#8b6914',
+      color: '#c62828',
     },
   ];
 
@@ -597,12 +615,20 @@ function AudioPlayerSection({ t }: { t: (k: string) => string }) {
   const track = tracks[activeTrack];
 
   return (
-    <section id="demos" className="relative py-20 lg:py-28">
+    <section id="soundlib" className="relative py-20 lg:py-28">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="section-divider mb-20" />
-        <div className="text-center mb-16">
-          <h2 className="text-3xl sm:text-4xl font-bold text-gradient-amber mb-4">{t('audio.title')}</h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">{t('audio.subtitle')}</p>
+        <div className="text-center mb-4">
+          <h2 className="text-3xl sm:text-4xl font-bold text-gradient-amber mb-4">{t('soundlib.title')}</h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto">{t('soundlib.subtitle')}</p>
+        </div>
+
+        {/* Recorded live by Vadim badge */}
+        <div className="flex justify-center mb-16">
+          <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-[#d4922a0d] border border-[#d4922a33]">
+            <Disc3 className="w-4 h-4 text-[#d4922a]" />
+            <span className="text-sm text-[#d4922a] font-medium">{t('soundlib.recorded')}</span>
+          </div>
         </div>
 
         <div className="max-w-4xl mx-auto">
@@ -676,9 +702,9 @@ function AudioPlayerSection({ t }: { t: (k: string) => string }) {
                   <p className="text-sm text-muted-foreground mb-2">{t(track.descKey)}</p>
                   <p className="text-xs font-mono text-[#d4922a] mb-3">{t(track.settingsKey)}</p>
                   <div className="flex items-start gap-2 p-3 rounded-lg bg-[#d4922a0d] border border-[#d4922a22]">
-                    <Star className="w-4 h-4 text-[#d4922a] shrink-0 mt-0.5" />
+                    <Award className="w-4 h-4 text-[#d4922a] shrink-0 mt-0.5" />
                     <p className="text-xs text-[#d4922a] leading-relaxed italic">
-                      <span className="font-semibold not-italic">Vadim Insight: </span>
+                      <span className="font-semibold not-italic">Vadim Bušovský: </span>
                       {t(track.insightKey)}
                     </p>
                   </div>
@@ -714,14 +740,112 @@ function AudioPlayerSection({ t }: { t: (k: string) => string }) {
             </div>
 
             {/* Decorative amp image */}
-            <div className="hidden lg:block rounded-2xl overflow-hidden border border-[#2a2a2a] sticky top-24">
+            <div className="hidden lg:block rounded-2xl overflow-hidden border border-[#2a2a2a] sticky top-24 relative">
               <img
                 src="/aluplex/real/dsc6793.jpg"
                 alt="ALUPLEXamp input jacks and controls"
                 className="w-full aspect-[3/4] object-cover"
                 loading="lazy"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a]/60 via-transparent to-transparent pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a]/70 via-transparent to-transparent pointer-events-none" />
+              <div className="absolute bottom-0 left-0 right-0 p-4">
+                <div className="flex items-center gap-2">
+                  <Award className="w-4 h-4 text-[#d4922a]" />
+                  <span className="text-xs font-medium text-white/90">Vadim Bušovský</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── Artists / Testimonial Section ─────────────────
+function ArtistsSection({ t }: { t: (k: string) => string }) {
+  return (
+    <section id="artists" className="relative py-20 lg:py-28 bg-[#0d0d0d0d] overflow-hidden">
+      {/* Background image with heavy overlay */}
+      <div className="absolute inset-0">
+        <img
+          src="/aluplex/real/dsc6790.jpg"
+          alt=""
+          className="w-full h-full object-cover"
+          loading="lazy"
+        />
+        <div className="absolute inset-0 bg-[#0a0a0a]/92" />
+      </div>
+
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="section-divider mb-20" />
+        <div className="text-center mb-16">
+          <h2 className="text-3xl sm:text-4xl font-bold text-gradient-amber mb-4">{t('artist.title')}</h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto">{t('artist.subtitle')}</p>
+        </div>
+
+        <div className="max-w-4xl mx-auto">
+          <div className="rounded-2xl bg-[#141414]/90 backdrop-blur-sm border border-[#2a2a2a] overflow-hidden relative">
+            {/* Top accent bar */}
+            <div className="h-1 bg-gradient-to-r from-transparent via-[#d4922a] to-transparent" />
+            <div className="p-8 sm:p-10">
+              <div className="grid sm:grid-cols-[auto_1fr] gap-8 items-start">
+                {/* Left: Profile visual */}
+                <div className="flex flex-col items-center sm:items-start gap-4">
+                  <div className="w-32 h-32 sm:w-36 sm:h-36 rounded-full bg-[#1a1a1a] border-2 border-[#d4922a44] flex items-center justify-center relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#d4922a11] to-transparent" />
+                    <Trophy className="w-12 h-12 text-[#d4922a]" />
+                  </div>
+                  <div className="text-center sm:text-left">
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#d4922a11] border border-[#d4922a33] mb-2">
+                      <Star className="w-3 h-3 text-[#d4922a]" />
+                      <span className="text-xs text-[#d4922a] font-medium">Tone-Chaser</span>
+                    </div>
+                    <h3 className="text-2xl font-bold text-white mb-1">{t('expert.name')}</h3>
+                    <p className="text-sm text-[#d4922a] font-medium">{t('expert.role')}</p>
+                  </div>
+                </div>
+
+                {/* Right: Bio + Credits + Quote */}
+                <div className="space-y-5">
+                  {/* Credits badges */}
+                  <div className="flex flex-wrap gap-2">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#141414] border border-[#2a2a2a] text-xs text-muted-foreground">
+                      <Music className="w-3 h-3 text-[#d4922a]" />
+                      {t('artist.vadim.band1')}
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#141414] border border-[#2a2a2a] text-xs text-muted-foreground">
+                      <Music className="w-3 h-3 text-[#d4922a]" />
+                      {t('artist.vadim.band2')}
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#d4922a11] border border-[#d4922a33] text-xs text-[#d4922a] font-medium">
+                      <Trophy className="w-3 h-3" />
+                      {t('artist.vadim.award')}
+                    </span>
+                  </div>
+
+                  {/* Bio */}
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {t('artist.vadim.bio')}
+                  </p>
+
+                  {/* Quote */}
+                  <div className="relative p-5 rounded-xl bg-[#d4922a0a] border border-[#d4922a22]">
+                    <Quote className="absolute -top-3 -left-1.5 w-7 h-7 text-[#d4922a] opacity-60" />
+                    <p className="text-sm text-[#d4922a]/90 leading-relaxed italic pl-4">
+                      „{t('artist.vadim.quote')}"
+                    </p>
+                  </div>
+
+                  {/* Social proof line */}
+                  <div className="flex items-center gap-3 pt-2">
+                    <div className="h-px flex-1 bg-gradient-to-r from-transparent to-[#d4922a33]" />
+                    <Users className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-xs text-muted-foreground uppercase tracking-wider">Chosen by professionals</span>
+                    <div className="h-px flex-1 bg-gradient-to-l from-transparent to-[#d4922a33]" />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -1245,7 +1369,8 @@ export default function Home() {
         <EngineeringSection t={t} />
         <SoundSection t={t} />
         <ExpertSection t={t} />
-        <AudioPlayerSection t={t} />
+        <ArtistsSection t={t} />
+        <SoundLibrarySection t={t} />
         <ConfiguratorSection t={t} />
         <GallerySection t={t} />
         <FAQSection t={t} />
