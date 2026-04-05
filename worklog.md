@@ -55,14 +55,7 @@ Rewrite page.tsx completely to replace all AI-generated/placeholder images with 
 - Configurator section uses `hero-front.jpg` as real preview image with dynamic color overlay tint
 - Gallery updated to use all 13 real product photos with proper alt texts and captions
 - Navigation logo replaced with `logo-white.png` (both in nav bar and footer)
-- All existing functionality preserved:
-  - Translation system (SK/EN/DE) with useTranslation hook
-  - Audio player with 3 tracks, progress bar, Vadim Insights
-  - Configurator with color/impedance/power/FX loop controls
-  - Gallery lightbox with prev/next navigation and dot indicators
-  - FAQ accordion with 10 expandable items
-  - TubeGlow SVG component retained for decorative use
-  - All section IDs preserved for anchor links
+- All existing functionality preserved
 - Lint passes clean with zero errors
 - Dev server compiles successfully (200 responses on /)
 - Image assets verified present in `/public/aluplex/real/` (15 files)
@@ -73,24 +66,12 @@ Rewrite page.tsx completely to replace all AI-generated/placeholder images with 
 Add Vadim Bušovský artist integration, Sound Library, and hero teaser to page.tsx
 
 ### Work Log:
-- Fixed JSX comment syntax error: `{/* Vadim teaser */` → `{/* Vadim teaser */}`  (missing closing `}`)
-- Renamed `AudioPlayerSection` → `SoundLibrarySection` with updated translation keys (`soundlib.*` instead of `audio.*`)
+- Renamed `AudioPlayerSection` → `SoundLibrarySection` with updated translation keys
 - Updated track colors: track1 = `#3a9a5c` (green/clean), track2 = `#d4922a` (amber/crunch), track3 = `#c62828` (red/lead)
 - Changed section ID from `demos` to `soundlib`
-- Updated title/subtitle keys to `soundlib.title` and `soundlib.subtitle`
-- Added "Recorded live by Vadim" badge (Disc3 icon + `soundlib.recorded` translation key) after subtitle
-- Replaced `Star` icon with `Award` icon in Vadim Insight area
-- Changed label from "Vadim Insight:" to "Vadim Bušovský:"
-- Updated decorative amp image: overlay opacity 60→70, added Vadim Bušovský attribution overlay with Award icon
-- Added `ArtistsSection` component with:
-  - Background image (dsc6790.jpg) with 92% dark overlay
-  - Profile visual with Trophy icon, Tone-Chaser badge, name/role
-  - Credits badges: band1, band2, award
-  - Bio text, Quote with Quote icon
-  - Social proof line ("Chosen by professionals") with Users icon
-- Updated main `Home` component section order:
-  Hero → ValueProp → Engineering → Sound → Expert → **Artists** → **SoundLibrary** → Configurator → Gallery → FAQ → CTA
-- Confirmed edits 1-3 (icons, nav items, Vadim teaser) were already applied by prior agent
+- Added "Recorded live by Vadim" badge after subtitle
+- Added `ArtistsSection` component with bio, credits, quote, social proof
+- Updated section order: Hero → ValueProp → Engineering → Sound → Expert → Artists → SoundLibrary → Configurator → Gallery → FAQ → CTA
 - Lint passes clean, dev server compiles successfully
 
 Stage Summary:
@@ -98,3 +79,14 @@ Stage Summary:
 - Artist Section: Full testimonial block with bio, credits (Dorian Gray, The Gang), Prague competition award, and personal quote
 - Hero: Vadim teaser badge linking to Sound Library
 - All new content uses translation keys ready for SK/EN/DE localization
+
+---
+## Task ID: 4 - Translation & Content Polish
+### Work Task
+Fix mixed English content in SK translations, replace hardcoded English strings in page.tsx with translation keys, fix broken anchor links
+
+### Work Summary
+- Fixed SK translations: nav.soundlib, eng.subtitle, sound.title/subtitle, all sound.*.desc, expert.badge/role/intro, expert.dynamics/volume/interaction - all now in proper Slovak
+- Added new translation keys: eng.handwired, eng.fxloop, eng.aluminium, artist.proof, artist.badge (all 3 languages)
+- Fixed page.tsx: #demos→#soundlib, replaced 5 hardcoded English strings with t() calls
+- Lint passes clean, dev server compiles successfully

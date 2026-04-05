@@ -250,7 +250,7 @@ function HeroSection({ t }: { t: (k: string) => string }) {
 
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
               <a
-                href="#demos"
+                href="#soundlib"
                 className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-[#d4922a] text-[#0a0a0a] font-semibold rounded-lg hover:bg-[#e8a840] transition-all duration-200 shadow-lg shadow-[#d4922a]/20 pulse-warm"
               >
                 <Headphones className="w-5 h-5" />
@@ -362,7 +362,7 @@ function EngineeringSection({ t }: { t: (k: string) => string }) {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
               <div className="absolute bottom-4 left-4">
-                <span className="text-xs font-medium text-[#d4922a] bg-[#0a0a0a]/80 px-3 py-1 rounded-full backdrop-blur-sm">Hand Wired</span>
+                <span className="text-xs font-medium text-[#d4922a] bg-[#0a0a0a]/80 px-3 py-1 rounded-full backdrop-blur-sm">{t('eng.handwired')}</span>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-6">
@@ -375,14 +375,14 @@ function EngineeringSection({ t }: { t: (k: string) => string }) {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
                 <div className="absolute bottom-3 left-3">
-                  <span className="text-xs font-medium text-[#d4922a] bg-[#0a0a0a]/80 px-2.5 py-1 rounded-full backdrop-blur-sm">FX Loop</span>
+                  <span className="text-xs font-medium text-[#d4922a] bg-[#0a0a0a]/80 px-2.5 py-1 rounded-full backdrop-blur-sm">{t('eng.fxloop')}</span>
                 </div>
               </div>
               <div className="rounded-xl overflow-hidden flex items-center justify-center bg-[#141414] border border-[#2a2a2a]">
                 <div className="text-center p-4">
                   <div className="text-4xl font-bold text-gradient-amber mb-1">12.5</div>
                   <div className="text-sm text-muted-foreground">kg</div>
-                  <div className="text-xs text-muted-foreground mt-2 tracking-wider uppercase">Aluminium</div>
+                  <div className="text-xs text-muted-foreground mt-2 tracking-wider uppercase">{t('eng.aluminium')}</div>
                 </div>
               </div>
             </div>
@@ -799,7 +799,7 @@ function ArtistsSection({ t }: { t: (k: string) => string }) {
                   <div className="text-center sm:text-left">
                     <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#d4922a11] border border-[#d4922a33] mb-2">
                       <Star className="w-3 h-3 text-[#d4922a]" />
-                      <span className="text-xs text-[#d4922a] font-medium">Tone-Chaser</span>
+                      <span className="text-xs text-[#d4922a] font-medium">{t('artist.badge')}</span>
                     </div>
                     <h3 className="text-2xl font-bold text-white mb-1">{t('expert.name')}</h3>
                     <p className="text-sm text-[#d4922a] font-medium">{t('expert.role')}</p>
@@ -841,7 +841,7 @@ function ArtistsSection({ t }: { t: (k: string) => string }) {
                   <div className="flex items-center gap-3 pt-2">
                     <div className="h-px flex-1 bg-gradient-to-r from-transparent to-[#d4922a33]" />
                     <Users className="w-4 h-4 text-muted-foreground" />
-                    <span className="text-xs text-muted-foreground uppercase tracking-wider">Chosen by professionals</span>
+                    <span className="text-xs text-muted-foreground uppercase tracking-wider">{t('artist.proof')}</span>
                     <div className="h-px flex-1 bg-gradient-to-l from-transparent to-[#d4922a33]" />
                   </div>
                 </div>
