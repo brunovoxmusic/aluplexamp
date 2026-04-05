@@ -90,3 +90,27 @@ Fix mixed English content in SK translations, replace hardcoded English strings 
 - Added new translation keys: eng.handwired, eng.fxloop, eng.aluminium, artist.proof, artist.badge (all 3 languages)
 - Fixed page.tsx: #demos→#soundlib, replaced 5 hardcoded English strings with t() calls
 - Lint passes clean, dev server compiles successfully
+
+---
+## Task ID: 5 - Video Section & SEO Update
+### Work Task
+Add YouTube video section (VideoSection) to the ALUPLEXamp landing page and update SEO metadata with Vadim Bušovský references.
+
+### Work Summary
+- Added `VideoSection` component to `page.tsx` (line 942-1016) before `ArtistsSection`:
+  - YouTube thumbnail with play button overlay and hover animations
+  - Opens `https://www.youtube.com/watch?v=zp_MugLZ8X4` in new tab
+  - Vadim Bušovský info card with photo, name, band credits, and CTA button
+  - Responsive layout: stacked on mobile, side-by-side grid on desktop
+  - Uses `Reveal` animations, section-divider, dark bg (#0d0d0d), amber accents
+  - All text uses `t()` translation keys
+- Registered `<VideoSection t={t} />` in Home component before `<ArtistsSection>`
+- Added `'video'` to `sectionIds` array in Navigation IntersectionObserver for active nav tracking
+- Added video translation keys to all 3 languages (SK/EN/DE):
+  - `video.title`, `video.subtitle`, `video.btn`, `video.duration`
+- Updated SEO metadata in `layout.tsx`:
+  - `description`: Added Vadim Bušovský, Dorian Gray, The Gang references
+  - `keywords`: Expanded from 10 to 19 keywords (added boutique zosilňovače, lampový aparát, ALUPLEX, Vadim Bušovský, gitarový zvuk, custom tube amp, Dorian Gray, hand-wired amplifier)
+  - `openGraph.description`: Updated with Vadim reference
+  - `twitter.description`: Updated with Vadim reference
+- Lint passes clean, dev server compiles successfully (200 on /)

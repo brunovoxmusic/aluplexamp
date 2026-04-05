@@ -16,18 +16,26 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "ALUPLEXamp – Modern Plexi Tone Machine | Handcrafted Guitar Amplifier",
   description:
-    "Discover the ALUPLEXamp – a handcrafted boutique guitar amplifier with turret board construction, aluminium chassis, premium components (Xicon, SoZo, JJ Electronic). 30W Class AB, ECC83/EL34 tubes, tube FX loop. Built in Slovakia.",
+    "ALUPLEXamp – boutique handcrafted tube guitar amplifier built in Slovakia. 30W Class AB, turret board, aluminium chassis, ECC83/EL34. Sound tested by Vadim Bušovský (Dorian Gray, The Gang). Pure tone, no compromises.",
   keywords: [
     "tube amp",
     "plexi amp",
     "boutique guitar amplifier",
+    "boutique zosilňovače",
+    "lampový aparát",
     "handmade amplifier",
     "turret board amp",
     "ALUPLEXamp",
+    "ALUPLEX",
     "EL34 amplifier",
     "ECC83 preamp",
     "aluminium chassis amp",
     "handcrafted guitar amp Slovakia",
+    "Vadim Bušovský",
+    "gitarový zvuk",
+    "custom tube amp",
+    "Dorian Gray",
+    "hand-wired amplifier",
   ],
   authors: [{ name: "ALUPLEXamp" }],
   icons: {
@@ -36,7 +44,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "ALUPLEXamp – Modern Plexi Tone Machine",
     description:
-      "Handcrafted boutique guitar amplifier. 30W Class AB, turret board, aluminium chassis, premium components. Built in Slovakia.",
+      "Handcrafted boutique tube guitar amplifier. 30W Class AB, turret board, aluminium chassis. Sound tested by Vadim Bušovský – legend of Slovak rock (Dorian Gray, The Gang).",
     url: "https://aluplexamp.com",
     siteName: "ALUPLEXamp",
     type: "website",
@@ -55,7 +63,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "ALUPLEXamp – Modern Plexi Tone Machine",
     description:
-      "Handcrafted boutique guitar amplifier with premium components and aluminium chassis.",
+      "Boutique handcrafted tube guitar amp with premium components. Sound tested by Vadim Bušovský (Dorian Gray, The Gang). Pure tone from Slovakia.",
   },
   robots: {
     index: true,

@@ -155,7 +155,7 @@ function Navigation({
 
   // Active section tracking with IntersectionObserver
   useEffect(() => {
-    const sectionIds = ['soundlib', 'artists', 'specs', 'config', 'gallery', 'faq', 'contact'];
+    const sectionIds = ['soundlib', 'artists', 'video', 'specs', 'config', 'gallery', 'faq', 'contact'];
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -939,6 +939,82 @@ function SoundLibrarySection({ t }: { t: (k: string) => string }) {
   );
 }
 
+// ─── Video Section ──────────────────────────────────
+function VideoSection({ t }: { t: (k: string) => string }) {
+  return (
+    <section id="video" className="relative py-12 sm:py-20 lg:py-28 bg-[#0d0d0d] overflow-hidden">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="section-divider mb-10 sm:mb-20" />
+        <Reveal>
+          <div className="text-center mb-10 sm:mb-16">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gradient-amber mb-4">{t('video.title')}</h2>
+            <p className="text-muted-foreground max-w-3xl mx-auto">{t('video.subtitle')}</p>
+          </div>
+        </Reveal>
+
+        <Reveal delay={100}>
+          <div className="grid md:grid-cols-[1fr_auto] gap-8 lg:gap-12 items-center max-w-5xl mx-auto">
+            {/* Video Thumbnail with Play Button */}
+            <a
+              href="https://www.youtube.com/watch?v=zp_MugLZ8X4"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group relative rounded-2xl overflow-hidden border border-[#2a2a2a] hover:border-[#d4922a44] transition-all duration-300 block"
+            >
+              <img
+                src="/aluplex/real/youtube-thumb-hd.jpg"
+                alt="ALUPLEXamp Sound Test with Vadim Bušovský"
+                className="w-full aspect-video object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                loading="lazy"
+              />
+              <div className="absolute inset-0 bg-black/30 group-hover:bg-black/20 transition-colors duration-300" />
+              {/* Play Button */}
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-[#d4922a]/90 group-hover:bg-[#d4922a] text-[#0a0a0a] flex items-center justify-center transition-all duration-300 shadow-2xl shadow-[#d4922a]/30 group-hover:scale-110">
+                  <svg className="w-7 h-7 sm:w-8 sm:h-8 ml-1" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                </div>
+              </div>
+              {/* Duration badge */}
+              <div className="absolute bottom-3 right-3 px-2.5 py-1 rounded-md bg-black/80 text-white text-xs font-medium backdrop-blur-sm">
+                {t('video.duration')}
+              </div>
+            </a>
+
+            {/* Vadim Info Card */}
+            <div className="md:w-64 lg:w-72">
+              <div className="p-6 rounded-2xl bg-[#141414] border border-[#2a2a2a] relative overflow-hidden">
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#d4922a] to-transparent" />
+                <div className="w-20 h-20 mx-auto rounded-full border-2 border-[#d4922a44] overflow-hidden mb-4">
+                  <img
+                    src="/aluplex/real/vadim.jpg"
+                    alt="Vadim Bušovský"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="text-center mb-4">
+                  <h3 className="text-lg font-bold">Vadim Bušovský</h3>
+                  <p className="text-xs text-[#d4922a] font-medium">Dorian Gray · The Gang</p>
+                </div>
+                <a
+                  href="https://www.youtube.com/watch?v=zp_MugLZ8X4"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#d4922a] text-[#0a0a0a] font-semibold rounded-lg hover:bg-[#e8a840] transition-all duration-200 text-sm active:scale-[0.98]"
+                >
+                  <Play className="w-4 h-4" />
+                  {t('video.btn')}
+                </a>
+              </div>
+            </div>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
 // ─── Artists / Testimonial Section ─────────────────
 function ArtistsSection({ t }: { t: (k: string) => string }) {
   return (
@@ -1604,6 +1680,7 @@ export default function Home() {
         <EngineeringSection t={t} />
         <SoundSection t={t} />
         <ExpertSection t={t} />
+        <VideoSection t={t} />
         <ArtistsSection t={t} />
         <SoundLibrarySection t={t} />
         <ConfiguratorSection t={t} />
