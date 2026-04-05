@@ -1,0 +1,1203 @@
+'use client';
+
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { translations, type Language } from '@/lib/translations';
+import {
+  ChevronDown,
+  ChevronUp,
+  Play,
+  Pause,
+  SkipForward,
+  SkipBack,
+  Volume2,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  Globe,
+  Menu,
+  Zap,
+  Shield,
+  Target,
+  Music,
+  Settings,
+  Cpu,
+  ThermometerSun,
+  Weight,
+  Magnet,
+  ShieldCheck,
+  VolumeX,
+  Mic2,
+  Headphones,
+  MessageCircle,
+  Send,
+  ChevronRight as ArrowRight,
+  Star,
+  Heart,
+  Award,
+  Wrench,
+  Info,
+  Package,
+  Power,
+  Palette,
+  ToggleLeft,
+  ToggleRight,
+} from 'lucide-react';
+
+// ─── Language Context Hook ───────────────────────────
+function useTranslation(lang: Language) {
+  const t = useCallback(
+    (key: string) => translations[lang]?.[key] || translations.en[key] || key,
+    [lang]
+  );
+  return { t, lang };
+}
+
+// ─── Tube Glow SVG Component ─────────────────────────
+function TubeGlow({ className = '' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 100 140" className={className} aria-hidden="true">
+      <defs>
+        <radialGradient id="tubeGlow1" cx="50%" cy="40%" r="50%">
+          <stop offset="0%" stopColor="#d4922a" stopOpacity="0.8" />
+          <stop offset="40%" stopColor="#d4922a" stopOpacity="0.3" />
+          <stop offset="100%" stopColor="#d4922a" stopOpacity="0" />
+        </radialGradient>
+        <radialGradient id="tubeGlow2" cx="50%" cy="60%" r="30%">
+          <stop offset="0%" stopColor="#e8c080" stopOpacity="0.6" />
+          <stop offset="100%" stopColor="#e8c080" stopOpacity="0" />
+        </radialGradient>
+      </defs>
+      {/* Tube glass envelope */}
+      <ellipse cx="50" cy="90" rx="22" ry="35" fill="none" stroke="#555" strokeWidth="1.5" opacity="0.6" />
+      {/* Filament glow */}
+      <ellipse cx="50" cy="85" rx="14" ry="22" fill="url(#tubeGlow1)" className="tube-glow-slow" />
+      <ellipse cx="50" cy="80" rx="8" ry="12" fill="url(#tubeGlow2)" className="tube-glow" />
+      {/* Plate structure */}
+      <rect x="42" y="65" width="16" height="30" rx="2" fill="none" stroke="#444" strokeWidth="1" opacity="0.4" />
+      {/* Getter flash */}
+      <ellipse cx="50" cy="110" rx="10" ry="6" fill="#333" opacity="0.5" />
+      {/* Base pins */}
+      <rect x="44" y="122" width="12" height="14" rx="2" fill="#555" />
+      <line x1="44" y1="136" x2="44" y2="140" stroke="#666" strokeWidth="1.5" />
+      <line x1="50" y1="136" x2="50" y2="140" stroke="#666" strokeWidth="1.5" />
+      <line x1="56" y1="136" x2="56" y2="140" stroke="#666" strokeWidth="1.5" />
+    </svg>
+  );
+}
+
+// ─── Amplifier SVG Illustration ──────────────────────
+function AmplifierIllustration() {
+  return (
+    <div className="relative w-full max-w-lg mx-auto float-animation">
+      <div className="chassis-visual rounded-xl p-6 relative">
+        {/* Brand plate */}
+        <div className="text-center mb-4">
+          <div className="text-gradient-amber font-bold text-2xl tracking-widest">ALUPLEX</div>
+          <div className="text-muted-foreground text-xs tracking-[0.3em] mt-1">AMPLIFICATION</div>
+        </div>
+
+        {/* Input jacks row */}
+        <div className="flex justify-center gap-4 mb-5">
+          {[1, 2].map((i) => (
+            <div key={i} className="flex flex-col items-center gap-1">
+              <div className="w-6 h-8 rounded-full border-2 border-[#d4922a33] bg-[#0a0a0a] flex items-center justify-center">
+                <div className="w-2 h-2 rounded-full bg-[#333]" />
+              </div>
+              <span className="text-[10px] text-muted-foreground uppercase">{i === 1 ? 'Low' : 'High'}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Knobs row */}
+        <div className="flex justify-center gap-6 mb-5">
+          {['PRESENCE', 'BASS', 'MIDDLE', 'TREBLE', 'GAIN'].map((label) => (
+            <div key={label} className="flex flex-col items-center gap-1.5">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#c8c4bc] to-[#8a8580] shadow-lg relative cursor-pointer group transition-transform hover:scale-110">
+                <div className="absolute top-1 left-1/2 -translate-x-1/2 w-0.5 h-3 bg-[#333] rounded-full" />
+              </div>
+              <span className="text-[9px] text-muted-foreground tracking-wider">{label}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Second row of knobs */}
+        <div className="flex justify-center gap-8 mb-5">
+          {['MASTER', 'FX MIX'].map((label) => (
+            <div key={label} className="flex flex-col items-center gap-1.5">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#c8c4bc] to-[#8a8580] shadow-lg relative cursor-pointer group transition-transform hover:scale-110">
+                <div className="absolute top-1 left-1/2 -translate-x-1/2 w-0.5 h-3 bg-[#333] rounded-full" />
+              </div>
+              <span className="text-[9px] text-muted-foreground tracking-wider">{label}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Tubes visible through top */}
+        <div className="flex justify-center gap-4">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <TubeGlow key={i} className={`w-8 h-11 ${i < 3 ? '' : 'scale-110'}`} />
+          ))}
+        </div>
+
+        {/* Ventilation holes */}
+        <div className="absolute inset-0 rounded-xl pointer-events-none opacity-20">
+          <div className="absolute top-3 right-3 grid grid-cols-4 gap-1">
+            {Array.from({ length: 12 }).map((_, i) => (
+              <div key={i} className="w-1 h-1 rounded-full bg-[#444]" />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Ambient glow beneath amp */}
+      <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 w-3/4 h-16 bg-[#d4922a] blur-[40px] opacity-20" />
+    </div>
+  );
+}
+
+// ─── Navigation Component ────────────────────────────
+function Navigation({
+  lang,
+  setLang,
+  t,
+}: {
+  lang: Language;
+  setLang: (l: Language) => void;
+  t: (k: string) => string;
+}) {
+  const [scrolled, setScrolled] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 50);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const navItems = [
+    { key: 'nav.demos', href: '#demos' },
+    { key: 'nav.specs', href: '#specs' },
+    { key: 'nav.config', href: '#config' },
+    { key: 'nav.gallery', href: '#gallery' },
+    { key: 'nav.faq', href: '#faq' },
+    { key: 'nav.contact', href: '#contact' },
+  ];
+
+  return (
+    <nav
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        scrolled
+          ? 'bg-[#0a0a0a]/95 backdrop-blur-md border-b border-[#2a2a2a] shadow-lg'
+          : 'bg-transparent'
+      }`}
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          {/* Brand */}
+          <a href="#" className="text-gradient-amber font-bold text-xl tracking-wider">
+            ALUPLEX<span className="text-foreground">amp</span>
+          </a>
+
+          {/* Desktop Nav */}
+          <div className="hidden md:flex items-center gap-6">
+            {navItems.map((item) => (
+              <a
+                key={item.key}
+                href={item.href}
+                className="text-sm text-muted-foreground hover:text-[#d4922a] transition-colors duration-200"
+              >
+                {t(item.key)}
+              </a>
+            ))}
+          </div>
+
+          {/* Language + Mobile Toggle */}
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1">
+              <Globe className="w-4 h-4 text-muted-foreground" />
+              {(['sk', 'en', 'de'] as Language[]).map((l) => (
+                <button
+                  key={l}
+                  onClick={() => setLang(l)}
+                  className={`px-2 py-1 text-xs font-medium rounded transition-all duration-200 ${
+                    lang === l
+                      ? 'bg-[#d4922a] text-[#0a0a0a]'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  {l.toUpperCase()}
+                </button>
+              ))}
+            </div>
+            <button
+              className="md:hidden text-muted-foreground"
+              onClick={() => setMobileOpen(!mobileOpen)}
+              aria-label="Toggle menu"
+            >
+              {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Menu */}
+      {mobileOpen && (
+        <div className="md:hidden bg-[#0a0a0a]/98 backdrop-blur-md border-b border-[#2a2a2a]">
+          <div className="px-4 py-4 space-y-3">
+            {navItems.map((item) => (
+              <a
+                key={item.key}
+                href={item.href}
+                onClick={() => setMobileOpen(false)}
+                className="block text-sm text-muted-foreground hover:text-[#d4922a] transition-colors py-2"
+              >
+                {t(item.key)}
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+    </nav>
+  );
+}
+
+// ─── Hero Section ────────────────────────────────────
+function HeroSection({ t }: { t: (k: string) => string }) {
+  return (
+    <section className="relative min-h-screen flex items-center pt-16 overflow-hidden noise-overlay">
+      {/* Background gradient */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0a] via-[#0f0d0a] to-[#0a0a0a]" />
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-[#d4922a] opacity-[0.04] rounded-full blur-[120px]" />
+
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          {/* Text Content */}
+          <div className="text-center lg:text-left space-y-6 fade-in-up">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#d4922a33] bg-[#d4922a0d]">
+              <Zap className="w-3.5 h-3.5 text-[#d4922a]" />
+              <span className="text-xs font-medium text-[#d4922a] tracking-wider uppercase">
+                {t('hero.badge')}
+              </span>
+            </div>
+
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight">
+              <span className="text-gradient-amber">{t('hero.headline')}</span>
+            </h1>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-light text-foreground/90">
+              {t('hero.headlineAccent')}
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-xl mx-auto lg:mx-0 leading-relaxed">
+              {t('hero.subheadline')}
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
+              <a
+                href="#demos"
+                className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-[#d4922a] text-[#0a0a0a] font-semibold rounded-lg hover:bg-[#e8a840] transition-all duration-200 shadow-lg shadow-[#d4922a]/20 pulse-warm"
+              >
+                <Headphones className="w-5 h-5" />
+                {t('hero.cta.demos')}
+              </a>
+              <a
+                href="#config"
+                className="inline-flex items-center justify-center gap-2 px-8 py-3.5 border border-[#d4922a44] text-[#d4922a] font-semibold rounded-lg hover:bg-[#d4922a11] transition-all duration-200"
+              >
+                <Settings className="w-5 h-5" />
+                {t('hero.cta.config')}
+              </a>
+            </div>
+          </div>
+
+          {/* Amplifier Visual */}
+          <div className="relative fade-in-up" style={{ animationDelay: '0.3s' }}>
+            <AmplifierIllustration />
+          </div>
+        </div>
+      </div>
+
+      {/* Scroll indicator */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-50 animate-bounce">
+        <span className="text-xs text-muted-foreground tracking-widest">SCROLL</span>
+        <ChevronDown className="w-4 h-4 text-muted-foreground" />
+      </div>
+    </section>
+  );
+}
+
+// ─── Value Proposition Section ───────────────────────
+function ValuePropSection({ t }: { t: (k: string) => string }) {
+  const items = [
+    { icon: Heart, titleKey: 'vp.handmade.title', descKey: 'vp.handmade.desc' },
+    { icon: Target, titleKey: 'vp.turret.title', descKey: 'vp.turret.desc' },
+    { icon: Shield, titleKey: 'vp.components.title', descKey: 'vp.components.desc' },
+    { icon: Music, titleKey: 'vp.tone.title', descKey: 'vp.tone.desc' },
+  ];
+
+  return (
+    <section className="relative py-20 lg:py-28">
+      <div className="section-divider mb-20" />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl sm:text-4xl font-bold text-gradient-amber mb-4">{t('vp.title')}</h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto">{t('vp.subtitle')}</p>
+        </div>
+
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {items.map((item, i) => (
+            <div
+              key={item.titleKey}
+              className="group p-6 rounded-xl bg-[#141414] border border-[#2a2a2a] hover:border-[#d4922a33] transition-all duration-300 hover:shadow-lg hover:shadow-[#d4922a]/5"
+              style={{ animationDelay: `${i * 0.1}s` }}
+            >
+              <div className="w-12 h-12 rounded-lg bg-[#d4922a11] flex items-center justify-center mb-4 group-hover:bg-[#d4922a22] transition-colors">
+                <item.icon className="w-6 h-6 text-[#d4922a]" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">{t(item.titleKey)}</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">{t(item.descKey)}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── Engineering Section ─────────────────────────────
+function EngineeringSection({ t }: { t: (k: string) => string }) {
+  const features = [
+    { icon: ThermometerSun, titleKey: 'eng.heat.title', descKey: 'eng.heat.desc' },
+    { icon: Weight, titleKey: 'eng.weight.title', descKey: 'eng.weight.desc' },
+    { icon: Magnet, titleKey: 'eng.magnetic.title', descKey: 'eng.magnetic.desc' },
+    { icon: ShieldCheck, titleKey: 'eng.corrosion.title', descKey: 'eng.corrosion.desc' },
+  ];
+
+  return (
+    <section id="specs" className="relative py-20 lg:py-28 bg-[#0d0d0d]">
+      <div className="section-divider mb-20" />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          {/* Chassis Visual */}
+          <div className="relative">
+            <div className="rounded-2xl overflow-hidden aspect-[4/3] relative">
+              <div className="metal-bg absolute inset-0" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="text-center space-y-4">
+                  <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-[#d4922a11] border border-[#d4922a33]">
+                    <Cpu className="w-12 h-12 text-[#d4922a]" />
+                  </div>
+                  <div>
+                    <div className="text-3xl font-bold text-gradient-amber">ALU</div>
+                    <div className="text-sm text-muted-foreground tracking-widest">CHASSIS</div>
+                  </div>
+                  <div className="text-5xl font-bold text-gradient-amber">12.5<span className="text-lg text-muted-foreground"> kg</span></div>
+                </div>
+              </div>
+            </div>
+            <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-3/4 h-8 bg-[#d4922a] blur-[30px] opacity-15" />
+          </div>
+
+          {/* Text Content */}
+          <div className="space-y-8">
+            <div>
+              <h2 className="text-3xl sm:text-4xl font-bold text-gradient-amber mb-4">{t('eng.title')}</h2>
+              <p className="text-muted-foreground">{t('eng.subtitle')}</p>
+            </div>
+
+            <div className="grid sm:grid-cols-2 gap-4">
+              {features.map((feature) => (
+                <div
+                  key={feature.titleKey}
+                  className="p-4 rounded-lg bg-[#141414] border border-[#2a2a2a] hover:border-[#d4922a22] transition-all duration-300"
+                >
+                  <feature.icon className="w-5 h-5 text-[#d4922a] mb-2" />
+                  <h3 className="text-sm font-semibold mb-1">{t(feature.titleKey)}</h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{t(feature.descKey)}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── Sound Architecture Section ──────────────────────
+function SoundSection({ t }: { t: (k: string) => string }) {
+  const specs = [
+    { icon: Zap, titleKey: 'sound.class', valueKey: 'sound.class', descKey: 'sound.class.desc' },
+    { icon: Power, titleKey: 'sound.power', valueKey: 'sound.power', descKey: 'sound.power.desc' },
+    { icon: Mic2, titleKey: 'sound.preamp', valueKey: 'sound.preamp', descKey: 'sound.preamp.desc' },
+    { icon: Volume2, titleKey: 'sound.poweramp', valueKey: 'sound.poweramp', descKey: 'sound.poweramp.desc' },
+    { icon: Headphones, titleKey: 'sound.fxloop', valueKey: 'sound.fxloop', descKey: 'sound.fxloop.desc' },
+    { icon: Settings, titleKey: 'sound.impedance', valueKey: 'sound.impedance', descKey: 'sound.impedance.desc' },
+  ];
+
+  return (
+    <section className="relative py-20 lg:py-28">
+      <div className="section-divider mb-20" />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl sm:text-4xl font-bold text-gradient-amber mb-4">{t('sound.title')}</h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto">{t('sound.subtitle')}</p>
+        </div>
+
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {specs.map((spec, i) => (
+            <div
+              key={spec.titleKey}
+              className="relative p-6 rounded-xl bg-[#141414] border border-[#2a2a2a] hover:border-[#d4922a33] transition-all duration-300 group overflow-hidden"
+            >
+              <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-[#d4922a] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-lg bg-[#d4922a11] flex items-center justify-center shrink-0">
+                  <spec.icon className="w-5 h-5 text-[#d4922a]" />
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-gradient-amber mb-1">{t(spec.valueKey)}</div>
+                  <h3 className="text-sm font-semibold mb-2">{t(spec.titleKey)}</h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{t(spec.descKey)}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Tube visual */}
+        <div className="flex justify-center gap-8 mt-16 opacity-60">
+          {[0, 1, 2, 3, 4].map((i) => (
+            <TubeGlow key={i} className={`w-10 h-14 ${i >= 3 ? 'scale-110' : ''}`} />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── Expert Section ──────────────────────────────────
+function ExpertSection({ t }: { t: (k: string) => string }) {
+  const topics = [
+    { icon: Zap, titleKey: 'expert.dynamics.title', descKey: 'expert.dynamics.desc' },
+    { icon: Volume2, titleKey: 'expert.volume.title', descKey: 'expert.volume.desc' },
+    { icon: MessageCircle, titleKey: 'expert.interaction.title', descKey: 'expert.interaction.desc' },
+  ];
+
+  return (
+    <section className="relative py-20 lg:py-28 bg-[#0d0d0d]">
+      <div className="section-divider mb-20" />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid lg:grid-cols-5 gap-12 items-start">
+          {/* Profile Card */}
+          <div className="lg:col-span-2">
+            <div className="p-6 rounded-2xl bg-[#141414] border border-[#2a2a2a] text-center relative overflow-hidden">
+              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#d4922a] to-transparent" />
+              <div className="w-24 h-24 mx-auto rounded-full bg-[#1e1e1e] border-2 border-[#d4922a44] mb-4 flex items-center justify-center">
+                <Award className="w-10 h-10 text-[#d4922a]" />
+              </div>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#d4922a11] border border-[#d4922a33] mb-3">
+                <Star className="w-3 h-3 text-[#d4922a]" />
+                <span className="text-xs text-[#d4922a] font-medium">{t('expert.badge')}</span>
+              </div>
+              <h3 className="text-xl font-bold mb-1">{t('expert.name')}</h3>
+              <p className="text-sm text-[#d4922a] mb-4">{t('expert.role')}</p>
+              <p className="text-sm text-muted-foreground leading-relaxed">{t('expert.intro')}</p>
+            </div>
+          </div>
+
+          {/* Topics */}
+          <div className="lg:col-span-3 space-y-6">
+            {topics.map((topic) => (
+              <div
+                key={topic.titleKey}
+                className="p-6 rounded-xl bg-[#141414] border border-[#2a2a2a] hover:border-[#d4922a22] transition-all duration-300"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-lg bg-[#d4922a11] flex items-center justify-center shrink-0 mt-0.5">
+                    <topic.icon className="w-5 h-5 text-[#d4922a]" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold mb-2">{t(topic.titleKey)}</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{t(topic.descKey)}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── Audio Player Section ────────────────────────────
+function AudioPlayerSection({ t }: { t: (k: string) => string }) {
+  const [activeTrack, setActiveTrack] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const tracks = [
+    {
+      nameKey: 'audio.track1.name',
+      gearKey: 'audio.track1.gear',
+      descKey: 'audio.track1.desc',
+      settingsKey: 'audio.track1.settings',
+      insightKey: 'audio.track1.insight',
+      duration: 45,
+      color: '#c62828',
+    },
+    {
+      nameKey: 'audio.track2.name',
+      gearKey: 'audio.track2.gear',
+      descKey: 'audio.track2.desc',
+      settingsKey: 'audio.track2.settings',
+      insightKey: 'audio.track2.insight',
+      duration: 52,
+      color: '#d4922a',
+    },
+    {
+      nameKey: 'audio.track3.name',
+      gearKey: 'audio.track3.gear',
+      descKey: 'audio.track3.desc',
+      settingsKey: 'audio.track3.settings',
+      insightKey: 'audio.track3.insight',
+      duration: 38,
+      color: '#8b6914',
+    },
+  ];
+
+  useEffect(() => {
+    if (isPlaying) {
+      intervalRef.current = setInterval(() => {
+        setProgress((prev) => {
+          if (prev >= 100) {
+            setIsPlaying(false);
+            return 0;
+          }
+          return prev + 100 / (tracks[activeTrack].duration * 20);
+        });
+      }, 50);
+    } else if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [isPlaying, activeTrack]);
+
+  const handleTrackChange = (index: number) => {
+    setActiveTrack(index);
+    setProgress(0);
+    setIsPlaying(false);
+  };
+
+  const formatTime = (progress: number, duration: number) => {
+    const current = Math.floor((progress / 100) * duration);
+    const mins = Math.floor(current / 60);
+    const secs = current % 60;
+    const totalMins = Math.floor(duration / 60);
+    const totalSecs = duration % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')} / ${totalMins}:${totalSecs.toString().padStart(2, '0')}`;
+  };
+
+  const track = tracks[activeTrack];
+
+  return (
+    <section id="demos" className="relative py-20 lg:py-28">
+      <div className="section-divider mb-20" />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl sm:text-4xl font-bold text-gradient-amber mb-4">{t('audio.title')}</h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto">{t('audio.subtitle')}</p>
+        </div>
+
+        <div className="max-w-4xl mx-auto">
+          {/* Player */}
+          <div className="rounded-2xl bg-[#141414] border border-[#2a2a2a] overflow-hidden">
+            {/* Now Playing */}
+            <div className="p-6 border-b border-[#2a2a2a]">
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${track.color}22` }}>
+                  <Music className="w-7 h-7" style={{ color: track.color }} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-bold text-lg truncate">{t(track.nameKey)}</h3>
+                  <p className="text-sm text-muted-foreground truncate">{t(track.gearKey)}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Controls */}
+            <div className="p-6">
+              <div className="flex items-center gap-4 mb-4">
+                <button
+                  onClick={() => handleTrackChange(activeTrack > 0 ? activeTrack - 1 : tracks.length - 1)}
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                  aria-label="Previous track"
+                >
+                  <SkipBack className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => setIsPlaying(!isPlaying)}
+                  className="w-12 h-12 rounded-full bg-[#d4922a] text-[#0a0a0a] flex items-center justify-center hover:bg-[#e8a840] transition-colors pulse-warm"
+                  aria-label={isPlaying ? 'Pause' : 'Play'}
+                >
+                  {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 ml-0.5" />}
+                </button>
+                <button
+                  onClick={() => handleTrackChange(activeTrack < tracks.length - 1 ? activeTrack + 1 : 0)}
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                  aria-label="Next track"
+                >
+                  <SkipForward className="w-5 h-5" />
+                </button>
+                <div className="flex-1" />
+                <span className="text-xs text-muted-foreground font-mono">
+                  {formatTime(progress, track.duration)}
+                </span>
+              </div>
+
+              {/* Progress bar */}
+              <div className="relative w-full h-1.5 bg-[#2a2a2a] rounded-full cursor-pointer" onClick={(e) => {
+                const rect = e.currentTarget.getBoundingClientRect();
+                const x = (e.clientX - rect.left) / rect.width;
+                setProgress(Math.max(0, Math.min(100, x * 100)));
+              }}>
+                <div
+                  className="absolute top-0 left-0 h-full rounded-full transition-all duration-100"
+                  style={{ width: `${progress}%`, backgroundColor: track.color }}
+                />
+                <div
+                  className="absolute top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full shadow-lg transition-all duration-100"
+                  style={{ left: `${progress}%`, backgroundColor: track.color, marginLeft: '-7px' }}
+                />
+              </div>
+
+              {/* Track Description */}
+              <div className="mt-6 p-4 rounded-xl bg-[#0a0a0a] border border-[#2a2a2a]">
+                <p className="text-sm text-muted-foreground mb-2">{t(track.descKey)}</p>
+                <p className="text-xs font-mono text-[#d4922a] mb-3">{t(track.settingsKey)}</p>
+                <div className="flex items-start gap-2 p-3 rounded-lg bg-[#d4922a0d] border border-[#d4922a22]">
+                  <Star className="w-4 h-4 text-[#d4922a] shrink-0 mt-0.5" />
+                  <p className="text-xs text-[#d4922a] leading-relaxed italic">
+                    <span className="font-semibold not-italic">Vadim Insight: </span>
+                    {t(track.insightKey)}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Track List */}
+            <div className="border-t border-[#2a2a2a]">
+              {tracks.map((tr, i) => (
+                <button
+                  key={i}
+                  onClick={() => handleTrackChange(i)}
+                  className={`w-full flex items-center gap-4 p-4 text-left transition-all duration-200 ${
+                    i === activeTrack ? 'bg-[#d4922a0d]' : 'hover:bg-[#1e1e1e]'
+                  } ${i > 0 ? 'border-t border-[#2a2a2a]' : ''}`}
+                >
+                  <div
+                    className="w-3 h-3 rounded-full shrink-0"
+                    style={{ backgroundColor: i === activeTrack ? tr.color : '#333' }}
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className={`font-medium text-sm truncate ${i === activeTrack ? 'text-[#d4922a]' : 'text-foreground'}`}>
+                      {t(tr.nameKey)}
+                    </div>
+                    <div className="text-xs text-muted-foreground truncate">{t(tr.gearKey)}</div>
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {Math.floor(tr.duration / 60)}:{(tr.duration % 60).toString().padStart(2, '0')}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── Configurator Section ────────────────────────────
+function ConfiguratorSection({ t }: { t: (k: string) => string }) {
+  const [color, setColor] = useState('tiger');
+  const [impedance, setImpedance] = useState('8');
+  const [power, setPower] = useState('eu');
+  const [fxLoop, setFxLoop] = useState(true);
+
+  const colors = [
+    { id: 'tiger', labelKey: 'config.color.tiger', gradient: 'linear-gradient(135deg, #b8860b, #daa520, #8b6914)' },
+    { id: 'black', labelKey: 'config.color.black', gradient: 'linear-gradient(135deg, #1a1a1a, #333, #111)' },
+    { id: 'cream', labelKey: 'config.color.cream', gradient: 'linear-gradient(135deg, #f5f0e1, #e8dcc8, #d4c8a8)' },
+    { id: 'red', labelKey: 'config.color.red', gradient: 'linear-gradient(135deg, #8b1a1a, #c62828, #a01010)' },
+  ];
+
+  return (
+    <section id="config" className="relative py-20 lg:py-28 bg-[#0d0d0d]">
+      <div className="section-divider mb-20" />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl sm:text-4xl font-bold text-gradient-amber mb-4">{t('config.title')}</h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto">{t('config.subtitle')}</p>
+        </div>
+
+        <div className="grid lg:grid-cols-2 gap-12 items-start">
+          {/* Preview */}
+          <div className="sticky top-24">
+            <div className="rounded-2xl bg-[#141414] border border-[#2a2a2a] p-8">
+              <div className="aspect-[4/3] rounded-xl flex items-center justify-center relative overflow-hidden">
+                <div
+                  className="absolute inset-0 opacity-10"
+                  style={{ background: colors.find((c) => c.id === color)?.gradient }}
+                />
+                <div className="relative text-center">
+                  <div className="text-gradient-amber font-bold text-3xl tracking-widest mb-2">ALUPLEX</div>
+                  <div className="text-muted-foreground text-sm tracking-[0.3em]">AMPLIFICATION</div>
+
+                  {/* Mini amp preview */}
+                  <div className="mt-6 mx-auto max-w-xs">
+                    <div className="rounded-lg p-4 relative" style={{ background: color === 'black' ? '#111' : color === 'cream' ? '#f5f0e1' : color === 'red' ? '#8b1a1a' : '#b8860b' }}>
+                      <div className="flex justify-center gap-4 mb-3">
+                        {[1, 2].map((i) => (
+                          <div key={i} className="w-4 h-5 rounded-full border border-black/20 bg-black/30 flex items-center justify-center">
+                            <div className="w-1.5 h-1.5 rounded-full bg-black/50" />
+                          </div>
+                        ))}
+                      </div>
+                      <div className="flex justify-center gap-3">
+                        {Array.from({ length: 4 }).map((_, i) => (
+                          <div key={i} className="w-5 h-5 rounded-full bg-gradient-to-br from-gray-300 to-gray-500 shadow-sm">
+                            <div className="absolute w-0.5 h-1.5 bg-black/40 ml-[9px] mt-[2px]" />
+                          </div>
+                        ))}
+                      </div>
+                      <div className="flex justify-center gap-2 mt-3 opacity-60">
+                        {[0, 1, 2].map((i) => (
+                          <TubeGlow key={i} className="w-5 h-7" />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Options */}
+          <div className="space-y-8">
+            {/* Color */}
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <Palette className="w-5 h-5 text-[#d4922a]" />
+                <h3 className="font-semibold">{t('config.color')}</h3>
+              </div>
+              <div className="grid grid-cols-4 gap-3">
+                {colors.map((c) => (
+                  <button
+                    key={c.id}
+                    onClick={() => setColor(c.id)}
+                    className={`relative rounded-xl aspect-square overflow-hidden border-2 transition-all duration-200 hover:scale-105 ${
+                      color === c.id ? 'border-[#d4922a] shadow-lg shadow-[#d4922a]/20' : 'border-[#2a2a2a]'
+                    }`}
+                  >
+                    <div className="absolute inset-0" style={{ background: c.gradient }} />
+                    {color === c.id && (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="w-6 h-6 rounded-full bg-[#0a0a0a]/80 flex items-center justify-center">
+                          <div className="w-2 h-2 rounded-full bg-[#d4922a]" />
+                        </div>
+                      </div>
+                    )}
+                  </button>
+                ))}
+              </div>
+              <p className="text-sm text-muted-foreground mt-2">{t(`config.color.${color}`)}</p>
+            </div>
+
+            {/* Impedance */}
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <Volume2 className="w-5 h-5 text-[#d4922a]" />
+                <h3 className="font-semibold">{t('config.impedance')}</h3>
+              </div>
+              <div className="flex gap-3">
+                {['8', '16'].map((v) => (
+                  <button
+                    key={v}
+                    onClick={() => setImpedance(v)}
+                    className={`flex-1 py-3 rounded-lg border text-sm font-medium transition-all duration-200 ${
+                      impedance === v
+                        ? 'border-[#d4922a] bg-[#d4922a11] text-[#d4922a]'
+                        : 'border-[#2a2a2a] text-muted-foreground hover:border-[#d4922a33]'
+                    }`}
+                  >
+                    {v} Ohm
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Power */}
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <Power className="w-5 h-5 text-[#d4922a]" />
+                <h3 className="font-semibold">{t('config.power')}</h3>
+              </div>
+              <div className="flex gap-3">
+                {['eu', 'uk', 'us'].map((v) => (
+                  <button
+                    key={v}
+                    onClick={() => setPower(v)}
+                    className={`flex-1 py-3 rounded-lg border text-sm font-medium transition-all duration-200 ${
+                      power === v
+                        ? 'border-[#d4922a] bg-[#d4922a11] text-[#d4922a]'
+                        : 'border-[#2a2a2a] text-muted-foreground hover:border-[#d4922a33]'
+                    }`}
+                  >
+                    {t(`config.power.${v}`)}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* FX Loop */}
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <Headphones className="w-5 h-5 text-[#d4922a]" />
+                <h3 className="font-semibold">{t('config.fxloop')}</h3>
+              </div>
+              <button
+                onClick={() => setFxLoop(!fxLoop)}
+                className="flex items-center gap-3 w-full p-4 rounded-lg border border-[#2a2a2a] hover:border-[#d4922a33] transition-all duration-200"
+              >
+                {fxLoop ? (
+                  <ToggleRight className="w-8 h-8 text-[#d4922a]" />
+                ) : (
+                  <ToggleLeft className="w-8 h-8 text-muted-foreground" />
+                )}
+                <span className={fxLoop ? 'text-[#d4922a]' : 'text-muted-foreground'}>
+                  {fxLoop ? t('config.fxloop.on') : t('config.fxloop.off')}
+                </span>
+              </button>
+            </div>
+
+            {/* Summary */}
+            <div className="p-6 rounded-xl bg-[#141414] border border-[#d4922a33]">
+              <h3 className="font-semibold mb-4 text-gradient-amber">{t('config.summary')}</h3>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">{t('config.color')}</span>
+                  <span>{t(`config.color.${color}`)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">{t('config.impedance')}</span>
+                  <span>{impedance} Ohm</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">{t('config.power')}</span>
+                  <span>{t(`config.power.${power}`)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">{t('config.fxloop')}</span>
+                  <span>{fxLoop ? t('config.fxloop.on') : t('config.fxloop.off')}</span>
+                </div>
+              </div>
+              <a
+                href="#contact"
+                className="mt-6 w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#d4922a] text-[#0a0a0a] font-semibold rounded-lg hover:bg-[#e8a840] transition-all duration-200"
+              >
+                <Send className="w-4 h-4" />
+                {t('config.contact')}
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── Gallery Section ─────────────────────────────────
+function GallerySection({ t }: { t: (k: string) => string }) {
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+
+  const images = [
+    {
+      src: '/aluplex/hero-amp.png',
+      alt: 'ALUPLEXamp – Front View',
+      caption: 'ALUPLEXamp Front View',
+    },
+    {
+      src: '/aluplex/turret-board.png',
+      alt: 'Turret Board Construction',
+      caption: 'Turret Board – Point-to-Point',
+    },
+    {
+      src: '/aluplex/chassis-detail.png',
+      alt: 'Aluminium Chassis Detail',
+      caption: 'Aluminium Chassis Detail',
+    },
+    {
+      src: '/aluplex/tubes-glow.png',
+      alt: 'Tube Interior Glow',
+      caption: 'ECC83 / EL34 Tubes',
+    },
+    {
+      src: '/aluplex/vadim-portrait.png',
+      alt: 'Vadim Bušovský – Tone Architect',
+      caption: 'Vadim Bušovský',
+    },
+  ];
+
+  const navigateLightbox = (direction: 'prev' | 'next') => {
+    if (lightboxIndex === null) return;
+    const newIndex =
+      direction === 'next'
+        ? (lightboxIndex + 1) % images.length
+        : (lightboxIndex - 1 + images.length) % images.length;
+    setLightboxIndex(newIndex);
+  };
+
+  return (
+    <section id="gallery" className="relative py-20 lg:py-28">
+      <div className="section-divider mb-20" />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl sm:text-4xl font-bold text-gradient-amber mb-4">{t('gallery.title')}</h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto">{t('gallery.subtitle')}</p>
+        </div>
+
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+          {images.map((img, i) => (
+            <button
+              key={i}
+              onClick={() => setLightboxIndex(i)}
+              className={`relative group rounded-xl overflow-hidden bg-[#141414] border border-[#2a2a2a] hover:border-[#d4922a33] transition-all duration-300 ${
+                i === 0 ? 'col-span-2 row-span-2' : ''
+              }`}
+            >
+              <div className={`relative ${i === 0 ? 'aspect-square' : 'aspect-square'}`}>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="absolute bottom-3 left-3 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <p className="text-sm font-medium">{img.caption}</p>
+                </div>
+                {/* Placeholder gradient until image loads */}
+                <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a1a] to-[#2a2520]" />
+                <img
+                  src={img.src}
+                  alt={img.alt}
+                  loading="lazy"
+                  className="relative w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = 'none';
+                  }}
+                />
+              </div>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Lightbox */}
+      {lightboxIndex !== null && (
+        <div
+          className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center"
+          onClick={() => setLightboxIndex(null)}
+        >
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setLightboxIndex(null);
+            }}
+            className="absolute top-4 right-4 text-white/70 hover:text-white transition-colors z-10"
+            aria-label="Close lightbox"
+          >
+            <X className="w-8 h-8" />
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              navigateLightbox('prev');
+            }}
+            className="absolute left-4 text-white/70 hover:text-white transition-colors z-10"
+            aria-label="Previous image"
+          >
+            <ChevronLeft className="w-10 h-10" />
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              navigateLightbox('next');
+            }}
+            className="absolute right-4 text-white/70 hover:text-white transition-colors z-10"
+            aria-label="Next image"
+          >
+            <ChevronRight className="w-10 h-10" />
+          </button>
+          <div className="max-w-4xl max-h-[80vh] px-16" onClick={(e) => e.stopPropagation()}>
+            <img
+              src={images[lightboxIndex].src}
+              alt={images[lightboxIndex].alt}
+              className="max-w-full max-h-[75vh] object-contain rounded-lg"
+            />
+            <p className="text-center text-white/70 mt-4">{images[lightboxIndex].caption}</p>
+          </div>
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+            {images.map((_, i) => (
+              <button
+                key={i}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setLightboxIndex(i);
+                }}
+                className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                  i === lightboxIndex ? 'bg-[#d4922a] w-6' : 'bg-white/30 hover:bg-white/50'
+                }`}
+                aria-label={`Go to image ${i + 1}`}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+    </section>
+  );
+}
+
+// ─── FAQ Section ─────────────────────────────────────
+function FAQSection({ t }: { t: (k: string) => string }) {
+  const [openItems, setOpenItems] = useState<number[]>([]);
+
+  const faqItems = Array.from({ length: 10 }, (_, i) => ({
+    qKey: `faq.q${i + 1}`,
+    aKey: `faq.a${i + 1}`,
+  }));
+
+  const toggleItem = (index: number) => {
+    setOpenItems((prev) =>
+      prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
+    );
+  };
+
+  return (
+    <section id="faq" className="relative py-20 lg:py-28 bg-[#0d0d0d]">
+      <div className="section-divider mb-20" />
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl sm:text-4xl font-bold text-gradient-amber mb-4">{t('faq.title')}</h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto">{t('faq.subtitle')}</p>
+        </div>
+
+        <div className="space-y-3">
+          {faqItems.map((item, i) => (
+            <div
+              key={i}
+              className="rounded-xl border border-[#2a2a2a] overflow-hidden transition-all duration-200 hover:border-[#d4922a22]"
+            >
+              <button
+                onClick={() => toggleItem(i)}
+                className="w-full flex items-center justify-between gap-4 p-5 text-left transition-colors duration-200 hover:bg-[#141414]"
+              >
+                <span className="font-medium text-sm pr-4">{t(item.qKey)}</span>
+                {openItems.includes(i) ? (
+                  <ChevronUp className="w-5 h-5 text-[#d4922a] shrink-0" />
+                ) : (
+                  <ChevronDown className="w-5 h-5 text-muted-foreground shrink-0" />
+                )}
+              </button>
+              {openItems.includes(i) && (
+                <div className="px-5 pb-5 border-t border-[#2a2a2a]">
+                  <p className="text-sm text-muted-foreground leading-relaxed pt-4">{t(item.aKey)}</p>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── CTA Section ─────────────────────────────────────
+function CTASection({ t }: { t: (k: string) => string }) {
+  return (
+    <section id="contact" className="relative py-20 lg:py-28 overflow-hidden">
+      <div className="section-divider mb-20" />
+      {/* Background glow */}
+      <div className="absolute inset-0">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-[#d4922a] opacity-[0.06] rounded-full blur-[120px]" />
+      </div>
+      <div className="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 className="text-4xl sm:text-5xl font-bold text-gradient-amber mb-6">{t('cta.title')}</h2>
+        <p className="text-lg text-muted-foreground mb-10 max-w-xl mx-auto">{t('cta.subtitle')}</p>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <a
+            href="mailto:info@aluplexamp.com"
+            className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#d4922a] text-[#0a0a0a] font-semibold rounded-lg hover:bg-[#e8a840] transition-all duration-200 shadow-lg shadow-[#d4922a]/20 text-lg pulse-warm"
+          >
+            <MessageCircle className="w-5 h-5" />
+            {t('cta.contact')}
+          </a>
+          <a
+            href="mailto:order@aluplexamp.com"
+            className="inline-flex items-center justify-center gap-2 px-8 py-4 border border-[#d4922a44] text-[#d4922a] font-semibold rounded-lg hover:bg-[#d4922a11] transition-all duration-200 text-lg"
+          >
+            <ArrowRight className="w-5 h-5" />
+            {t('cta.order')}
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── Footer ──────────────────────────────────────────
+function Footer({ t }: { t: (k: string) => string }) {
+  return (
+    <footer className="relative border-t border-[#2a2a2a]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="text-center md:text-left">
+            <div className="text-gradient-amber font-bold text-xl tracking-wider mb-1">
+              ALUPLEX<span className="text-foreground">amp</span>
+            </div>
+            <p className="text-sm text-muted-foreground">{t('footer.tagline')}</p>
+          </div>
+
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Wrench className="w-4 h-4" />
+            <span>{t('footer.handmade')}</span>
+          </div>
+
+          <p className="text-xs text-muted-foreground">{t('footer.copyright')}</p>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+// ─── Main Page Component ─────────────────────────────
+export default function Home() {
+  const [lang, setLang] = useState<Language>('sk');
+  const { t } = useTranslation(lang);
+
+  return (
+    <div className="min-h-screen flex flex-col bg-[#0a0a0a]">
+      <Navigation lang={lang} setLang={setLang} t={t} />
+      <main className="flex-1">
+        <HeroSection t={t} />
+        <ValuePropSection t={t} />
+        <EngineeringSection t={t} />
+        <SoundSection t={t} />
+        <ExpertSection t={t} />
+        <AudioPlayerSection t={t} />
+        <ConfiguratorSection t={t} />
+        <GallerySection t={t} />
+        <FAQSection t={t} />
+        <CTASection t={t} />
+      </main>
+      <Footer t={t} />
+    </div>
+  );
+}
