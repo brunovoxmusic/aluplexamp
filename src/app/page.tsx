@@ -673,8 +673,12 @@ function ExpertSection({ t }: { t: (k: string) => string }) {
             <Reveal delay={100}>
               <div className="p-6 rounded-2xl bg-[#141414] border border-[#2a2a2a] text-center relative overflow-hidden">
                 <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#d4922a] to-transparent" />
-                <div className="w-16 h-16 sm:w-24 sm:h-24 mx-auto rounded-full bg-[#1e1e1e] border-2 border-[#d4922a44] mb-4 flex items-center justify-center">
-                  <Award className="w-7 h-7 sm:w-10 sm:h-10 text-[#d4922a]" />
+                <div className="w-16 h-16 sm:w-24 sm:h-24 mx-auto rounded-full bg-[#1e1e1e] border-2 border-[#d4922a44] mb-4 overflow-hidden">
+                  <img
+                    src="/aluplex/real/vadim.jpg"
+                    alt="Vadim Bušovský"
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#d4922a11] border border-[#d4922a33] mb-3">
                   <Star className="w-3 h-3 text-[#d4922a]" />
@@ -912,18 +916,18 @@ function SoundLibrarySection({ t }: { t: (k: string) => string }) {
               </div>
             </div>
 
-            {/* Decorative amp image */}
+            {/* Decorative Vadim photo */}
             <div className="hidden lg:block rounded-2xl overflow-hidden border border-[#2a2a2a] sticky top-24 relative">
               <img
-                src="/aluplex/real/dsc6793.jpg"
-                alt="ALUPLEXamp input jacks and controls"
+                src="/aluplex/real/vadim.jpg"
+                alt="Vadim Bušovský playing guitar"
                 className="w-full aspect-[3/4] object-cover"
                 loading="lazy"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a]/70 via-transparent to-transparent pointer-events-none" />
               <div className="absolute bottom-0 left-0 right-0 p-4">
                 <div className="flex items-center gap-2">
-                  <Award className="w-4 h-4 text-[#d4922a]" />
+                  <Guitar className="w-4 h-4 text-[#d4922a]" />
                   <span className="text-xs font-medium text-white/90">Vadim Bušovský</span>
                 </div>
               </div>
@@ -966,9 +970,12 @@ function ArtistsSection({ t }: { t: (k: string) => string }) {
                 <div className="grid sm:grid-cols-[auto_1fr] gap-6 sm:gap-8 items-start">
                   {/* Left: Profile visual */}
                   <div className="flex flex-col items-center sm:items-start gap-4">
-                    <div className="w-24 h-24 sm:w-32 sm:h-36 rounded-full bg-[#1a1a1a] border-2 border-[#d4922a44] flex items-center justify-center relative overflow-hidden">
-                      <div className="absolute inset-0 bg-gradient-to-br from-[#d4922a11] to-transparent" />
-                      <Trophy className="w-10 h-10 sm:w-12 sm:h-12 text-[#d4922a]" />
+                    <div className="w-24 h-24 sm:w-32 sm:h-36 rounded-full bg-[#1a1a1a] border-2 border-[#d4922a44] relative overflow-hidden">
+                      <img
+                        src="/aluplex/real/vadim.jpg"
+                        alt="Vadim Bušovský"
+                        className="w-full h-full object-cover"
+                      />
                     </div>
                     <div className="text-center sm:text-left">
                       <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#d4922a11] border border-[#d4922a33] mb-2">
