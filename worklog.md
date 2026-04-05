@@ -1,116 +1,46 @@
 ---
-Task ID: 1
+Task ID: 8
 Agent: Main Agent
-Task: Build ALUPLEXamp production-ready landing page
+Task: Build Flowd — AI-Powered Productivity SaaS Landing Page + App Shell
 
 Work Log:
-- Explored project structure, identified available shadcn/ui components
-- Created comprehensive translation system (SK/EN/DE) in src/lib/translations.ts with 100+ keys
-- Redesigned globals.css with ALUPLEXamp dark premium theme (amber glow, tube animations, metal textures)
-- Updated layout.tsx with full SEO metadata: OpenGraph, Twitter cards, JSON-LD structured data (Product schema)
-- Built complete landing page (src/app/page.tsx) with 12 sections:
-  1. Navigation with language switcher and mobile responsive menu
-  2. Hero section with animated SVG amplifier illustration and CTAs
-  3. Value Proposition (4 cards: handcrafted, turret board, premium components, living tone)
-  4. Engineering section (aluminium chassis: heat mgmt, weight, non-magnetic, durability)
-  5. Sound Architecture (Class AB, 30W, ECC83, EL34, FX Loop, 8/16 Ohm)
-  6. Expert Section - Vadim Bušovský (Tone Architect profile + 3 insight topics)
-  7. Audio Player with 3 tracks, progress bar, time display, Vadim Insights
-  8. Configurator (color, impedance, power supply, FX loop toggle, live preview)
-  9. Gallery with lightbox navigation and lazy loading
-  10. FAQ with 10 expandable items
-  11. Final CTA section
-  12. Sticky footer
-- Generated 5 product images using AI image generation:
-  - hero-amp.png (1344x768), turret-board.png, chassis-detail.png, tubes-glow.png, vadim-portrait.png
-- Verified: lint passes clean, dev server compiles, all routes return 200
+- Completely replaced the existing ALUPLEXamp project with Flowd SaaS landing page
+- Rewrote `globals.css` with Flowd brand colors (deep violet #6d28d9, amber #f59e0b, emerald #10b981), light/dark theme support, custom animations (fade-in, slide-up, pulse-glow, float), gradient-text utility class, glassmorphism utility class, custom scrollbar styling
+- Updated `layout.tsx` with ThemeProvider (next-themes), Flowd SEO metadata, OpenGraph, Twitter cards
+- Created `src/lib/types.ts` with Task, Habit, AIMessage, ViewType, PomodoroMode, Priority types
+- Created `src/lib/store.ts` Zustand store with full state management: navigation, onboarding, tasks (CRUD), habits (toggle/streak), pomodoro timer (tick/start/pause/reset), AI chat messages, gamification (XP/level/streak), pro tier, localStorage persistence
+- Created main page `src/app/page.tsx` with client-side view switching (landing ↔ app)
+- Built 10 landing page components in `src/components/landing/`:
+  1. Navigation — sticky glassmorphism nav, gradient logo, smooth scroll, theme toggle, mobile hamburger menu
+  2. Hero — full viewport, animated badge, gradient headline, CTAs, floating dashboard mockup with task items, progress bar, AI insight card
+  3. SocialProof — 4 stats with icons (12,847 users, 489K+ tasks, 92% boost, 4.9★ rating), fade-in on scroll
+  4. ValueProps — 3 feature cards (AI Planning, Smart Scheduling, Habit Engine) with gradient borders on hover
+  5. AIDemo — interactive chat mockup with typewriter animation, user/AI message bubbles, decorative input
+  6. Features — 6 feature cards grid (Task Management, Habit Tracking, Focus Timer, Smart Reminders, Weekly Analytics, Team Ready)
+  7. Pricing — monthly/yearly toggle, Free vs Pro plans, feature comparison, "Popular" badge on Pro
+  8. Testimonials — 3 testimonial cards with quotes, names, roles, companies, star ratings
+  9. CTA — gradient background section, conversion headline, primary CTA button
+  10. Footer — logo, tagline, product links, social icons, copyright
+- Built full AppShell (`src/components/app/AppShell.tsx`) with:
+  - Desktop sidebar navigation (Dashboard, Tasks, Habits, Pomodoro, AI Assistant, Settings)
+  - Mobile bottom tab bar
+  - Dashboard view: welcome card, stats grid (tasks, habits, streak, level), recent tasks
+  - Tasks view: add task form with priority selector, task list with toggle/delete, empty state
+  - Habits view: add habit form with emoji icons and target days, habit grid with toggle switches, streak display, weekly dots
+  - Pomodoro view: circular SVG progress, large timer display, play/pause/reset controls, session stats
+  - AI Assistant view: chat interface with message bubbles, suggestion chips, loading state, scrolling
+  - Settings view: profile name, subscription toggle, danger zone (clear data)
+  - User info sidebar: avatar, name, level, XP progress bar, streak
+- Created `src/app/api/ai/route.ts` POST endpoint using z-ai-web-dev-sdk for LLM completions
+- Fixed lint errors: useSyncExternalStore for mounted state, removed unused imports (Twitter, Github, Linkedin icons)
+- Verified: lint passes clean, dev server compiles successfully (200 on /)
 
 Stage Summary:
-- Complete production-ready ALUPLEXamp landing page built as Next.js 16 application
-- Dark premium theme with amber glow effects, tube animations, metal textures
-- Full i18n support (SK/EN/DE) with client-side language switching
-- Custom SVG amplifier illustration with animated tube glow effects
-- Interactive audio player, product configurator, gallery lightbox
-- SEO optimized with JSON-LD, OpenGraph, meta tags
-- All files: src/lib/translations.ts, src/app/globals.css, src/app/layout.tsx, src/app/page.tsx, public/aluplex/*.png
-
----
-## Task ID: 2 - landing-page-redesign
-### Work Task
-Rewrite page.tsx completely to replace all AI-generated/placeholder images with real product photos from the original ALUPLEXamp website. Add image backgrounds to multiple sections with modern gradient overlays. Keep all existing functionality intact.
-
-### Work Summary
-- Completely rewrote `/home/z/my-project/src/app/page.tsx` (1257 lines) replacing all placeholder content with real photography
-- Removed `AmplifierIllustration` SVG component (replaced with real photos throughout)
-- Removed `metal-bg` and `chassis-visual` CSS class usage from engineering section
-- Added full-bleed background images to 7 sections:
-  1. **Hero**: `amp-56.jpg` (amp on speaker cabinet) with left-to-right gradient overlay + bottom gradient
-  2. **Value Prop**: `dsc6798.jpg` (top view) as subtle right-side background with heavy dark overlay
-  3. **Engineering**: `dsc6775.jpg` (control panel detail) as full background with 90-95% dark overlay
-  4. **Sound Architecture**: `amp-1.jpg` (green-lit panel) as subtle background with 93% dark overlay
-  5. **Expert**: `dsc6827.jpg` (three-quarter view) as side image next to Vadim's profile card
-  6. **Audio Player**: `dsc6793.jpg` (input jacks close-up) as decorative sidebar element
-  7. **CTA**: `dsc6790.jpg` (red amp full front) as background with 85% dark overlay
-- Engineering section now shows `dsc6792.jpg` (boutique hand wired) and `dsc6803.jpg` (rear panel FX loop) as detail photos
-- Configurator section uses `hero-front.jpg` as real preview image with dynamic color overlay tint
-- Gallery updated to use all 13 real product photos with proper alt texts and captions
-- Navigation logo replaced with `logo-white.png` (both in nav bar and footer)
-- All existing functionality preserved
-- Lint passes clean with zero errors
-- Dev server compiles successfully (200 responses on /)
-- Image assets verified present in `/public/aluplex/real/` (15 files)
-
----
-## Task ID: 3 - Main Agent
-### Work Task
-Add Vadim Bušovský artist integration, Sound Library, and hero teaser to page.tsx
-
-### Work Log:
-- Renamed `AudioPlayerSection` → `SoundLibrarySection` with updated translation keys
-- Updated track colors: track1 = `#3a9a5c` (green/clean), track2 = `#d4922a` (amber/crunch), track3 = `#c62828` (red/lead)
-- Changed section ID from `demos` to `soundlib`
-- Added "Recorded live by Vadim" badge after subtitle
-- Added `ArtistsSection` component with bio, credits, quote, social proof
-- Updated section order: Hero → ValueProp → Engineering → Sound → Expert → Artists → SoundLibrary → Configurator → Gallery → FAQ → CTA
-- Lint passes clean, dev server compiles successfully
-
-Stage Summary:
-- Sound Library: Clean/Crunch/Lead tracks with Expert Insights from Vadim Bušovský
-- Artist Section: Full testimonial block with bio, credits (Dorian Gray, The Gang), Prague competition award, and personal quote
-- Hero: Vadim teaser badge linking to Sound Library
-- All new content uses translation keys ready for SK/EN/DE localization
-
----
-## Task ID: 4 - Translation & Content Polish
-### Work Task
-Fix mixed English content in SK translations, replace hardcoded English strings in page.tsx with translation keys, fix broken anchor links
-
-### Work Summary
-- Fixed SK translations: nav.soundlib, eng.subtitle, sound.title/subtitle, all sound.*.desc, expert.badge/role/intro, expert.dynamics/volume/interaction - all now in proper Slovak
-- Added new translation keys: eng.handwired, eng.fxloop, eng.aluminium, artist.proof, artist.badge (all 3 languages)
-- Fixed page.tsx: #demos→#soundlib, replaced 5 hardcoded English strings with t() calls
-- Lint passes clean, dev server compiles successfully
-
----
-## Task ID: 5 - Video Section & SEO Update
-### Work Task
-Add YouTube video section (VideoSection) to the ALUPLEXamp landing page and update SEO metadata with Vadim Bušovský references.
-
-### Work Summary
-- Added `VideoSection` component to `page.tsx` (line 942-1016) before `ArtistsSection`:
-  - YouTube thumbnail with play button overlay and hover animations
-  - Opens `https://www.youtube.com/watch?v=zp_MugLZ8X4` in new tab
-  - Vadim Bušovský info card with photo, name, band credits, and CTA button
-  - Responsive layout: stacked on mobile, side-by-side grid on desktop
-  - Uses `Reveal` animations, section-divider, dark bg (#0d0d0d), amber accents
-  - All text uses `t()` translation keys
-- Registered `<VideoSection t={t} />` in Home component before `<ArtistsSection>`
-- Added `'video'` to `sectionIds` array in Navigation IntersectionObserver for active nav tracking
-- Added video translation keys to all 3 languages (SK/EN/DE):
-  - `video.title`, `video.subtitle`, `video.btn`, `video.duration`
-- Updated SEO metadata in `layout.tsx`:
-  - `description`: Added Vadim Bušovský, Dorian Gray, The Gang references
-  - `keywords`: Expanded from 10 to 19 keywords (added boutique zosilňovače, lampový aparát, ALUPLEX, Vadim Bušovský, gitarový zvuk, custom tube amp, Dorian Gray, hand-wired amplifier)
-  - `openGraph.description`: Updated with Vadim reference
-  - `twitter.description`: Updated with Vadim reference
-- Lint passes clean, dev server compiles successfully (200 on /)
+- Complete Flowd SaaS landing page with 10 sections and scroll animations
+- Full app shell with 6 views (dashboard, tasks, habits, pomodoro, AI chat, settings)
+- Client-side state management with Zustand + localStorage persistence
+- AI chat integration via server-side API route
+- Gamification system (XP, levels, streaks)
+- Responsive design with mobile bottom nav
+- Light/dark theme support via next-themes
+- All files created in /home/z/my-project/
