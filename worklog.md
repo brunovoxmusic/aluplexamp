@@ -33,3 +33,36 @@ Stage Summary:
 - Interactive audio player, product configurator, gallery lightbox
 - SEO optimized with JSON-LD, OpenGraph, meta tags
 - All files: src/lib/translations.ts, src/app/globals.css, src/app/layout.tsx, src/app/page.tsx, public/aluplex/*.png
+
+---
+## Task ID: 2 - landing-page-redesign
+### Work Task
+Rewrite page.tsx completely to replace all AI-generated/placeholder images with real product photos from the original ALUPLEXamp website. Add image backgrounds to multiple sections with modern gradient overlays. Keep all existing functionality intact.
+
+### Work Summary
+- Completely rewrote `/home/z/my-project/src/app/page.tsx` (1257 lines) replacing all placeholder content with real photography
+- Removed `AmplifierIllustration` SVG component (replaced with real photos throughout)
+- Removed `metal-bg` and `chassis-visual` CSS class usage from engineering section
+- Added full-bleed background images to 7 sections:
+  1. **Hero**: `amp-56.jpg` (amp on speaker cabinet) with left-to-right gradient overlay + bottom gradient
+  2. **Value Prop**: `dsc6798.jpg` (top view) as subtle right-side background with heavy dark overlay
+  3. **Engineering**: `dsc6775.jpg` (control panel detail) as full background with 90-95% dark overlay
+  4. **Sound Architecture**: `amp-1.jpg` (green-lit panel) as subtle background with 93% dark overlay
+  5. **Expert**: `dsc6827.jpg` (three-quarter view) as side image next to Vadim's profile card
+  6. **Audio Player**: `dsc6793.jpg` (input jacks close-up) as decorative sidebar element
+  7. **CTA**: `dsc6790.jpg` (red amp full front) as background with 85% dark overlay
+- Engineering section now shows `dsc6792.jpg` (boutique hand wired) and `dsc6803.jpg` (rear panel FX loop) as detail photos
+- Configurator section uses `hero-front.jpg` as real preview image with dynamic color overlay tint
+- Gallery updated to use all 13 real product photos with proper alt texts and captions
+- Navigation logo replaced with `logo-white.png` (both in nav bar and footer)
+- All existing functionality preserved:
+  - Translation system (SK/EN/DE) with useTranslation hook
+  - Audio player with 3 tracks, progress bar, Vadim Insights
+  - Configurator with color/impedance/power/FX loop controls
+  - Gallery lightbox with prev/next navigation and dot indicators
+  - FAQ accordion with 10 expandable items
+  - TubeGlow SVG component retained for decorative use
+  - All section IDs preserved for anchor links
+- Lint passes clean with zero errors
+- Dev server compiles successfully (200 responses on /)
+- Image assets verified present in `/public/aluplex/real/` (15 files)

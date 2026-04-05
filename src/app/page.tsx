@@ -25,7 +25,6 @@ import {
   Weight,
   Magnet,
   ShieldCheck,
-  VolumeX,
   Mic2,
   Headphones,
   MessageCircle,
@@ -35,8 +34,6 @@ import {
   Heart,
   Award,
   Wrench,
-  Info,
-  Package,
   Power,
   Palette,
   ToggleLeft,
@@ -85,76 +82,6 @@ function TubeGlow({ className = '' }: { className?: string }) {
   );
 }
 
-// ─── Amplifier SVG Illustration ──────────────────────
-function AmplifierIllustration() {
-  return (
-    <div className="relative w-full max-w-lg mx-auto float-animation">
-      <div className="chassis-visual rounded-xl p-6 relative">
-        {/* Brand plate */}
-        <div className="text-center mb-4">
-          <div className="text-gradient-amber font-bold text-2xl tracking-widest">ALUPLEX</div>
-          <div className="text-muted-foreground text-xs tracking-[0.3em] mt-1">AMPLIFICATION</div>
-        </div>
-
-        {/* Input jacks row */}
-        <div className="flex justify-center gap-4 mb-5">
-          {[1, 2].map((i) => (
-            <div key={i} className="flex flex-col items-center gap-1">
-              <div className="w-6 h-8 rounded-full border-2 border-[#d4922a33] bg-[#0a0a0a] flex items-center justify-center">
-                <div className="w-2 h-2 rounded-full bg-[#333]" />
-              </div>
-              <span className="text-[10px] text-muted-foreground uppercase">{i === 1 ? 'Low' : 'High'}</span>
-            </div>
-          ))}
-        </div>
-
-        {/* Knobs row */}
-        <div className="flex justify-center gap-6 mb-5">
-          {['PRESENCE', 'BASS', 'MIDDLE', 'TREBLE', 'GAIN'].map((label) => (
-            <div key={label} className="flex flex-col items-center gap-1.5">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#c8c4bc] to-[#8a8580] shadow-lg relative cursor-pointer group transition-transform hover:scale-110">
-                <div className="absolute top-1 left-1/2 -translate-x-1/2 w-0.5 h-3 bg-[#333] rounded-full" />
-              </div>
-              <span className="text-[9px] text-muted-foreground tracking-wider">{label}</span>
-            </div>
-          ))}
-        </div>
-
-        {/* Second row of knobs */}
-        <div className="flex justify-center gap-8 mb-5">
-          {['MASTER', 'FX MIX'].map((label) => (
-            <div key={label} className="flex flex-col items-center gap-1.5">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#c8c4bc] to-[#8a8580] shadow-lg relative cursor-pointer group transition-transform hover:scale-110">
-                <div className="absolute top-1 left-1/2 -translate-x-1/2 w-0.5 h-3 bg-[#333] rounded-full" />
-              </div>
-              <span className="text-[9px] text-muted-foreground tracking-wider">{label}</span>
-            </div>
-          ))}
-        </div>
-
-        {/* Tubes visible through top */}
-        <div className="flex justify-center gap-4">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <TubeGlow key={i} className={`w-8 h-11 ${i < 3 ? '' : 'scale-110'}`} />
-          ))}
-        </div>
-
-        {/* Ventilation holes */}
-        <div className="absolute inset-0 rounded-xl pointer-events-none opacity-20">
-          <div className="absolute top-3 right-3 grid grid-cols-4 gap-1">
-            {Array.from({ length: 12 }).map((_, i) => (
-              <div key={i} className="w-1 h-1 rounded-full bg-[#444]" />
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Ambient glow beneath amp */}
-      <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 w-3/4 h-16 bg-[#d4922a] blur-[40px] opacity-20" />
-    </div>
-  );
-}
-
 // ─── Navigation Component ────────────────────────────
 function Navigation({
   lang,
@@ -193,9 +120,13 @@ function Navigation({
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Brand */}
-          <a href="#" className="text-gradient-amber font-bold text-xl tracking-wider">
-            ALUPLEX<span className="text-foreground">amp</span>
+          {/* Brand with logo */}
+          <a href="#" className="flex items-center gap-2.5">
+            <img
+              src="/aluplex/real/logo-white.png"
+              alt="ALUPLEXamp logo"
+              className="h-8 w-auto"
+            />
           </a>
 
           {/* Desktop Nav */}
@@ -264,15 +195,24 @@ function Navigation({
 // ─── Hero Section ────────────────────────────────────
 function HeroSection({ t }: { t: (k: string) => string }) {
   return (
-    <section className="relative min-h-screen flex items-center pt-16 overflow-hidden noise-overlay">
-      {/* Background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0a] via-[#0f0d0a] to-[#0a0a0a]" />
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-[#d4922a] opacity-[0.04] rounded-full blur-[120px]" />
+    <section className="relative min-h-screen flex items-center pt-16 overflow-hidden">
+      {/* Full-bleed background image */}
+      <div className="absolute inset-0">
+        <img
+          src="/aluplex/real/amp-56.jpg"
+          alt=""
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a] via-[#0a0a0a]/90 to-[#0a0a0a]/50" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-[#0a0a0a]/40" />
+      </div>
+
+      {/* Ambient glow */}
+      <div className="absolute top-1/3 left-1/4 w-[500px] h-[400px] bg-[#d4922a] opacity-[0.05] rounded-full blur-[120px]" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
-          {/* Text Content */}
-          <div className="text-center lg:text-left space-y-6 fade-in-up">
+        <div className="max-w-2xl">
+          <div className="space-y-6 fade-in-up">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#d4922a33] bg-[#d4922a0d]">
               <Zap className="w-3.5 h-3.5 text-[#d4922a]" />
               <span className="text-xs font-medium text-[#d4922a] tracking-wider uppercase">
@@ -286,11 +226,11 @@ function HeroSection({ t }: { t: (k: string) => string }) {
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-light text-foreground/90">
               {t('hero.headlineAccent')}
             </h2>
-            <p className="text-lg text-muted-foreground max-w-xl mx-auto lg:mx-0 leading-relaxed">
+            <p className="text-lg text-muted-foreground max-w-xl leading-relaxed">
               {t('hero.subheadline')}
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
+            <div className="flex flex-col sm:flex-row gap-4 pt-4">
               <a
                 href="#demos"
                 className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-[#d4922a] text-[#0a0a0a] font-semibold rounded-lg hover:bg-[#e8a840] transition-all duration-200 shadow-lg shadow-[#d4922a]/20 pulse-warm"
@@ -307,18 +247,13 @@ function HeroSection({ t }: { t: (k: string) => string }) {
               </a>
             </div>
           </div>
-
-          {/* Amplifier Visual */}
-          <div className="relative fade-in-up" style={{ animationDelay: '0.3s' }}>
-            <AmplifierIllustration />
-          </div>
         </div>
       </div>
 
       {/* Scroll indicator */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-50 animate-bounce">
-        <span className="text-xs text-muted-foreground tracking-widest">SCROLL</span>
-        <ChevronDown className="w-4 h-4 text-muted-foreground" />
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-50 animate-bounce z-10">
+        <span className="text-xs text-white/60 tracking-widest">SCROLL</span>
+        <ChevronDown className="w-4 h-4 text-white/60" />
       </div>
     </section>
   );
@@ -334,9 +269,20 @@ function ValuePropSection({ t }: { t: (k: string) => string }) {
   ];
 
   return (
-    <section className="relative py-20 lg:py-28">
-      <div className="section-divider mb-20" />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="relative py-20 lg:py-28 overflow-hidden">
+      {/* Subtle background image on right side */}
+      <div className="absolute inset-0">
+        <img
+          src="/aluplex/real/dsc6798.jpg"
+          alt=""
+          className="absolute right-0 top-0 w-1/2 h-full object-cover opacity-15"
+          loading="lazy"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a] via-[#0a0a0a] to-[#0a0a0a]/70" />
+      </div>
+
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="section-divider mb-20" />
         <div className="text-center mb-16">
           <h2 className="text-3xl sm:text-4xl font-bold text-gradient-amber mb-4">{t('vp.title')}</h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">{t('vp.subtitle')}</p>
@@ -346,8 +292,7 @@ function ValuePropSection({ t }: { t: (k: string) => string }) {
           {items.map((item, i) => (
             <div
               key={item.titleKey}
-              className="group p-6 rounded-xl bg-[#141414] border border-[#2a2a2a] hover:border-[#d4922a33] transition-all duration-300 hover:shadow-lg hover:shadow-[#d4922a]/5"
-              style={{ animationDelay: `${i * 0.1}s` }}
+              className="group p-6 rounded-xl bg-[#141414]/80 backdrop-blur-sm border border-[#2a2a2a] hover:border-[#d4922a33] transition-all duration-300 hover:shadow-lg hover:shadow-[#d4922a]/5"
             >
               <div className="w-12 h-12 rounded-lg bg-[#d4922a11] flex items-center justify-center mb-4 group-hover:bg-[#d4922a22] transition-colors">
                 <item.icon className="w-6 h-6 text-[#d4922a]" />
@@ -372,28 +317,57 @@ function EngineeringSection({ t }: { t: (k: string) => string }) {
   ];
 
   return (
-    <section id="specs" className="relative py-20 lg:py-28 bg-[#0d0d0d]">
-      <div className="section-divider mb-20" />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="specs" className="relative py-20 lg:py-28 overflow-hidden">
+      {/* Background image with dark overlay */}
+      <div className="absolute inset-0">
+        <img
+          src="/aluplex/real/dsc6775.jpg"
+          alt=""
+          className="w-full h-full object-cover"
+          loading="lazy"
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#0a0a0a]/95 via-[#0a0a0a]/90 to-[#0a0a0a]/85" />
+      </div>
+
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="section-divider mb-20" />
+
         <div className="grid lg:grid-cols-2 gap-12 items-center">
-          {/* Chassis Visual */}
-          <div className="relative">
-            <div className="rounded-2xl overflow-hidden aspect-[4/3] relative">
-              <div className="metal-bg absolute inset-0" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-center space-y-4">
-                  <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-[#d4922a11] border border-[#d4922a33]">
-                    <Cpu className="w-12 h-12 text-[#d4922a]" />
-                  </div>
-                  <div>
-                    <div className="text-3xl font-bold text-gradient-amber">ALU</div>
-                    <div className="text-sm text-muted-foreground tracking-widest">CHASSIS</div>
-                  </div>
-                  <div className="text-5xl font-bold text-gradient-amber">12.5<span className="text-lg text-muted-foreground"> kg</span></div>
+          {/* Detail photos */}
+          <div className="space-y-6">
+            <div className="rounded-2xl overflow-hidden relative group">
+              <img
+                src="/aluplex/real/dsc6792.jpg"
+                alt="ALUPLEXamp boutique hand wired switches"
+                className="w-full aspect-[16/10] object-cover transition-transform duration-500 group-hover:scale-105"
+                loading="lazy"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+              <div className="absolute bottom-4 left-4">
+                <span className="text-xs font-medium text-[#d4922a] bg-[#0a0a0a]/80 px-3 py-1 rounded-full backdrop-blur-sm">Hand Wired</span>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-6">
+              <div className="rounded-xl overflow-hidden relative group">
+                <img
+                  src="/aluplex/real/dsc6803.jpg"
+                  alt="ALUPLEXamp rear panel effects loop"
+                  className="w-full aspect-[4/3] object-cover transition-transform duration-500 group-hover:scale-105"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+                <div className="absolute bottom-3 left-3">
+                  <span className="text-xs font-medium text-[#d4922a] bg-[#0a0a0a]/80 px-2.5 py-1 rounded-full backdrop-blur-sm">FX Loop</span>
+                </div>
+              </div>
+              <div className="rounded-xl overflow-hidden flex items-center justify-center bg-[#141414] border border-[#2a2a2a]">
+                <div className="text-center p-4">
+                  <div className="text-4xl font-bold text-gradient-amber mb-1">12.5</div>
+                  <div className="text-sm text-muted-foreground">kg</div>
+                  <div className="text-xs text-muted-foreground mt-2 tracking-wider uppercase">Aluminium</div>
                 </div>
               </div>
             </div>
-            <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-3/4 h-8 bg-[#d4922a] blur-[30px] opacity-15" />
           </div>
 
           {/* Text Content */}
@@ -407,7 +381,7 @@ function EngineeringSection({ t }: { t: (k: string) => string }) {
               {features.map((feature) => (
                 <div
                   key={feature.titleKey}
-                  className="p-4 rounded-lg bg-[#141414] border border-[#2a2a2a] hover:border-[#d4922a22] transition-all duration-300"
+                  className="p-4 rounded-lg bg-[#141414]/80 backdrop-blur-sm border border-[#2a2a2a] hover:border-[#d4922a22] transition-all duration-300"
                 >
                   <feature.icon className="w-5 h-5 text-[#d4922a] mb-2" />
                   <h3 className="text-sm font-semibold mb-1">{t(feature.titleKey)}</h3>
@@ -434,19 +408,30 @@ function SoundSection({ t }: { t: (k: string) => string }) {
   ];
 
   return (
-    <section className="relative py-20 lg:py-28">
-      <div className="section-divider mb-20" />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="relative py-20 lg:py-28 overflow-hidden">
+      {/* Subtle background image */}
+      <div className="absolute inset-0">
+        <img
+          src="/aluplex/real/amp-1.jpg"
+          alt=""
+          className="w-full h-full object-cover"
+          loading="lazy"
+        />
+        <div className="absolute inset-0 bg-[#0a0a0a]/93" />
+      </div>
+
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="section-divider mb-20" />
         <div className="text-center mb-16">
           <h2 className="text-3xl sm:text-4xl font-bold text-gradient-amber mb-4">{t('sound.title')}</h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">{t('sound.subtitle')}</p>
         </div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {specs.map((spec, i) => (
+          {specs.map((spec) => (
             <div
               key={spec.titleKey}
-              className="relative p-6 rounded-xl bg-[#141414] border border-[#2a2a2a] hover:border-[#d4922a33] transition-all duration-300 group overflow-hidden"
+              className="relative p-6 rounded-xl bg-[#141414]/80 backdrop-blur-sm border border-[#2a2a2a] hover:border-[#d4922a33] transition-all duration-300 group overflow-hidden"
             >
               <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-[#d4922a] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <div className="flex items-start gap-4">
@@ -484,11 +469,20 @@ function ExpertSection({ t }: { t: (k: string) => string }) {
 
   return (
     <section className="relative py-20 lg:py-28 bg-[#0d0d0d]">
-      <div className="section-divider mb-20" />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="section-divider mb-20" />
         <div className="grid lg:grid-cols-5 gap-12 items-start">
-          {/* Profile Card */}
-          <div className="lg:col-span-2">
+          {/* Profile Card with side image */}
+          <div className="lg:col-span-2 space-y-6">
+            <div className="rounded-2xl overflow-hidden relative group">
+              <img
+                src="/aluplex/real/dsc6827.jpg"
+                alt="ALUPLEXamp three-quarter view"
+                className="w-full aspect-[4/3] object-cover transition-transform duration-500 group-hover:scale-105"
+                loading="lazy"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+            </div>
             <div className="p-6 rounded-2xl bg-[#141414] border border-[#2a2a2a] text-center relative overflow-hidden">
               <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#d4922a] to-transparent" />
               <div className="w-24 h-24 mx-auto rounded-full bg-[#1e1e1e] border-2 border-[#d4922a44] mb-4 flex items-center justify-center">
@@ -604,114 +598,130 @@ function AudioPlayerSection({ t }: { t: (k: string) => string }) {
 
   return (
     <section id="demos" className="relative py-20 lg:py-28">
-      <div className="section-divider mb-20" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="section-divider mb-20" />
         <div className="text-center mb-16">
           <h2 className="text-3xl sm:text-4xl font-bold text-gradient-amber mb-4">{t('audio.title')}</h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">{t('audio.subtitle')}</p>
         </div>
 
         <div className="max-w-4xl mx-auto">
-          {/* Player */}
-          <div className="rounded-2xl bg-[#141414] border border-[#2a2a2a] overflow-hidden">
-            {/* Now Playing */}
-            <div className="p-6 border-b border-[#2a2a2a]">
-              <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${track.color}22` }}>
-                  <Music className="w-7 h-7" style={{ color: track.color }} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-bold text-lg truncate">{t(track.nameKey)}</h3>
-                  <p className="text-sm text-muted-foreground truncate">{t(track.gearKey)}</p>
+          <div className="grid lg:grid-cols-[1fr_280px] gap-8 items-start">
+            {/* Player */}
+            <div className="rounded-2xl bg-[#141414] border border-[#2a2a2a] overflow-hidden">
+              {/* Now Playing */}
+              <div className="p-6 border-b border-[#2a2a2a]">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${track.color}22` }}>
+                    <Music className="w-7 h-7" style={{ color: track.color }} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-bold text-lg truncate">{t(track.nameKey)}</h3>
+                    <p className="text-sm text-muted-foreground truncate">{t(track.gearKey)}</p>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Controls */}
-            <div className="p-6">
-              <div className="flex items-center gap-4 mb-4">
-                <button
-                  onClick={() => handleTrackChange(activeTrack > 0 ? activeTrack - 1 : tracks.length - 1)}
-                  className="text-muted-foreground hover:text-foreground transition-colors"
-                  aria-label="Previous track"
-                >
-                  <SkipBack className="w-5 h-5" />
-                </button>
-                <button
-                  onClick={() => setIsPlaying(!isPlaying)}
-                  className="w-12 h-12 rounded-full bg-[#d4922a] text-[#0a0a0a] flex items-center justify-center hover:bg-[#e8a840] transition-colors pulse-warm"
-                  aria-label={isPlaying ? 'Pause' : 'Play'}
-                >
-                  {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 ml-0.5" />}
-                </button>
-                <button
-                  onClick={() => handleTrackChange(activeTrack < tracks.length - 1 ? activeTrack + 1 : 0)}
-                  className="text-muted-foreground hover:text-foreground transition-colors"
-                  aria-label="Next track"
-                >
-                  <SkipForward className="w-5 h-5" />
-                </button>
-                <div className="flex-1" />
-                <span className="text-xs text-muted-foreground font-mono">
-                  {formatTime(progress, track.duration)}
-                </span>
-              </div>
+              {/* Controls */}
+              <div className="p-6">
+                <div className="flex items-center gap-4 mb-4">
+                  <button
+                    onClick={() => handleTrackChange(activeTrack > 0 ? activeTrack - 1 : tracks.length - 1)}
+                    className="text-muted-foreground hover:text-foreground transition-colors"
+                    aria-label="Previous track"
+                  >
+                    <SkipBack className="w-5 h-5" />
+                  </button>
+                  <button
+                    onClick={() => setIsPlaying(!isPlaying)}
+                    className="w-12 h-12 rounded-full bg-[#d4922a] text-[#0a0a0a] flex items-center justify-center hover:bg-[#e8a840] transition-colors pulse-warm"
+                    aria-label={isPlaying ? 'Pause' : 'Play'}
+                  >
+                    {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 ml-0.5" />}
+                  </button>
+                  <button
+                    onClick={() => handleTrackChange(activeTrack < tracks.length - 1 ? activeTrack + 1 : 0)}
+                    className="text-muted-foreground hover:text-foreground transition-colors"
+                    aria-label="Next track"
+                  >
+                    <SkipForward className="w-5 h-5" />
+                  </button>
+                  <div className="flex-1" />
+                  <span className="text-xs text-muted-foreground font-mono">
+                    {formatTime(progress, track.duration)}
+                  </span>
+                </div>
 
-              {/* Progress bar */}
-              <div className="relative w-full h-1.5 bg-[#2a2a2a] rounded-full cursor-pointer" onClick={(e) => {
-                const rect = e.currentTarget.getBoundingClientRect();
-                const x = (e.clientX - rect.left) / rect.width;
-                setProgress(Math.max(0, Math.min(100, x * 100)));
-              }}>
+                {/* Progress bar */}
                 <div
-                  className="absolute top-0 left-0 h-full rounded-full transition-all duration-100"
-                  style={{ width: `${progress}%`, backgroundColor: track.color }}
-                />
-                <div
-                  className="absolute top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full shadow-lg transition-all duration-100"
-                  style={{ left: `${progress}%`, backgroundColor: track.color, marginLeft: '-7px' }}
-                />
-              </div>
-
-              {/* Track Description */}
-              <div className="mt-6 p-4 rounded-xl bg-[#0a0a0a] border border-[#2a2a2a]">
-                <p className="text-sm text-muted-foreground mb-2">{t(track.descKey)}</p>
-                <p className="text-xs font-mono text-[#d4922a] mb-3">{t(track.settingsKey)}</p>
-                <div className="flex items-start gap-2 p-3 rounded-lg bg-[#d4922a0d] border border-[#d4922a22]">
-                  <Star className="w-4 h-4 text-[#d4922a] shrink-0 mt-0.5" />
-                  <p className="text-xs text-[#d4922a] leading-relaxed italic">
-                    <span className="font-semibold not-italic">Vadim Insight: </span>
-                    {t(track.insightKey)}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Track List */}
-            <div className="border-t border-[#2a2a2a]">
-              {tracks.map((tr, i) => (
-                <button
-                  key={i}
-                  onClick={() => handleTrackChange(i)}
-                  className={`w-full flex items-center gap-4 p-4 text-left transition-all duration-200 ${
-                    i === activeTrack ? 'bg-[#d4922a0d]' : 'hover:bg-[#1e1e1e]'
-                  } ${i > 0 ? 'border-t border-[#2a2a2a]' : ''}`}
+                  className="relative w-full h-1.5 bg-[#2a2a2a] rounded-full cursor-pointer"
+                  onClick={(e) => {
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    const x = (e.clientX - rect.left) / rect.width;
+                    setProgress(Math.max(0, Math.min(100, x * 100)));
+                  }}
                 >
                   <div
-                    className="w-3 h-3 rounded-full shrink-0"
-                    style={{ backgroundColor: i === activeTrack ? tr.color : '#333' }}
+                    className="absolute top-0 left-0 h-full rounded-full transition-all duration-100"
+                    style={{ width: `${progress}%`, backgroundColor: track.color }}
                   />
-                  <div className="flex-1 min-w-0">
-                    <div className={`font-medium text-sm truncate ${i === activeTrack ? 'text-[#d4922a]' : 'text-foreground'}`}>
-                      {t(tr.nameKey)}
+                  <div
+                    className="absolute top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full shadow-lg transition-all duration-100"
+                    style={{ left: `${progress}%`, backgroundColor: track.color, marginLeft: '-7px' }}
+                  />
+                </div>
+
+                {/* Track Description */}
+                <div className="mt-6 p-4 rounded-xl bg-[#0a0a0a] border border-[#2a2a2a]">
+                  <p className="text-sm text-muted-foreground mb-2">{t(track.descKey)}</p>
+                  <p className="text-xs font-mono text-[#d4922a] mb-3">{t(track.settingsKey)}</p>
+                  <div className="flex items-start gap-2 p-3 rounded-lg bg-[#d4922a0d] border border-[#d4922a22]">
+                    <Star className="w-4 h-4 text-[#d4922a] shrink-0 mt-0.5" />
+                    <p className="text-xs text-[#d4922a] leading-relaxed italic">
+                      <span className="font-semibold not-italic">Vadim Insight: </span>
+                      {t(track.insightKey)}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Track List */}
+              <div className="border-t border-[#2a2a2a]">
+                {tracks.map((tr, i) => (
+                  <button
+                    key={i}
+                    onClick={() => handleTrackChange(i)}
+                    className={`w-full flex items-center gap-4 p-4 text-left transition-all duration-200 ${
+                      i === activeTrack ? 'bg-[#d4922a0d]' : 'hover:bg-[#1e1e1e]'
+                    } ${i > 0 ? 'border-t border-[#2a2a2a]' : ''}`}
+                  >
+                    <div
+                      className="w-3 h-3 rounded-full shrink-0"
+                      style={{ backgroundColor: i === activeTrack ? tr.color : '#333' }}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className={`font-medium text-sm truncate ${i === activeTrack ? 'text-[#d4922a]' : 'text-foreground'}`}>
+                        {t(tr.nameKey)}
+                      </div>
+                      <div className="text-xs text-muted-foreground truncate">{t(tr.gearKey)}</div>
                     </div>
-                    <div className="text-xs text-muted-foreground truncate">{t(tr.gearKey)}</div>
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    {Math.floor(tr.duration / 60)}:{(tr.duration % 60).toString().padStart(2, '0')}
-                  </div>
-                </button>
-              ))}
+                    <div className="text-xs text-muted-foreground">
+                      {Math.floor(tr.duration / 60)}:{(tr.duration % 60).toString().padStart(2, '0')}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Decorative amp image */}
+            <div className="hidden lg:block rounded-2xl overflow-hidden border border-[#2a2a2a] sticky top-24">
+              <img
+                src="/aluplex/real/dsc6793.jpg"
+                alt="ALUPLEXamp input jacks and controls"
+                className="w-full aspect-[3/4] object-cover"
+                loading="lazy"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a]/60 via-transparent to-transparent pointer-events-none" />
             </div>
           </div>
         </div>
@@ -736,51 +746,43 @@ function ConfiguratorSection({ t }: { t: (k: string) => string }) {
 
   return (
     <section id="config" className="relative py-20 lg:py-28 bg-[#0d0d0d]">
-      <div className="section-divider mb-20" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="section-divider mb-20" />
         <div className="text-center mb-16">
           <h2 className="text-3xl sm:text-4xl font-bold text-gradient-amber mb-4">{t('config.title')}</h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">{t('config.subtitle')}</p>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-12 items-start">
-          {/* Preview */}
+          {/* Preview with real photo */}
           <div className="sticky top-24">
-            <div className="rounded-2xl bg-[#141414] border border-[#2a2a2a] p-8">
-              <div className="aspect-[4/3] rounded-xl flex items-center justify-center relative overflow-hidden">
+            <div className="rounded-2xl bg-[#141414] border border-[#2a2a2a] overflow-hidden">
+              <div className="relative">
+                <img
+                  src="/aluplex/real/hero-front.jpg"
+                  alt="ALUPLEXamp front view with glowing tubes"
+                  className="w-full aspect-[3/4] object-cover"
+                  loading="lazy"
+                />
+                {/* Color overlay tint */}
                 <div
-                  className="absolute inset-0 opacity-10"
+                  className="absolute inset-0 mix-blend-overlay opacity-20 transition-all duration-500"
                   style={{ background: colors.find((c) => c.id === color)?.gradient }}
                 />
-                <div className="relative text-center">
-                  <div className="text-gradient-amber font-bold text-3xl tracking-widest mb-2">ALUPLEX</div>
-                  <div className="text-muted-foreground text-sm tracking-[0.3em]">AMPLIFICATION</div>
-
-                  {/* Mini amp preview */}
-                  <div className="mt-6 mx-auto max-w-xs">
-                    <div className="rounded-lg p-4 relative" style={{ background: color === 'black' ? '#111' : color === 'cream' ? '#f5f0e1' : color === 'red' ? '#8b1a1a' : '#b8860b' }}>
-                      <div className="flex justify-center gap-4 mb-3">
-                        {[1, 2].map((i) => (
-                          <div key={i} className="w-4 h-5 rounded-full border border-black/20 bg-black/30 flex items-center justify-center">
-                            <div className="w-1.5 h-1.5 rounded-full bg-black/50" />
-                          </div>
-                        ))}
-                      </div>
-                      <div className="flex justify-center gap-3">
-                        {Array.from({ length: 4 }).map((_, i) => (
-                          <div key={i} className="w-5 h-5 rounded-full bg-gradient-to-br from-gray-300 to-gray-500 shadow-sm">
-                            <div className="absolute w-0.5 h-1.5 bg-black/40 ml-[9px] mt-[2px]" />
-                          </div>
-                        ))}
-                      </div>
-                      <div className="flex justify-center gap-2 mt-3 opacity-60">
-                        {[0, 1, 2].map((i) => (
-                          <TubeGlow key={i} className="w-5 h-7" />
-                        ))}
-                      </div>
-                    </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-[#141414] via-transparent to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-6">
+                  <div className="text-gradient-amber font-bold text-2xl tracking-widest">ALUPLEX</div>
+                  <div className="text-white/60 text-sm tracking-[0.3em]">AMPLIFICATION</div>
+                  <div className="mt-2 text-sm text-white/80">
+                    {t(`config.color.${color}`)} &middot; {impedance} Ohm &middot; {t(`config.power.${power}`)}
                   </div>
                 </div>
+              </div>
+              {/* Decorative tube glow row */}
+              <div className="flex justify-center gap-4 py-4 border-t border-[#2a2a2a] bg-[#0a0a0a]/50">
+                {[0, 1, 2].map((i) => (
+                  <TubeGlow key={i} className="w-6 h-8" />
+                ))}
               </div>
             </div>
           </div>
@@ -925,29 +927,69 @@ function GallerySection({ t }: { t: (k: string) => string }) {
 
   const images = [
     {
-      src: '/aluplex/hero-amp.png',
-      alt: 'ALUPLEXamp – Front View',
-      caption: 'ALUPLEXamp Front View',
+      src: '/aluplex/real/amp-56.jpg',
+      alt: 'ALUPLEXamp on speaker cabinet',
+      caption: 'ALUPLEXamp on Cabinet',
     },
     {
-      src: '/aluplex/turret-board.png',
-      alt: 'Turret Board Construction',
-      caption: 'Turret Board – Point-to-Point',
+      src: '/aluplex/real/hero-front.jpg',
+      alt: 'ALUPLEXamp front view with glowing tubes',
+      caption: 'Front View – Glowing Tubes',
     },
     {
-      src: '/aluplex/chassis-detail.png',
-      alt: 'Aluminium Chassis Detail',
-      caption: 'Aluminium Chassis Detail',
+      src: '/aluplex/real/amp-1.jpg',
+      alt: 'ALUPLEXamp control panel close-up',
+      caption: 'Control Panel Detail',
     },
     {
-      src: '/aluplex/tubes-glow.png',
-      alt: 'Tube Interior Glow',
-      caption: 'ECC83 / EL34 Tubes',
+      src: '/aluplex/real/amp-109.jpg',
+      alt: 'ALUPLEXamp star-pattern front grille',
+      caption: 'Star-Pattern Grille',
     },
     {
-      src: '/aluplex/vadim-portrait.png',
-      alt: 'Vadim Bušovský – Tone Architect',
-      caption: 'Vadim Bušovský',
+      src: '/aluplex/real/amp-123.jpg',
+      alt: 'ALUPLEXamp red variant',
+      caption: 'Red Variant',
+    },
+    {
+      src: '/aluplex/real/dsc6775.jpg',
+      alt: 'ALUPLEXamp control panel detail',
+      caption: 'Control Panel Angled',
+    },
+    {
+      src: '/aluplex/real/dsc6790.jpg',
+      alt: 'ALUPLEXamp red full front view',
+      caption: 'Red – Full Front',
+    },
+    {
+      src: '/aluplex/real/dsc6792.jpg',
+      alt: 'ALUPLEXamp boutique hand wired switches',
+      caption: 'Boutique Hand Wired',
+    },
+    {
+      src: '/aluplex/real/dsc6793.jpg',
+      alt: 'ALUPLEXamp input jacks and controls',
+      caption: 'Input Jacks & Controls',
+    },
+    {
+      src: '/aluplex/real/dsc6798.jpg',
+      alt: 'ALUPLEXamp top view with handle',
+      caption: 'Top View',
+    },
+    {
+      src: '/aluplex/real/dsc6803.jpg',
+      alt: 'ALUPLEXamp rear panel effects loop',
+      caption: 'Rear – FX Loop',
+    },
+    {
+      src: '/aluplex/real/dsc6821.jpg',
+      alt: 'ALUPLEXamp rear panel connections',
+      caption: 'Rear Panel Connections',
+    },
+    {
+      src: '/aluplex/real/dsc6827.jpg',
+      alt: 'ALUPLEXamp three-quarter view',
+      caption: 'Three-Quarter View',
     },
   ];
 
@@ -962,14 +1004,14 @@ function GallerySection({ t }: { t: (k: string) => string }) {
 
   return (
     <section id="gallery" className="relative py-20 lg:py-28">
-      <div className="section-divider mb-20" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="section-divider mb-20" />
         <div className="text-center mb-16">
           <h2 className="text-3xl sm:text-4xl font-bold text-gradient-amber mb-4">{t('gallery.title')}</h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">{t('gallery.subtitle')}</p>
         </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
           {images.map((img, i) => (
             <button
               key={i}
@@ -978,13 +1020,11 @@ function GallerySection({ t }: { t: (k: string) => string }) {
                 i === 0 ? 'col-span-2 row-span-2' : ''
               }`}
             >
-              <div className={`relative ${i === 0 ? 'aspect-square' : 'aspect-square'}`}>
+              <div className="relative aspect-square">
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 <div className="absolute bottom-3 left-3 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <p className="text-sm font-medium">{img.caption}</p>
+                  <p className="text-sm font-medium text-white">{img.caption}</p>
                 </div>
-                {/* Placeholder gradient until image loads */}
-                <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a1a] to-[#2a2520]" />
                 <img
                   src={img.src}
                   alt={img.alt}
@@ -1044,7 +1084,7 @@ function GallerySection({ t }: { t: (k: string) => string }) {
             />
             <p className="text-center text-white/70 mt-4">{images[lightboxIndex].caption}</p>
           </div>
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 max-w-[90vw] flex-wrap justify-center">
             {images.map((_, i) => (
               <button
                 key={i}
@@ -1082,8 +1122,8 @@ function FAQSection({ t }: { t: (k: string) => string }) {
 
   return (
     <section id="faq" className="relative py-20 lg:py-28 bg-[#0d0d0d]">
-      <div className="section-divider mb-20" />
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="section-divider mb-20" />
         <div className="text-center mb-16">
           <h2 className="text-3xl sm:text-4xl font-bold text-gradient-amber mb-4">{t('faq.title')}</h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">{t('faq.subtitle')}</p>
@@ -1123,12 +1163,24 @@ function FAQSection({ t }: { t: (k: string) => string }) {
 function CTASection({ t }: { t: (k: string) => string }) {
   return (
     <section id="contact" className="relative py-20 lg:py-28 overflow-hidden">
-      <div className="section-divider mb-20" />
+      {/* Background image with heavy dark overlay */}
+      <div className="absolute inset-0">
+        <img
+          src="/aluplex/real/dsc6790.jpg"
+          alt=""
+          className="w-full h-full object-cover"
+          loading="lazy"
+        />
+        <div className="absolute inset-0 bg-[#0a0a0a]/85" />
+      </div>
+
       {/* Background glow */}
       <div className="absolute inset-0">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-[#d4922a] opacity-[0.06] rounded-full blur-[120px]" />
       </div>
-      <div className="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+
+      <div className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div className="section-divider mb-20" />
         <h2 className="text-4xl sm:text-5xl font-bold text-gradient-amber mb-6">{t('cta.title')}</h2>
         <p className="text-lg text-muted-foreground mb-10 max-w-xl mx-auto">{t('cta.subtitle')}</p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -1158,10 +1210,12 @@ function Footer({ t }: { t: (k: string) => string }) {
     <footer className="relative border-t border-[#2a2a2a]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="text-center md:text-left">
-            <div className="text-gradient-amber font-bold text-xl tracking-wider mb-1">
-              ALUPLEX<span className="text-foreground">amp</span>
-            </div>
+          <div className="text-center md:text-left flex items-center gap-3">
+            <img
+              src="/aluplex/real/logo-white.png"
+              alt="ALUPLEXamp logo"
+              className="h-7 w-auto"
+            />
             <p className="text-sm text-muted-foreground">{t('footer.tagline')}</p>
           </div>
 
