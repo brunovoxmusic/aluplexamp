@@ -1201,7 +1201,7 @@ function ConfiguratorSection({ t }: { t: (k: string) => string }) {
               {/* Visual center */}
               <div className="flex items-center justify-center px-4 sm:px-8 pb-4 sm:pb-6">
                 <div className="text-center w-full">
-                  <img src="/aluplex/DSC6821.jpg" alt="ALUPLEXamp" className="w-full max-w-sm mx-auto rounded-2xl opacity-90 object-cover aspect-[3/2] shadow-2xl shadow-black/30" />
+                  <img src="/aluplex/aluplex-1.jpg" alt="ALUPLEXamp" className="w-full max-w-sm mx-auto rounded-2xl opacity-90 object-cover aspect-[3/2] shadow-2xl shadow-black/30" />
                 </div>
               </div>
 
