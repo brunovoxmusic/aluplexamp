@@ -100,10 +100,9 @@ function Navigation({ lang, setLang, t }: { lang: Language; setLang: (l: Languag
           {/* Logo */}
           <a
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="cursor-pointer flex items-center gap-1 text-xl font-bold tracking-tight"
+            className="cursor-pointer flex items-center"
           >
-            <span className="text-foreground">ALUPLEX</span>
-            <span className="text-muted-foreground">amp</span>
+            <img src="/aluplex/logo.png" alt="ALUPLEXamp" className="h-8 w-auto" />
           </a>
 
           {/* Desktop Nav */}
@@ -147,9 +146,8 @@ function Navigation({ lang, setLang, t }: { lang: Language; setLang: (l: Languag
               </SheetTrigger>
               <SheetContent side="right" className="w-72 bg-[#0a0a0a] border-[#2a2a2a]">
                 <SheetHeader className="mb-6">
-                  <SheetTitle className="text-foreground">
-                    <span className="text-foreground">ALUPLEX</span>
-                    <span className="text-muted-foreground">amp</span>
+                  <SheetTitle className="text-foreground flex items-center">
+                    <img src="/aluplex/logo.png" alt="ALUPLEXamp" className="h-8 w-auto" />
                   </SheetTitle>
                 </SheetHeader>
                 {/* Mobile Language Switcher */}
@@ -201,7 +199,12 @@ function HeroSection({ t }: { t: (k: string) => string }) {
   };
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center hero-gradient overflow-hidden">
+    <section 
+      className="relative min-h-screen flex items-center justify-center overflow-hidden"
+      style={{ backgroundImage: 'url(/aluplex/aluplex-1.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }}
+    >
+      {/* Dark overlay for text readability */}
+      <div className="absolute inset-0 bg-[#0a0a0a]/70" />
       {/* Ambient glow */}
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-[radial-gradient(ellipse,rgba(212,146,42,0.08)_0%,transparent_70%)] pointer-events-none" />
       <div className="absolute bottom-1/4 left-1/4 w-[300px] h-[200px] bg-[radial-gradient(ellipse,rgba(212,146,42,0.04)_0%,transparent_70%)] pointer-events-none" />
@@ -327,6 +330,11 @@ function EngineeringSection({ t }: { t: (k: string) => string }) {
           {/* Right — decorative visual */}
           <div className="fade-in-up" style={{ transitionDelay: '200ms' }}>
             <div className="relative bg-card border border-[#2a2a2a] rounded-2xl p-8 sm:p-10 tube-glow">
+              {/* Real chassis back image */}
+              <div className="mb-8 rounded-xl overflow-hidden border border-[#2a2a2a] shadow-lg">
+                <img src="/aluplex/aluplex-back-naked.jpg" alt="ALUPLEXamp chassis internals" className="w-full h-auto object-cover" />
+              </div>
+
               {/* Weight display */}
               <div className="text-center mb-10">
                 <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2">{t('eng.weight.title')}</p>
@@ -623,9 +631,10 @@ function VideoSection({ t }: { t: (k: string) => string }) {
               className="absolute inset-0 w-full h-full cursor-pointer group"
               aria-label="Play video"
             >
-              {/* Dark gradient placeholder */}
-              <div className="absolute inset-0 bg-gradient-to-br from-[#141414] via-[#1a1810] to-[#141414]" />
-              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(212,146,42,0.06)_0%,transparent_70%)]" />
+              {/* Background image */}
+              <img src="/aluplex/aluplex-109.jpg" alt="ALUPLEXamp Video" className="absolute inset-0 w-full h-full object-cover" />
+              {/* Dark overlay */}
+              <div className="absolute inset-0 bg-[#0a0a0a]/50" />
 
               {/* Play button */}
               <div className="absolute inset-0 flex items-center justify-center">
@@ -756,18 +765,7 @@ function ConfiguratorSection({ t }: { t: (k: string) => string }) {
               {/* Visual center */}
               <div className="flex-1 flex items-center justify-center my-8">
                 <div className="text-center">
-                  <div
-                    className="w-32 h-32 sm:w-40 sm:h-40 rounded-full mx-auto mb-4 opacity-30"
-                    style={{
-                      background: color === 'tiger'
-                        ? 'linear-gradient(135deg, #c4a050, #8b6914)'
-                        : color === 'black'
-                        ? 'linear-gradient(135deg, #2a2a2a, #0a0a0a)'
-                        : color === 'cream'
-                        ? 'linear-gradient(135deg, #f5e6c8, #d4c4a0)'
-                        : 'linear-gradient(135deg, #b33030, #8b1a1a)',
-                    }}
-                  />
+                  <img src="/aluplex/DSC6821.jpg" alt="ALUPLEXamp" className="w-48 sm:w-56 mx-auto mb-4 rounded-lg opacity-80 object-cover aspect-[3/2]" />
                   <p className="text-sm text-muted-foreground/50 font-mono">ALUPLEXamp</p>
                 </div>
               </div>
@@ -814,12 +812,12 @@ function GallerySection({ t }: { t: (k: string) => string }) {
   const [lightbox, setLightbox] = useState<number | null>(null);
 
   const items = [
-    { label: t('gal.front'), gradient: 'from-[#1a1810] via-[#141410] to-[#1a1610]' },
-    { label: t('gal.control'), gradient: 'from-[#141414] via-[#1a1a18] to-[#141410]' },
-    { label: t('gal.turret'), gradient: 'from-[#18160e] via-[#1a1814] to-[#141410]' },
-    { label: t('gal.rear'), gradient: 'from-[#101418] via-[#141414] to-[#1a1610]' },
-    { label: t('gal.detail'), gradient: 'from-[#1a1410] via-[#161414] to-[#141410]' },
-    { label: t('gal.quarter'), gradient: 'from-[#141414] via-[#1a1610] to-[#161814]' },
+    { label: t('gal.front'), src: '/aluplex/DSC6775.jpg' },
+    { label: t('gal.control'), src: '/aluplex/DSC6790.jpg' },
+    { label: t('gal.turret'), src: '/aluplex/DSC6792.jpg' },
+    { label: t('gal.rear'), src: '/aluplex/DSC6793.jpg' },
+    { label: t('gal.detail'), src: '/aluplex/DSC6798.jpg' },
+    { label: t('gal.quarter'), src: '/aluplex/DSC6803.jpg' },
   ];
 
   const prev = () => {
@@ -858,19 +856,13 @@ function GallerySection({ t }: { t: (k: string) => string }) {
               style={{ transitionDelay: `${i * 80}ms` }}
               aria-label={item.label}
             >
-              {/* Dark gradient placeholder */}
-              <div className={`absolute inset-0 bg-gradient-to-br ${item.gradient}`} />
-              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(212,146,42,0.04)_0%,transparent_70%)]" />
-
-              {/* Overlay text */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-sm text-muted-foreground/50 font-medium group-hover:text-muted-foreground transition-colors">
-                  {item.label}
-                </span>
+              {/* Real image */}
+              <img src={item.src} alt={item.label} className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+              {/* Hover overlay with label */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                <span className="text-xs text-white/90 font-medium">{item.label}</span>
               </div>
-
-              {/* Hover overlay */}
-              <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/5 transition-colors" />
             </button>
           ))}
         </div>
@@ -903,10 +895,7 @@ function GallerySection({ t }: { t: (k: string) => string }) {
               className="relative w-[90vw] max-w-4xl aspect-[4/3] rounded-2xl overflow-hidden border border-[#2a2a2a]"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className={`absolute inset-0 bg-gradient-to-br ${items[lightbox].gradient}`} />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-lg text-muted-foreground/50">{items[lightbox].label}</span>
-              </div>
+              <img src={items[lightbox].src} alt={items[lightbox].label} className="absolute inset-0 w-full h-full object-cover" />
             </div>
             {/* Counter */}
             <p className="absolute bottom-4 left-1/2 -translate-x-1/2 text-sm text-muted-foreground/50">
@@ -1008,9 +997,8 @@ function Footer({ t }: { t: (k: string) => string }) {
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col items-center gap-4 text-center">
           {/* Logo */}
-          <div className="text-xl font-bold tracking-tight">
-            <span className="text-foreground">ALUPLEX</span>
-            <span className="text-muted-foreground">amp</span>
+          <div className="flex items-center">
+            <img src="/aluplex/logo.png" alt="ALUPLEXamp" className="h-7 w-auto" />
           </div>
 
           <p className="text-sm text-muted-foreground">{t('footer.tagline')}</p>

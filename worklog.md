@@ -121,3 +121,29 @@ Stage Summary:
 - Configurator: Color + Impedance + FX Loop (no power supply option)
 - Engineering: Voltage selector displayed as built-in feature
 - No external image dependencies (all CSS gradients)
+
+---
+Task ID: 10
+Agent: full-stack-developer
+Task: Integrate real images from original ALUPLEXamp website
+
+Work Log:
+- Verified 20 images available in /public/aluplex/ (logo.png, aluplex-1/56/109/123/138/back-naked.jpg, DSC6xxx series, DSC015xx series)
+- Replaced text logo with real logo.png in Navigation (desktop + mobile SheetHeader) and Footer
+- Replaced hero CSS `hero-gradient` class with aluplex-1.jpg background-image + dark overlay (bg-[#0a0a0a]/70)
+- Added aluplex-back-naked.jpg image above weight display in Engineering section right panel
+- Replaced video section thumbnail CSS gradient with aluplex-109.jpg + 50% dark overlay
+- Replaced all 6 gallery placeholder items (gradient-based) with real DSC6xxx product photos
+- Updated gallery grid to use `<img>` tags with hover scale effect + gradient overlay label
+- Updated gallery lightbox to display real images instead of gradient placeholders
+- Replaced configurator preview gradient circle with real product image (DSC6821.jpg)
+- Lint passes clean, dev server compiles successfully
+
+Stage Summary:
+- All CSS gradient placeholders replaced with real product photography
+- Navigation uses official ALUPLEX logo image (desktop, mobile, footer)
+- Hero section uses aluplex-1.jpg background with dark overlay for text readability
+- Gallery section fully functional with real images + lightbox with keyboard navigation
+- Engineering section shows real chassis back view (aluplex-back-naked.jpg)
+- Video section thumbnail uses aluplex-109.jpg with overlay
+- Configurator preview shows real product image (DSC6821.jpg)
