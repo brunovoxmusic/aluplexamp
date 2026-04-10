@@ -332,16 +332,23 @@ function ValueProps({ t }: { t: (k: string) => string }) {
 
   return (
     <section className="py-16 sm:py-24 lg:py-28 px-4 sm:px-6 lg:px-8" ref={ref}>
-      <div className="max-w-7xl mx-auto">
-        {/* Section Header */}
-        <div className="text-center mb-10 sm:mb-14 fade-in-up">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="w-8 h-[2px] bg-primary" />
-            <span className="text-xs font-semibold text-primary uppercase tracking-[0.2em]">{t('vp.section')}</span>
-            <div className="w-8 h-[2px] bg-primary" />
+      <div
+        className="section-bg-photo"
+        style={{ backgroundImage: 'url(/aluplex/aluplex-138.jpg)' }}
+      >
+        {/* Top/bottom gradient overlays for readability */}
+        <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[#0a0a0a] to-transparent z-[1] pointer-events-none" />
+        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#0a0a0a] to-transparent z-[1] pointer-events-none" />
+        <div className="max-w-7xl mx-auto">
+          {/* Section Header */}
+          <div className="text-center mb-10 sm:mb-14 fade-in-up">
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <div className="w-8 h-[2px] bg-primary" />
+              <span className="text-xs font-semibold text-primary uppercase tracking-[0.2em]">{t('vp.section')}</span>
+              <div className="w-8 h-[2px] bg-primary" />
+            </div>
           </div>
-        </div>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
           {cards.map((card, i) => (
             <div
               key={i}
@@ -355,6 +362,7 @@ function ValueProps({ t }: { t: (k: string) => string }) {
               <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{card.desc}</p>
             </div>
           ))}
+        </div>
         </div>
       </div>
     </section>
@@ -496,6 +504,10 @@ function SoundArchitecture({ t }: { t: (k: string) => string }) {
 
         {/* EL34 + ECC83 Callout */}
         <div className="fade-in-up relative overflow-hidden bg-gradient-to-r from-primary/[0.04] via-primary/[0.08] to-primary/[0.04] border border-primary/15 rounded-3xl p-6 sm:p-8 lg:p-10 backdrop-blur-sm" style={{ transitionDelay: '400ms' }}>
+          {/* Subtle amp photo background — right side */}
+          <div className="absolute top-0 right-0 w-2/3 h-full opacity-[0.04] pointer-events-none">
+            <img src="/aluplex/aluplex-123.jpg" alt="" className="w-full h-full object-cover grayscale mix-blend-luminosity" loading="lazy" />
+          </div>
           <div className="absolute top-0 right-0 w-64 h-64 bg-[radial-gradient(ellipse,rgba(212,146,42,0.06)_0%,transparent_70%)] pointer-events-none" />
           <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground mb-3">
             {t('sa.el34.title')}
@@ -1438,7 +1450,7 @@ function CTASection({ t }: { t: (k: string) => string }) {
   return (
     <section id="contact" className="py-16 sm:py-24 lg:py-28 px-4 sm:px-6 lg:px-8" ref={ref}>
       <div className="max-w-3xl mx-auto">
-        <div className="fade-in-up relative rounded-3xl overflow-hidden border border-primary/15 p-6 sm:p-10 lg:p-16 text-center">
+        <div className="section-bg-photo fade-in-up relative rounded-3xl overflow-hidden border border-primary/15 text-center" style={{ backgroundImage: 'url(/aluplex/DSC6827.jpg)' }}>
           {/* Background effects */}
           <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.04] via-primary/[0.08] to-primary/[0.04]" />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(212,146,42,0.06)_0%,transparent_60%)]" />

@@ -549,6 +549,34 @@
   background: linear-gradient(135deg, #b33030, #8b1a1a);
 }
 
+/* ========== Section Background Photo ========== */
+
+.section-bg-photo {
+  position: relative;
+  overflow: hidden;
+}
+
+.section-bg-photo::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center center;
+  opacity: 0.04;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.section-bg-photo > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Variant: photo aligned to the right (for EL34 callout) */
+.section-bg-photo-right::before {
+  background-position: right center;
+}
+
 /* ========== Lightbox ========== */
 
 .lightbox-overlay {
