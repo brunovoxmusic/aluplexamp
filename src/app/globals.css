@@ -339,10 +339,22 @@
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease, border-color 0.4s ease;
 }
 
-.card-hover:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(212, 146, 42, 0.08);
-  border-color: rgba(212, 146, 42, 0.2);
+@media (hover: hover) {
+  .card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(212, 146, 42, 0.08);
+    border-color: rgba(212, 146, 42, 0.2);
+  }
+}
+
+/* ========== Track Selector Scroll ========== */
+
+.track-scroll {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.track-scroll::-webkit-scrollbar {
+  display: none;
 }
 
 /* ========== Track Accent Colors ========== */
@@ -494,3 +506,26 @@
 .config-preview-black { background: linear-gradient(145deg, #141414, #0a0a0a); }
 .config-preview-cream { background: linear-gradient(145deg, #1a1810, #181612); }
 .config-preview-red { background: linear-gradient(145deg, #1a1210, #141010); }
+
+/* ========== Mobile Touch Improvements ========== */
+
+@media (max-width: 640px) {
+  .hero-fade-item {
+    animation-duration: 0.7s;
+  }
+  
+  .card-hover {
+    transition: box-shadow 0.4s ease, border-color 0.4s ease;
+  }
+}
+
+/* ========== Smooth Transitions ========== */
+
+img {
+  image-rendering: auto;
+}
+
+/* Prevent layout shift from scrollbar */
+html {
+  scrollbar-gutter: stable;
+}

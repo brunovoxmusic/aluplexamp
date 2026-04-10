@@ -229,7 +229,7 @@ function HeroSection({ t }: { t: (k: string) => string }) {
 
           {/* Title */}
           <div className="hero-fade-item" style={{ animationDelay: '0.4s' }}>
-            <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tighter mb-4 sm:mb-6 text-gradient-amber-shimmer leading-[1.05]">
+            <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tighter mb-4 sm:mb-6 text-gradient-amber-shimmer leading-[1.05] break-words">
               {t('hero.title')}
             </h1>
           </div>
@@ -320,7 +320,7 @@ function ValueProps({ t }: { t: (k: string) => string }) {
           {cards.map((card, i) => (
             <div
               key={i}
-              className="fade-in-up group bg-card/50 border border-[#2a2a2a]/60 rounded-2xl p-5 sm:p-6 lg:p-8 text-center card-hover backdrop-blur-sm"
+              className="fade-in-up group bg-card/50 border border-[#2a2a2a]/60 rounded-2xl p-4 sm:p-5 lg:p-8 text-center card-hover backdrop-blur-sm"
               style={{ transitionDelay: `${i * 100}ms` }}
             >
               <div className="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-primary/10 group-hover:bg-primary/20 transition-colors duration-300 mb-4">
@@ -369,7 +369,7 @@ function EngineeringSection({ t }: { t: (k: string) => string }) {
               {features.map((f, i) => (
                 <div
                   key={i}
-                  className="fade-in-up group bg-card/50 border border-[#2a2a2a]/60 rounded-2xl p-5 card-hover backdrop-blur-sm"
+                  className="fade-in-up group bg-card/50 border border-[#2a2a2a]/60 rounded-2xl p-4 sm:p-5 card-hover backdrop-blur-sm"
                   style={{ transitionDelay: `${(i + 1) * 100}ms` }}
                 >
                   <div className="flex items-center gap-3 mb-3">
@@ -393,7 +393,7 @@ function EngineeringSection({ t }: { t: (k: string) => string }) {
                 <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent" />
               </div>
 
-              <div className="p-6 sm:p-8 lg:p-10 -mt-12 relative">
+              <div className="p-6 sm:p-8 lg:p-10 relative">
                 {/* Weight display */}
                 <div className="text-center mb-8">
                   <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-[0.3em] mb-3">{t('eng.weight.title')}</p>
@@ -458,7 +458,7 @@ function SoundArchitecture({ t }: { t: (k: string) => string }) {
           {specs.map((spec, i) => (
             <div
               key={i}
-              className="fade-in-up group bg-card/50 border border-[#2a2a2a]/60 rounded-2xl p-5 sm:p-6 lg:p-8 text-center card-hover backdrop-blur-sm"
+              className="fade-in-up group bg-card/50 border border-[#2a2a2a]/60 rounded-2xl p-4 sm:p-5 lg:p-8 text-center card-hover backdrop-blur-sm"
               style={{ transitionDelay: `${i * 80}ms` }}
             >
               <div className="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-primary/10 group-hover:bg-primary/20 transition-colors duration-300 mb-4">
@@ -804,9 +804,47 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
         </div>
 
         <div className="fade-in-up lg:flex gap-6" style={{ transitionDelay: '100ms' }}>
-          {/* Track List */}
-          <div className="lg:w-[280px] xl:w-[300px] flex-shrink-0 mb-6 lg:mb-0">
-            <div className="bg-card/60 border border-[#2a2a2a]/60 rounded-2xl overflow-hidden backdrop-blur-sm">
+          {/* Track List — horizontal scroll on mobile, vertical sidebar on desktop */}
+          <div className="lg:w-[280px] xl:w-[300px] flex-shrink-0 mb-4 lg:mb-0">
+            {/* Mobile: horizontal scrollable track pills */}
+            <div className="lg:hidden track-scroll flex gap-2 overflow-x-auto pb-2 -mx-4 px-4">
+              {tracks.map((track, i) => (
+                <button
+                  key={i}
+                  onClick={() => { if (i !== activeTrack) { setActiveTrack(i); setPlaying(false); setCurrentTime(0); } else { playTrack(i); } }}
+                  className="flex-shrink-0 flex items-center gap-2.5 px-4 py-2.5 rounded-xl border text-left transition-all duration-300"
+                  style={{
+                    background: activeTrack === i ? trackAccentsFaded[i] : 'rgba(255,255,255,0.02)',
+                    borderColor: activeTrack === i ? trackAccents[i] : 'rgba(42,42,42,0.6)',
+                  }}
+                >
+                  {/* Playing indicator or number */}
+                  <div className="flex-shrink-0 w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-bold transition-all duration-300"
+                    style={{
+                      background: activeTrack === i ? trackAccents[i] : 'rgba(255,255,255,0.04)',
+                      color: activeTrack === i ? '#0a0a0a' : 'rgba(138,133,128,0.7)',
+                    }}
+                  >
+                    {playing && activeTrack === i ? (
+                      <div className="flex items-end gap-[1.5px] h-2.5">
+                        <span className="w-[1.5px] rounded-full bg-current audio-bar" style={{ animationDelay: '0s' }} />
+                        <span className="w-[1.5px] rounded-full bg-current audio-bar" style={{ animationDelay: '0.15s' }} />
+                        <span className="w-[1.5px] rounded-full bg-current audio-bar" style={{ animationDelay: '0.08s' }} />
+                      </div>
+                    ) : (
+                      <span className="font-mono">{i + 1}</span>
+                    )}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[11px] font-bold truncate" style={{ color: activeTrack === i ? trackAccents[i] : 'rgba(138,133,128,0.9)' }}>
+                      {track.tag}
+                    </p>
+                  </div>
+                </button>
+              ))}
+            </div>
+            {/* Desktop: vertical sidebar list */}
+            <div className="hidden lg:block bg-card/60 border border-[#2a2a2a]/60 rounded-2xl overflow-hidden backdrop-blur-sm">
               {tracks.map((track, i) => (
                 <button
                   key={i}
@@ -865,7 +903,7 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
               />
 
               {/* Now Playing Header */}
-              <div className="relative px-5 sm:px-6 pt-5 sm:pt-6 pb-4">
+              <div className="relative px-4 sm:px-6 pt-4 sm:pt-5 pb-3">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2.5 mb-2">
@@ -893,7 +931,7 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
               </div>
 
               {/* Waveform Display */}
-              <div className="relative px-5 sm:px-6">
+              <div className="relative px-4 sm:px-6">
                 <div
                   ref={waveformContainerRef}
                   className={`relative w-full h-24 sm:h-28 lg:h-32 rounded-xl bg-white/[0.02] border border-white/[0.05] cursor-pointer overflow-hidden transition-all duration-300 ${playing ? 'border-white/[0.08]' : ''}`}
@@ -924,7 +962,7 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
               </div>
 
               {/* Controls */}
-              <div className="relative px-5 sm:px-6 pt-4 pb-5 sm:pb-6">
+              <div className="relative px-4 sm:px-6 pt-3 pb-4 sm:pb-5">
                 {/* Progress Bar */}
                 <div
                   ref={progressRef}
@@ -1014,8 +1052,8 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
               </div>
 
               {/* Track Description */}
-              <div className="relative px-5 sm:px-6 pb-5 sm:pb-6">
-                <div className="rounded-xl bg-white/[0.02] border border-white/[0.04] px-4 py-3">
+              <div className="relative px-4 sm:px-6 pb-4 sm:pb-5">
+                <div className="rounded-xl bg-white/[0.02] border border-white/[0.04] px-3 sm:px-4 py-3">
                   <p className="text-[10px] sm:text-[11px] font-mono uppercase tracking-wider mb-1.5" style={{ color: trackAccentsMid[activeTrack] }}>
                     {currentTrack.settings}
                   </p>
@@ -1137,7 +1175,7 @@ function ConfiguratorSection({ t }: { t: (k: string) => string }) {
           <div className="fade-in-up" style={{ transitionDelay: '150ms' }}>
             <div className={`rounded-3xl overflow-hidden ${previewClass} border border-[#2a2a2a]/60`}>
               {/* Branding */}
-              <div className="p-6 sm:p-8">
+              <div className="px-5 sm:px-8 pt-5 sm:pt-8">
                 <p className="text-[10px] sm:text-xs text-muted-foreground/40 font-mono tracking-[0.4em] uppercase mb-2">
                   {t('cfg.preview.brand')}
                 </p>
@@ -1145,15 +1183,15 @@ function ConfiguratorSection({ t }: { t: (k: string) => string }) {
               </div>
 
               {/* Visual center */}
-              <div className="flex items-center justify-center px-6 sm:px-8 pb-6">
+              <div className="flex items-center justify-center px-4 sm:px-8 pb-4 sm:pb-6">
                 <div className="text-center w-full">
                   <img src="/aluplex/DSC6821.jpg" alt="ALUPLEXamp" className="w-full max-w-sm mx-auto rounded-2xl opacity-90 object-cover aspect-[3/2] shadow-2xl shadow-black/30" />
                 </div>
               </div>
 
               {/* Summary */}
-              <div className="px-6 sm:px-8 pb-6 sm:pb-8">
-                <div className="bg-[#0a0a0a]/60 border border-white/[0.06] rounded-2xl p-5">
+              <div className="px-5 sm:px-8 pb-5 sm:pb-8">
+                <div className="bg-[#0a0a0a]/60 border border-white/[0.06] rounded-2xl p-4 sm:p-5">
                   <h4 className="text-xs font-semibold text-primary uppercase tracking-[0.15em] mb-4">{t('cfg.summary')}</h4>
                   <div className="space-y-3 text-sm">
                     <div className="flex justify-between items-center">
@@ -1242,14 +1280,14 @@ function GallerySection({ t }: { t: (k: string) => string }) {
           <p className="text-muted-foreground text-sm sm:text-base">{t('gal.subtitle')}</p>
         </div>
 
-        {/* Gallery Grid - varied sizes */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5 sm:gap-3 lg:gap-4">
+        {/* Gallery Grid - responsive masonry-like */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3 lg:gap-4">
           {items.map((item, i) => (
             <button
               key={i}
               onClick={() => setLightbox(i)}
               className={`fade-in-up group relative aspect-[4/3] rounded-2xl overflow-hidden border border-[#2a2a2a]/40 cursor-pointer card-hover ${
-                i === 0 ? 'md:col-span-2 md:row-span-2 md:aspect-auto' : ''
+                i === 0 ? 'sm:col-span-2 sm:row-span-2 sm:aspect-auto' : ''
               }`}
               style={{ transitionDelay: `${i * 60}ms` }}
               aria-label={item.label}
@@ -1300,7 +1338,7 @@ function GallerySection({ t }: { t: (k: string) => string }) {
             >
               <ChevronRight className="size-5" />
             </button>
-            <div className="relative w-[92vw] sm:w-[85vw] max-w-5xl aspect-[4/3] rounded-2xl overflow-hidden border border-white/10 shadow-2xl"
+            <div className="relative w-[95vw] sm:w-[85vw] max-w-5xl aspect-[4/3] rounded-2xl overflow-hidden border border-white/10 shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
               <img src={items[lightbox].src} alt={items[lightbox].label} className="absolute inset-0 w-full h-full object-cover" />
@@ -1344,7 +1382,7 @@ function FAQSection({ t }: { t: (k: string) => string }) {
               <AccordionItem
                 key={i}
                 value={`faq-${i}`}
-                className="bg-card/50 border border-[#2a2a2a]/60 rounded-2xl px-4 sm:px-6 data-[state=open]:border-primary/20 data-[state=open]:bg-card/80 transition-all duration-300 backdrop-blur-sm"
+                className="bg-card/50 border border-[#2a2a2a]/60 rounded-2xl px-3 sm:px-5 lg:px-6 data-[state=open]:border-primary/20 data-[state=open]:bg-card/80 transition-all duration-300 backdrop-blur-sm"
               >
                 <AccordionTrigger className="text-left text-sm sm:text-base font-medium text-foreground hover:text-primary hover:no-underline py-4 sm:py-5">
                   <div className="flex items-center gap-3 sm:gap-4">
@@ -1374,7 +1412,7 @@ function CTASection({ t }: { t: (k: string) => string }) {
   return (
     <section id="contact" className="py-16 sm:py-24 lg:py-28 px-4 sm:px-6 lg:px-8" ref={ref}>
       <div className="max-w-3xl mx-auto">
-        <div className="fade-in-up relative rounded-3xl overflow-hidden border border-primary/15 p-8 sm:p-12 lg:p-16 text-center">
+        <div className="fade-in-up relative rounded-3xl overflow-hidden border border-primary/15 p-6 sm:p-10 lg:p-16 text-center">
           {/* Background effects */}
           <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.04] via-primary/[0.08] to-primary/[0.04]" />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(212,146,42,0.06)_0%,transparent_60%)]" />

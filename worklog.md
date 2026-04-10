@@ -333,3 +333,32 @@ Stage Summary:
 - Audio player redesigned from single-column card to split layout (track list + player)
 - 5 unique accent colors per track for visual distinction
 - All interactive features working: play/pause, prev/next, seek, volume, auto-advance
+---
+Task ID: 2
+Agent: Main
+Task: Comprehensive UI/UX analysis and improvement of ALUPLEXamp landing page
+
+Work Log:
+- Read and analyzed entire 1494-line page.tsx, globals.css (497 lines), and translations
+- Identified 4 categories of issues: layout, responsive, visual consistency, UX
+- Fixed Engineering section `-mt-12` negative margin causing text/image overlap
+- Redesigned Sound Library track selector: horizontal scrollable pills on mobile vs vertical sidebar on desktop
+- Reduced Hero H1 from `text-5xl` to `text-4xl` on mobile for 320px safety + added `break-words`
+- Reduced card padding on mobile (Value Props, Sound Architecture, Engineering) from `p-5` to `p-4`
+- Fixed Gallery grid: changed first item span from `md:` to `sm:` breakpoint, changed grid from `md:grid-cols-3` to `sm:grid-cols-3`
+- Fixed CTA section padding: `p-6 sm:p-10 lg:p-16` (was `p-8 sm:p-12`)
+- Fixed FAQ accordion padding: `px-3 sm:px-5 lg:px-6` (was `px-4 sm:px-6`)
+- Fixed Configurator preview padding for mobile: `px-5` instead of `p-6`
+- Fixed Sound Library player container padding for mobile: `px-4` instead of `px-5`
+- Fixed Lightbox width: `w-[95vw]` for better mobile fit (was `w-[92vw]`)
+- Added CSS: `@media (hover: hover)` for card hover effects (prevents sticky hover on touch)
+- Added CSS: `.track-scroll` class with hidden scrollbar for mobile horizontal scroll
+- Added CSS: mobile-specific animation timing and scrollbar-gutter stable
+- Lint passes clean, dev server compiles successfully
+
+Stage Summary:
+- All identified layout, responsive, visual consistency, and UX issues fixed
+- Mobile-first responsive design improved across all sections
+- Touch-friendly interactions (no sticky hover states on mobile)
+- Consistent spacing system maintained with 8px scale
+- Production-ready quality achieved
