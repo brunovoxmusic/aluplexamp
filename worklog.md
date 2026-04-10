@@ -212,3 +212,34 @@ Stage Summary:
 - Fully functional audio player with real HTML5 audio playback
 - Animated equalizer bars, accent colors, expandable details
 - All translations updated (SK/EN/DE)
+
+---
+Task ID: 3
+Agent: Main Agent
+Task: Replace TTS audio demos with synthesized guitar amp tones
+
+Work Log:
+- User reported existing audio files were TTS (text-to-speech), not musical
+- Created generate-audio.mjs — comprehensive PCM audio synthesis engine:
+  - Karplus-Strong algorithm for realistic plucked string sounds
+  - Tube amp saturation simulation (asymmetric soft clipping via tanh)
+  - 2nd order IIR filters: lowpass, highpass, peaking EQ
+  - Schroeder reverb approximation with 8 parallel delay lines
+  - Dynamic compressor with attack/release envelope follower
+  - ADSR envelope shaping for note dynamics
+  - Multi-note mixing with velocity sensitivity
+- Generated 5 distinct EL34 tube amp tones (10 seconds each, 44.1kHz, 16-bit, 862KB each):
+  1. track1-woody-clean.wav — Clean, warm, woody tone (low gain, warm mids, soft saturation 1.5x)
+  2. track2-british-crunch.wav — Classic plexi crunch (mid gain 3x, aggressive 800Hz mids, presence)
+  3. track3-brown-sound.wav — Brown sound high gain (heavy 2-stage saturation 5x+2x, creamy compression)
+  4. track4-dynamic-breakup.wav — Edge-of-breakup dynamics (velocity-sensitive, threshold-based saturation)
+  5. track5-volume-rolloff.wav — Volume knob interaction (smoothstep gain curve, dirt→clean→dirt)
+- Each track uses distinct EQ curves, saturation levels, and musical content matching its description
+- All files are real synthesized audio — no TTS, no speech content
+- Lint passes clean, dev server running
+
+Stage Summary:
+- Replaced all 5 TTS audio files with synthesized guitar amp tones
+- Each track authentically represents a different EL34 tube amp character
+- Audio player UI unchanged — still uses same file paths
+- Files reduced from 1.5MB to 862KB each (better web performance)
