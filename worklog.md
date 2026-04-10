@@ -556,3 +556,58 @@ Stage Summary:
 - Enhanced CTA interactions with directional hover animations
 - Darker, more dramatic hero background (#050505)
 - Zero regressions, production-ready
+
+---
+Task ID: 14
+Agent: full-stack-developer
+Task: Comprehensive design improvements based on user screenshot analysis
+
+Work Log:
+- Read worklog (559 lines) and analyzed complete codebase: page.tsx (1579 lines), translations.ts (496 lines), globals.css (656 lines)
+- Updated translations.ts CTA texts across all 3 languages:
+  - SK: 'hero.cta.listen' → 'Vypočúvaj ukážky', 'hero.cta.configure' → 'Konfigurovať môj originál'
+  - EN: 'hero.cta.listen' → 'Listen to Demos', 'hero.cta.configure' → 'Configure My Original'
+  - DE: 'hero.cta.listen' → 'Demos anhören', 'hero.cta.configure' → 'Mein Original konfigurieren'
+- Added 4 new footer translation keys to all 3 languages:
+  - footer.nav, footer.contact, footer.email.info, footer.email.order
+- Hero section major redesign in page.tsx:
+  - Changed section from `justify-center` to `items-start lg:items-center` for left alignment
+  - Changed bg from #050505 to #080808
+  - Replaced centered overlays with directional: `bg-gradient-to-r from-[#080808] via-[#080808]/80 to-[#080808]/20`
+  - Added bottom gradient: `bg-gradient-to-t from-[#080808]/60 via-transparent to-[#080808]/70`
+  - Removed `text-center` from content container, added left padding (`px-6 sm:px-10 lg:px-16 xl:px-24`)
+  - Added `max-w-3xl` to H1 title, left-aligned
+  - Removed `justify-center` from golden line separator, spec strip, and CTA buttons
+  - Changed CTA buttons to `items-start sm:items-center`
+  - Removed `mx-auto` from description paragraph, changed to `max-w-lg`
+- Value Props section redesign:
+  - Replaced `section-bg-photo` CSS class with direct `<img>` element at `opacity-[0.06]` with `grayscale mix-blend-luminosity`
+  - Added `bg-[#0a0a0a]/95` full-width overlay for dark readability
+  - Updated card padding from `p-4 sm:p-5 lg:p-8` to `p-5 sm:p-6 lg:p-8`
+- Gallery grid fix:
+  - Changed first item from `sm:aspect-auto` to `sm:aspect-square` (2 cols + 2 rows = perfect square)
+  - Added `auto-rows-fr` to grid for equal row heights
+- EL34 Callout fix:
+  - Removed `max-w-3xl` from description `<p>` tag so text fills container naturally
+- Footer professional redesign:
+  - Replaced minimal centered footer with 4-column grid layout (brand, navigation, contact, legal)
+  - Brand column: logo + tagline + "Handwired with passion" text
+  - Navigation column: 5 section links with smooth scroll
+  - Contact column: info@ and order@ email links
+  - Legal column: copyright text
+  - Responsive: stacks on mobile, 2-col on sm, 4-col on lg
+- CSS updates in globals.css:
+  - Updated `.section-bg-photo::before` opacity from 0.04 to 0.06
+  - Updated `.hero-vignette` radial gradient from rgba(5,5,5,...) to rgba(8,8,8,...) matching new bg color
+  - Verified `.hero-fade-item` animation is correct (0.9s cubic-bezier both)
+- Lint passes clean (0 errors, 0 warnings)
+- Dev server compiles successfully (200 on /)
+
+Stage Summary:
+- Hero section redesigned: left-aligned text with directional gradient overlay revealing slideshow on right
+- All CTA texts updated to clearer, more specific copy (Listen to Demos, Configure My Original)
+- Value Props background image now visible at 6% opacity with direct img element
+- Gallery grid fixed: no more bottom image sticking out with sm:aspect-square
+- EL34 callout text now fills full container width
+- Professional 4-column footer with navigation links and contact emails
+- All changes verified: lint clean, dev server compiling, zero regressions

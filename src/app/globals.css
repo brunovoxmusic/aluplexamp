@@ -252,7 +252,7 @@
 
 /* Hero vignette overlay */
 .hero-vignette {
-  background: radial-gradient(ellipse at center, transparent 50%, rgba(5, 5, 5, 0.6) 100%);
+  background: radial-gradient(ellipse at center, transparent 50%, rgba(8, 8, 8, 0.6) 100%);
 }
 
 /* Hero animated golden line */
@@ -592,7 +592,7 @@
   inset: 0;
   background-size: cover;
   background-position: center center;
-  opacity: 0.04;
+  opacity: 0.06;
   z-index: 0;
   pointer-events: none;
 }

@@ -208,7 +208,7 @@ function HeroSection({ t }: { t: (k: string) => string }) {
   };
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#050505]">
+    <section className="relative min-h-screen flex items-start lg:items-center overflow-hidden bg-[#080808]">
       {/* Slideshow Background — 5 images with CSS fade cycle + Ken Burns */}
       <div className="absolute inset-0 z-0" aria-hidden="true">
         {HERO_SLIDES.map((src, i) => (
@@ -221,9 +221,9 @@ function HeroSection({ t }: { t: (k: string) => string }) {
           </div>
         ))}
 
-        {/* Layered overlay — ensures text readability over slideshow */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/50 to-[#050505]/60" />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#050505]/50 via-transparent to-[#050505]/40" />
+        {/* Layered overlay — directional: darker on left for text, lighter on right for slideshow */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#080808] via-[#080808]/80 to-[#080808]/20" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#080808]/60 via-transparent to-[#080808]/70" />
 
         {/* Vignette effect for cinematic depth */}
         <div className="absolute inset-0 hero-vignette" />
@@ -237,8 +237,8 @@ function HeroSection({ t }: { t: (k: string) => string }) {
       {/* Decorative grid pattern */}
       <div className="absolute inset-0 hero-grid-pattern pointer-events-none opacity-[0.02]" />
 
-      {/* Content — centered with generous spacing */}
-      <div className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-32 sm:py-36 lg:py-44 text-center">
+      {/* Content — left-aligned with generous spacing */}
+      <div className="relative z-10 w-full max-w-5xl mx-auto px-6 sm:px-10 lg:px-16 xl:px-24 py-32 sm:py-36 lg:py-44">
         {/* Badge */}
         <div className="hero-fade-item" style={{ animationDelay: '0.2s' }}>
           <Badge className="mb-8 sm:mb-10 px-5 py-2.5 text-xs sm:text-sm bg-primary/[0.08] text-primary/90 border-primary/15 hover:bg-primary/[0.12] backdrop-blur-md">
@@ -249,13 +249,13 @@ function HeroSection({ t }: { t: (k: string) => string }) {
 
         {/* Title — larger, more dramatic */}
         <div className="hero-fade-item" style={{ animationDelay: '0.4s' }}>
-          <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-[7rem] xl:text-[8.5rem] font-bold tracking-[-0.04em] mb-6 sm:mb-8 text-gradient-amber-shimmer leading-[0.9]">
+          <h1 className="max-w-3xl text-5xl sm:text-7xl md:text-8xl lg:text-[7rem] xl:text-[8.5rem] font-bold tracking-[-0.04em] mb-6 sm:mb-8 text-gradient-amber-shimmer leading-[0.9]">
             {t('hero.title')}
           </h1>
         </div>
 
         {/* Animated golden line separator */}
-        <div className="hero-fade-item flex justify-center mb-6 sm:mb-8" style={{ animationDelay: '0.6s' }}>
+        <div className="hero-fade-item mb-6 sm:mb-8" style={{ animationDelay: '0.6s' }}>
           <div className="hero-line-reveal h-[1px] bg-gradient-to-r from-transparent via-primary/60 to-transparent w-24 sm:w-32" />
         </div>
 
@@ -268,13 +268,13 @@ function HeroSection({ t }: { t: (k: string) => string }) {
 
         {/* Description */}
         <div className="hero-fade-item" style={{ animationDelay: '0.85s' }}>
-          <p className="text-sm sm:text-base text-muted-foreground/70 max-w-xl mx-auto mb-10 sm:mb-14 leading-relaxed">
+          <p className="text-sm sm:text-base text-muted-foreground/70 max-w-lg mb-10 sm:mb-14 leading-relaxed">
             {t('hero.description')}
           </p>
         </div>
 
         {/* Key specs strip — centered, refined glass pills */}
-        <div className="hero-fade-item flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 mb-10 sm:mb-14" style={{ animationDelay: '0.95s' }}>
+        <div className="hero-fade-item flex flex-wrap items-center gap-2.5 sm:gap-3 mb-10 sm:mb-14" style={{ animationDelay: '0.95s' }}>
           {[
             { icon: Zap, label: '30W' },
             { icon: Flame, label: 'EL34' },
@@ -292,7 +292,7 @@ function HeroSection({ t }: { t: (k: string) => string }) {
         </div>
 
         {/* CTA Buttons */}
-        <div className="hero-fade-item flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4" style={{ animationDelay: '1.1s' }}>
+        <div className="hero-fade-item flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4" style={{ animationDelay: '1.1s' }}>
           <Button
             size="lg"
             onClick={() => scrollTo('soundlib')}
@@ -341,14 +341,18 @@ function ValueProps({ t }: { t: (k: string) => string }) {
 
   return (
     <section className="py-16 sm:py-24 lg:py-28 px-4 sm:px-6 lg:px-8" ref={ref}>
-      <div
-        className="section-bg-photo"
-        style={{ backgroundImage: 'url(/aluplex/aluplex-138.jpg)' }}
-      >
-        {/* Top/bottom gradient overlays for readability */}
-        <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[#0a0a0a] to-transparent z-[1] pointer-events-none" />
-        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#0a0a0a] to-transparent z-[1] pointer-events-none" />
-        <div className="max-w-7xl mx-auto">
+      <div className="relative overflow-hidden">
+        {/* Direct background image for better visibility */}
+        <img
+          src="/aluplex/aluplex-138.jpg"
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover opacity-[0.06] grayscale mix-blend-luminosity pointer-events-none"
+          loading="lazy"
+          aria-hidden="true"
+        />
+        {/* Dark overlay for readability */}
+        <div className="absolute inset-0 bg-[#0a0a0a]/95 pointer-events-none" />
+        <div className="relative z-10 max-w-7xl mx-auto">
           {/* Section Header */}
           <div className="text-center mb-10 sm:mb-14 fade-in-up">
             <div className="flex items-center justify-center gap-3 mb-4">
@@ -361,7 +365,7 @@ function ValueProps({ t }: { t: (k: string) => string }) {
           {cards.map((card, i) => (
             <div
               key={i}
-              className="fade-in-up group bg-card/50 border border-[#2a2a2a]/60 rounded-2xl p-4 sm:p-5 lg:p-8 text-center card-hover backdrop-blur-sm"
+              className="fade-in-up group bg-card/50 border border-[#2a2a2a]/60 rounded-2xl p-5 sm:p-6 lg:p-8 text-center card-hover backdrop-blur-sm"
               style={{ transitionDelay: `${i * 100}ms` }}
             >
               <div className="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-primary/10 group-hover:bg-primary/20 transition-colors duration-300 mb-4">
@@ -521,7 +525,7 @@ function SoundArchitecture({ t }: { t: (k: string) => string }) {
           <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground mb-3">
             {t('sa.el34.title')}
           </h3>
-          <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-3xl relative z-10">
+          <p className="text-sm sm:text-base text-muted-foreground leading-relaxed relative z-10">
             {t('sa.el34.desc')}
           </p>
         </div>
@@ -1328,13 +1332,13 @@ function GallerySection({ t }: { t: (k: string) => string }) {
         </div>
 
         {/* Gallery Grid - responsive masonry-like */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3 lg:gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 auto-rows-fr gap-2 sm:gap-3 lg:gap-4">
           {items.map((item, i) => (
             <button
               key={i}
               onClick={() => setLightbox(i)}
               className={`fade-in-up group relative aspect-[4/3] rounded-2xl overflow-hidden border border-[#2a2a2a]/40 cursor-pointer card-hover ${
-                i === 0 ? 'sm:col-span-2 sm:row-span-2 sm:aspect-auto' : ''
+                i === 0 ? 'sm:col-span-2 sm:row-span-2 sm:aspect-square' : ''
               }`}
               style={{ transitionDelay: `${i * 60}ms` }}
               aria-label={item.label}
@@ -1496,25 +1500,73 @@ function CTASection({ t }: { t: (k: string) => string }) {
 // ========== FOOTER ==========
 
 function Footer({ t }: { t: (k: string) => string }) {
+  const scrollTo = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const navLinks = [
+    { id: 'soundlib', label: t('nav.soundlib') },
+    { id: 'specs', label: t('nav.specs') },
+    { id: 'config', label: t('nav.config') },
+    { id: 'gallery', label: t('nav.gallery') },
+    { id: 'faq', label: t('nav.faq') },
+  ];
+
   return (
-    <footer className="border-t border-[#2a2a2a]/50 py-10 sm:py-12 px-4 sm:px-6 lg:px-8 safe-bottom mt-auto">
+    <footer className="border-t border-[#2a2a2a]/50 py-10 sm:py-14 px-4 sm:px-6 lg:px-8 safe-bottom mt-auto">
       <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col items-center gap-5 text-center">
-          {/* Logo */}
-          <div className="flex items-center">
-            <img src="/aluplex/logo.png" alt="ALUPLEXamp" className="h-7 w-auto opacity-70" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
+          {/* Brand Column */}
+          <div className="sm:col-span-2 lg:col-span-1">
+            <div className="flex items-center mb-4">
+              <img src="/aluplex/logo.png" alt="ALUPLEXamp" className="h-7 w-auto" />
+            </div>
+            <p className="text-sm text-muted-foreground mb-3">{t('footer.tagline')}</p>
+            <div className="flex items-center gap-2 text-muted-foreground/50 text-xs">
+              <Wrench className="size-3" />
+              <span>{t('footer.handwired')}</span>
+            </div>
           </div>
 
-          <p className="text-sm text-muted-foreground">{t('footer.tagline')}</p>
-
-          {/* Handwired */}
-          <div className="flex items-center gap-2 text-muted-foreground/50 text-xs">
-            <Wrench className="size-3" />
-            <span>{t('footer.handwired')}</span>
+          {/* Navigation Column */}
+          <div>
+            <h4 className="text-xs font-semibold text-foreground uppercase tracking-[0.15em] mb-4">{t('footer.nav')}</h4>
+            <ul className="space-y-2.5">
+              {navLinks.map((link) => (
+                <li key={link.id}>
+                  <button
+                    onClick={() => scrollTo(link.id)}
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200"
+                  >
+                    {link.label}
+                  </button>
+                </li>
+              ))}
+            </ul>
           </div>
 
-          {/* Copyright */}
-          <p className="text-xs text-muted-foreground/30 mt-1">{t('footer.copyright')}</p>
+          {/* Contact Column */}
+          <div>
+            <h4 className="text-xs font-semibold text-foreground uppercase tracking-[0.15em] mb-4">{t('footer.contact')}</h4>
+            <ul className="space-y-2.5">
+              <li>
+                <a href="mailto:info@aluplexamp.com" className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">
+                  {t('footer.email.info')}
+                </a>
+              </li>
+              <li>
+                <a href="mailto:order@aluplexamp.com" className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">
+                  {t('footer.email.order')}
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          {/* Legal Column */}
+          <div>
+            <p className="text-xs text-muted-foreground/30">{t('footer.copyright')}</p>
+          </div>
         </div>
       </div>
     </footer>
