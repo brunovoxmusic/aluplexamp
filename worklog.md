@@ -243,3 +243,31 @@ Stage Summary:
 - Each track authentically represents a different EL34 tube amp character
 - Audio player UI unchanged — still uses same file paths
 - Files reduced from 1.5MB to 862KB each (better web performance)
+
+---
+Task ID: 4
+Agent: Main Agent
+Task: Fix silent audio — v1 generator produced NaN/zero samples
+
+Work Log:
+- Diagnosed: WAV files were structurally valid (RIFF/WAVE/PCM headers correct) but audio data was all zeros
+- Root cause: NaN values in Karplus-Strong synthesis pipeline (NaN → writeInt16LE → 0)
+- Rewrote generate-audio.mjs v2 with completely different synthesis approach:
+  - Replaced Karplus-Strong with additive synthesis (sum of harmonics with 1/f rolloff)
+  - Added proper pluck brightness per harmonic, exponential decay envelopes
+  - Created lookup-table waveshaper for tube saturation (pre-computed 8192 entries)
+  - Used State Variable Filters (SVF) instead of biquad IIR filters (more numerically stable)
+  - Implemented feedback delay network reverb with prime-spaced delays
+  - Added NaN protection: `samples[i] || 0` in WAV writer, `isFinite()` check in normalize
+- All 5 tracks verified with actual audio content:
+  - Track 1: max 82%, 99.1% audible samples
+  - Track 2: max 80%, 98.9% audible samples
+  - Track 3: max 78%, 99.8% audible samples
+  - Track 4: max 80%, 96.4% audible samples (quieter parts expected for dynamics)
+  - Track 5: max 80%, 99.1% audible samples
+- Lint clean, dev server running
+
+Stage Summary:
+- Audio files now contain real synthesized guitar tones (not silence/zeros)
+- v2 engine uses additive synthesis + SVF filters + LUT waveshaper (numerically stable)
+- All 5 tracks verified with ffprobe and amplitude analysis

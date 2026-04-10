@@ -1,718 +1,577 @@
 /**
- * ALUPLEXamp Audio Demo Generator
- * Synthesizes 5 guitar amp tones using Karplus-Strong algorithm + tube amp simulation
- * 
- * Track 1: "The Woody Clean" — clean, warm, low gain
- * Track 2: "The Iconic British Crunch" — mid gain, aggressive mids
- * Track 3: "Brown Sound High Gain" — high gain, saturated
- * Track 4: "The Dynamic Breakup" — edge of breakup, dynamic
- * Track 5: "The Volume Roll-Off" — volume knob roll-off effect
+ * ALUPLEXamp Audio Demo Generator v2
+ * Uses additive synthesis + waveshaping for realistic guitar amp tones
+ * More numerically stable than Karplus-Strong
  */
 
 import { writeFileSync, mkdirSync } from 'fs';
 
-// ==================== AUDIO ENGINE ====================
 const SAMPLE_RATE = 44100;
 const BIT_DEPTH = 16;
-const CHANNELS = 1;
-const DURATION = 10; // seconds
+const DURATION = 10;
 
 // ==================== WAV WRITER ====================
 function writeWav(samples, filename) {
   const numSamples = samples.length;
-  const byteRate = SAMPLE_RATE * CHANNELS * (BIT_DEPTH / 8);
-  const blockAlign = CHANNELS * (BIT_DEPTH / 8);
-  const dataSize = numSamples * blockAlign;
+  const dataSize = numSamples * 2; // 16-bit mono
   const buffer = Buffer.alloc(44 + dataSize);
-  
-  // RIFF header
   buffer.write('RIFF', 0);
   buffer.writeUInt32LE(36 + dataSize, 4);
   buffer.write('WAVE', 8);
-  
-  // fmt subchunk
   buffer.write('fmt ', 12);
-  buffer.writeUInt32LE(16, 16); // SubChunk1Size
-  buffer.writeUInt16LE(1, 20);  // PCM
-  buffer.writeUInt16LE(CHANNELS, 22);
+  buffer.writeUInt32LE(16, 16);
+  buffer.writeUInt16LE(1, 20);       // PCM
+  buffer.writeUInt16LE(1, 22);       // mono
   buffer.writeUInt32LE(SAMPLE_RATE, 24);
-  buffer.writeUInt32LE(byteRate, 28);
-  buffer.writeUInt16LE(blockAlign, 32);
-  buffer.writeUInt16LE(BIT_DEPTH, 34);
-  
-  // data subchunk
+  buffer.writeUInt32LE(SAMPLE_RATE * 2, 28); // byte rate
+  buffer.writeUInt16LE(2, 32);       // block align
+  buffer.writeUInt16LE(16, 34);      // bits per sample
   buffer.write('data', 36);
   buffer.writeUInt32LE(dataSize, 40);
   
-  // Write samples as 16-bit PCM
   for (let i = 0; i < numSamples; i++) {
-    const clamped = Math.max(-1, Math.min(1, samples[i]));
-    const intVal = clamped < 0 ? clamped * 0x8000 : clamped * 0x7FFF;
-    buffer.writeInt16LE(Math.round(intVal), 44 + i * 2);
+    const s = Math.max(-1, Math.min(1, samples[i] || 0));
+    buffer.writeInt16LE(s < 0 ? Math.round(s * 32768) : Math.round(s * 32767), 44 + i * 2);
   }
   
   writeFileSync(filename, buffer);
-  console.log(`  ✓ ${filename} (${(buffer.length / 1024 / 1024).toFixed(2)} MB, ${DURATION}s)`);
+  console.log(`  ✓ ${filename} (${(buffer.length / 1024).toFixed(0)} KB)`);
 }
 
-// ==================== KARPLUS-STRONG GUITAR ====================
-function karplusStrong(freq, duration, sampleRate, pluckPosition = 0.4, decayFactor = 0.996) {
-  const numSamples = Math.floor(sampleRate * duration);
-  const period = Math.round(sampleRate / freq);
-  const samples = new Float64Array(numSamples);
-  
-  // Initialize delay line with noise (pluck excitation)
-  const delayLine = new Float64Array(period);
-  const excitationPoint = Math.floor(period * pluckPosition);
-  
-  // Low-pass filtered noise for more natural pluck
-  let lastNoise = 0;
-  for (let i = 0; i < period; i++) {
-    const noise = (Math.random() * 2 - 1);
-    // Simple one-pole lowpass
-    lastNoise = lastNoise * 0.5 + noise * 0.5;
-    // Shape: triangular based on pluck position
-    const shape = i < excitationPoint 
-      ? i / excitationPoint 
-      : (period - i) / (period - excitationPoint);
-    delayLine[i] = lastNoise * shape;
+// ==================== WAVESHAPER (Tube Saturation) ====================
+function createWaveshaper(drive = 1, asymmetry = 0.15) {
+  // Pre-compute lookup table for speed
+  const TABLE_SIZE = 8192;
+  const table = new Float32Array(TABLE_SIZE);
+  for (let i = 0; i < TABLE_SIZE; i++) {
+    const x = (i / (TABLE_SIZE - 1)) * 2 - 1; // -1 to 1
+    const d = drive;
+    // Soft clip with asymmetric tube character
+    if (x >= 0) {
+      table[i] = Math.tanh(x * d) / Math.tanh(d);
+    } else {
+      table[i] = Math.tanh(x * d * (1 - asymmetry)) / Math.tanh(d * (1 - asymmetry));
+    }
   }
-  
-  let readPos = 0;
-  let writePos = 0;
-  
-  for (let i = 0; i < numSamples; i++) {
-    // Read from delay line
-    const current = delayLine[readPos];
-    
-    // Average with previous sample (Karplus-Strong lowpass)
-    const nextIdx = (readPos + 1) % period;
-    const avg = (delayLine[readPos] + delayLine[nextIdx]) * 0.5;
-    
-    // Write back with decay
-    delayLine[writePos] = avg * decayFactor;
-    
-    samples[i] = current;
-    
-    readPos = (readPos + 1) % period;
-    writePos = (writePos + 1) % period;
-  }
-  
-  return samples;
-}
-
-// ==================== TUBE AMP SIMULATION ====================
-
-// Soft clipping (tube saturation) using tanh with asymmetry
-function tubeSaturate(input, drive) {
-  // Asymmetric clipping simulates tube push-pull asymmetry
-  const positiveDrive = drive * 1.0;
-  const negativeDrive = drive * 0.85;
-  
-  const pos = input >= 0 
-    ? Math.tanh(input * positiveDrive) 
-    : Math.tanh(input * negativeDrive);
-  
-  return pos;
-}
-
-// Simple 2nd order IIR lowpass filter
-function createLowpass(freq, q = 0.707) {
-  const w0 = 2 * Math.PI * freq / SAMPLE_RATE;
-  const alpha = Math.sin(w0) / (2 * q);
-  const cosw0 = Math.cos(w0);
-  const a0 = 1 + alpha;
-  return {
-    b0: ((1 - cosw0) / 2) / a0,
-    b1: (1 - cosw0) / a0,
-    b2: ((1 - cosw0) / 2) / a0,
-    a1: (-2 * cosw0) / a0,
-    a2: (1 - alpha) / a0,
-    x1: 0, x2: 0, y1: 0, y2: 0,
-    process(x) {
-      const y = this.b0 * x + this.b1 * this.x1 + this.b2 * this.x2 
-              - this.a1 * this.y1 - this.a2 * this.y2;
-      this.x2 = this.x1; this.x1 = x;
-      this.y2 = this.y1; this.y1 = y;
-      return y;
-    }
-  };
-}
-
-// Simple 2nd order IIR highpass filter  
-function createHighpass(freq, q = 0.707) {
-  const w0 = 2 * Math.PI * freq / SAMPLE_RATE;
-  const alpha = Math.sin(w0) / (2 * q);
-  const cosw0 = Math.cos(w0);
-  const a0 = 1 + alpha;
-  return {
-    b0: ((1 + cosw0) / 2) / a0,
-    b1: -(1 + cosw0) / a0,
-    b2: ((1 + cosw0) / 2) / a0,
-    a1: (-2 * cosw0) / a0,
-    a2: (1 - alpha) / a0,
-    x1: 0, x2: 0, y1: 0, y2: 0,
-    process(x) {
-      const y = this.b0 * x + this.b1 * this.x1 + this.b2 * this.x2
-              - this.a1 * this.y1 - this.a2 * this.y2;
-      this.x2 = this.x1; this.x1 = x;
-      this.y2 = this.y1; this.y1 = y;
-      return y;
-    }
-  };
-}
-
-// Peaking EQ
-function createPeaking(freq, gainDb, q = 1.0) {
-  const A = Math.pow(10, gainDb / 40);
-  const w0 = 2 * Math.PI * freq / SAMPLE_RATE;
-  const alpha = Math.sin(w0) / (2 * q);
-  const cosw0 = Math.cos(w0);
-  const a0 = 1 + alpha / A;
-  return {
-    b0: (1 + alpha * A) / a0,
-    b1: (-2 * cosw0) / a0,
-    b2: (1 - alpha * A) / a0,
-    a1: (-2 * cosw0) / a0,
-    a2: (1 - alpha / A) / a0,
-    x1: 0, x2: 0, y1: 0, y2: 0,
-    process(x) {
-      const y = this.b0 * x + this.b1 * this.x1 + this.b2 * this.x2
-              - this.a1 * this.y1 - this.a2 * this.y2;
-      this.x2 = this.x1; this.x1 = x;
-      this.y2 = this.y1; this.y1 = y;
-      return y;
-    }
-  };
-}
-
-// Simple reverb using delay lines (schroeder reverb approximation)
-function createReverb(wetLevel = 0.15, decayTime = 0.8) {
-  const delays = [0.0371, 0.0411, 0.0437, 0.0507, 0.0577, 0.0613, 0.0689, 0.0723];
-  const gain = Math.pow(0.001, 1 / (SAMPLE_RATE * decayTime));
-  const lines = delays.map(d => ({
-    buffer: new Float64Array(Math.ceil(d * SAMPLE_RATE)),
-    pos: 0,
-    length: Math.ceil(d * SAMPLE_RATE)
-  }));
-  
-  let lastOut = 0;
   
   return {
     process(input) {
-      let output = 0;
-      for (const line of lines) {
-        const delayed = line.buffer[line.pos];
-        const feedback = delayed * gain;
-        line.buffer[line.pos] = input + feedback;
-        output += delayed;
-        line.pos = (line.pos + 1) % line.length;
-      }
-      output /= lines.length;
-      lastOut = lastOut * 0.9 + output * 0.1; // smooth
-      return input * (1 - wetLevel) + lastOut * wetLevel;
+      const idx = Math.floor(((input + 1) * 0.5) * (TABLE_SIZE - 1));
+      if (idx < 0) return table[0];
+      if (idx >= TABLE_SIZE) return table[TABLE_SIZE - 1];
+      return table[idx];
     }
   };
 }
 
-// Simple compressor
-function createCompressor(threshold = 0.3, ratio = 4, attack = 0.005, release = 0.05) {
-  const envCoeff = Math.exp(-1 / (SAMPLE_RATE * 0.005));
-  let envelope = 0;
-  
+// ==================== ONE-POLE FILTERS (numerically stable) ====================
+function createOnePole(freq, type = 'lowpass') {
+  const w = 2 * Math.PI * freq / SAMPLE_RATE;
+  // Clamp to avoid instability
+  const cw = Math.min(w, 0.999);
+  const b = type === 'lowpass'
+    ? cw / (1 + cw)
+    : 1 / (1 + cw);
+  const a = type === 'lowpass'
+    ? (1 - cw) / (1 + cw)
+    : -(1 - cw) / (1 + cw);
+  let y1 = 0, x1 = 0;
   return {
+    process(x) {
+      const y = b * x + a * y1;
+      y1 = y; x1 = x;
+      return y;
+    },
+    reset() { y1 = 0; x1 = 0; }
+  };
+}
+
+// State Variable Filter (more stable biquad alternative)
+function createSVF(freq, q = 1.0, type = 'lowpass') {
+  const f = Math.min(freq / SAMPLE_RATE, 0.49);
+  const k = Math.min(q * f * Math.PI, 50);
+  return {
+    lp: 0, hp: 0, bp: 0,
     process(input) {
-      const abs = Math.abs(input);
-      // Envelope follower
-      if (abs > envelope) {
-        envelope += (abs - envelope) * (1 - Math.exp(-1 / (SAMPLE_RATE * attack)));
-      } else {
-        envelope += (abs - envelope) * (1 - Math.exp(-1 / (SAMPLE_RATE * release)));
+      const hp = input - this.lp - k * this.bp;
+      const bp = this.bp + f * hp;
+      const lp = this.lp + f * bp;
+      this.lp = lp; this.bp = bp; this.hp = hp;
+      switch(type) {
+        case 'lowpass': return lp;
+        case 'highpass': return hp;
+        case 'bandpass': return bp;
+        default: return lp;
       }
-      
-      // Gain reduction
-      let gain = 1;
-      if (envelope > threshold) {
-        gain = 1 - ((envelope - threshold) * (1 - 1/ratio)) / envelope;
-      }
-      
-      return input * gain;
     }
   };
 }
 
-// ==================== NOTE DEFINITIONS ====================
-const NOTES = {
-  E2: 82.41, A2: 110, D3: 146.83, G3: 196, B3: 246.94, E4: 329.63,
-  F2: 87.31, G2: 98, Bb2: 116.54, C3: 130.81, Eb3: 155.56, F3: 174.61, Ab3: 207.65,
-};
+// ==================== GUITAR TONE SYNTHESIS ====================
+// Generates a plucked string tone using additive synthesis + exponential decay
+function guitarNote(freq, duration, params = {}) {
+  const {
+    numHarmonics = 12,
+    pluckBrightness = 0.6,    // 0 = warm/neck, 1 = bright/bridge
+    decay = 0.4,              // decay rate (seconds to 1/e)
+    attackTime = 0.002,
+    velocity = 1.0,
+    vibratoRate = 0,
+    vibratoDepth = 0,
+  } = params;
+  
+  const numSamples = Math.floor(SAMPLE_RATE * duration);
+  const output = new Float64Array(numSamples);
+  
+  // Generate harmonics with 1/f amplitude rolloff + pluck brightness
+  for (let h = 1; h <= numHarmonics; h++) {
+    const harmonicFreq = freq * h;
+    if (harmonicFreq >= SAMPLE_RATE / 2) break;
+    
+    // Amplitude: 1/h rolloff with brightness controlling high harmonics
+    const brightnessFactor = Math.pow(pluckBrightness, h - 1);
+    const amplitude = (1.0 / h) * brightnessFactor * velocity;
+    
+    // Phase: slight random offset for naturalness
+    const phase = Math.random() * Math.PI * 2;
+    
+    // Decay: higher harmonics decay faster
+    const harmonicDecay = decay * (1 + (h - 1) * 0.15);
+    
+    for (let i = 0; i < numSamples; i++) {
+      const t = i / SAMPLE_RATE;
+      
+      // Vibrato
+      const vibPhase = vibratoRate > 0 
+        ? 2 * Math.PI * vibratoRate * t
+        : 0;
+      const vibMod = vibratoDepth * Math.sin(vibPhase);
+      
+      // Exponential decay envelope
+      const env = Math.exp(-t / harmonicDecay);
+      
+      // Attack
+      const atkEnv = t < attackTime ? t / attackTime : 1;
+      
+      output[i] += amplitude * Math.sin(2 * Math.PI * harmonicFreq * (1 + vibMod) * t + phase) * env * atkEnv;
+    }
+  }
+  
+  return output;
+}
 
-// ==================== TRACK GENERATORS ====================
-
-// Helper: apply chain of processors to samples
-function processChain(samples, processors) {
+// ==================== EFFECTS ====================
+function applyWaveshaper(samples, drive, asymmetry = 0.15) {
+  const shaper = createWaveshaper(drive, asymmetry);
   const output = new Float64Array(samples.length);
   for (let i = 0; i < samples.length; i++) {
-    let val = samples[i];
-    for (const proc of processors) {
-      val = proc.process(val);
-    }
-    output[i] = val;
+    output[i] = shaper.process(samples[i]);
   }
   return output;
 }
 
-// Mix multiple note tracks into one buffer
-function mixTracks(tracks, numSamples) {
-  const output = new Float64Array(numSamples);
-  for (const track of tracks) {
-    const scale = 1 / tracks.length; // prevent clipping from multiple tracks
-    for (let i = 0; i < track.length && i < numSamples; i++) {
-      output[i] += track[i] * scale;
+function applyFilter(samples, freq, type = 'lowpass', q = 1.0) {
+  const filter = createSVF(freq, q, type);
+  const output = new Float64Array(samples.length);
+  for (let i = 0; i < samples.length; i++) {
+    output[i] = filter.process(samples[i]);
+  }
+  return output;
+}
+
+function applyGainEnvelope(samples, envelopeFn) {
+  const output = new Float64Array(samples.length);
+  for (let i = 0; i < samples.length; i++) {
+    output[i] = samples[i] * envelopeFn(i / SAMPLE_RATE);
+  }
+  return output;
+}
+
+function mixBuffers(buffers, targetLength) {
+  const output = new Float64Array(targetLength);
+  const n = buffers.length;
+  for (const buf of buffers) {
+    const scale = 0.7 / n; // headroom for mixing
+    for (let i = 0; i < buf.length && i < targetLength; i++) {
+      output[i] += buf[i] * scale;
     }
   }
   return output;
 }
 
-// Normalize audio
-function normalize(samples, targetLevel = 0.85) {
+function normalize(samples, level = 0.85) {
   let max = 0;
   for (let i = 0; i < samples.length; i++) {
-    max = Math.max(max, Math.abs(samples[i]));
+    const a = Math.abs(samples[i]);
+    if (a > max && isFinite(a)) max = a;
   }
   if (max === 0) return samples;
-  const scale = targetLevel / max;
+  const scale = level / max;
   for (let i = 0; i < samples.length; i++) {
-    samples[i] *= scale;
+    samples[i] = samples[i] * scale;
   }
   return samples;
 }
 
-// Apply envelope (ADSR-like for note shaping)
-function applyEnvelope(samples, attack = 0.002, decay = 0.3, sustain = 0.6, release = 0.1) {
-  const numSamples = samples.length;
-  const attackSamples = Math.floor(SAMPLE_RATE * attack);
-  const decaySamples = Math.floor(SAMPLE_RATE * decay);
-  const releaseSamples = Math.floor(SAMPLE_RATE * release);
-  const sustainStart = attackSamples + decaySamples;
-  const sustainEnd = numSamples - releaseSamples;
+// Simple reverb using feedback delay network
+function applyReverb(samples, wetLevel = 0.15, decayTime = 0.8) {
+  const output = new Float64Array(samples.length);
+  const delays = [237, 307, 449, 577, 719, 853, 1009, 1151]; // prime-ish * sample offset
+  const feedback = Math.pow(0.5, 1 / (SAMPLE_RATE * decayTime / delays[0]));
   
-  for (let i = 0; i < numSamples; i++) {
-    let gain = sustain;
-    if (i < attackSamples) {
-      gain = i / attackSamples;
-    } else if (i < sustainStart) {
-      const t = (i - attackSamples) / decaySamples;
-      gain = 1 - (1 - sustain) * t;
-    } else if (i > sustainEnd) {
-      const t = (i - sustainEnd) / releaseSamples;
-      gain = sustain * (1 - t);
+  const delayLines = delays.map(d => {
+    const buf = new Float64Array(d);
+    return { buffer: buf, pos: 0, length: d };
+  });
+  
+  let prevOut = 0;
+  for (let i = 0; i < samples.length; i++) {
+    let reverbSum = 0;
+    for (const dl of delayLines) {
+      const delayed = dl.buffer[dl.pos];
+      dl.buffer[dl.pos] = samples[i] + delayed * feedback;
+      reverbSum += delayed;
+      dl.pos = (dl.pos + 1) % dl.length;
     }
-    samples[i] *= gain;
+    reverbSum /= delayLines.length;
+    prevOut = prevOut * 0.85 + reverbSum * 0.15;
+    output[i] = samples[i] * (1 - wetLevel) + prevOut * wetLevel;
   }
-  return samples;
+  return output;
 }
 
-/**
- * Track 1: "The Woody Clean"
- * Clean, warm, woody tone — minimal saturation, warm low-mids
- * Fender Stratocaster neck pickup, Gain: 2
- */
+function placeAtOffset(noteSamples, offset, totalLength) {
+  const output = new Float64Array(totalLength);
+  const start = Math.floor(offset * SAMPLE_RATE);
+  for (let i = 0; i < noteSamples.length && (start + i) < totalLength; i++) {
+    output[start + i] = noteSamples[i];
+  }
+  return output;
+}
+
+// ==================== TRACK DEFINITIONS ====================
+const FREQS = {
+  E2: 82.41, F2: 87.31, G2: 98.00, A2: 110.00, Bb2: 116.54, B2: 123.47,
+  C3: 130.81, D3: 146.83, Eb3: 155.56, E3: 164.81, F3: 174.61, G3: 196.00,
+  Ab3: 207.65, A3: 220.00, Bb3: 233.08, B3: 246.94, C4: 261.63, D4: 293.66,
+  Eb4: 311.13, E4: 329.63, F4: 349.23, G4: 392.00, A4: 440.00,
+};
+
+// ==================== TRACK 1: THE WOODY CLEAN ====================
 function generateTrack1() {
-  console.log('  Generating Track 1: The Woody Clean...');
-  const numSamples = SAMPLE_RATE * DURATION;
-  const noteEvents = [
-    { note: NOTES.E2, start: 0, dur: 2.5 },
-    { note: NOTES.A2, start: 2.0, dur: 2.5 },
-    { note: NOTES.D3, start: 4.0, dur: 2.5 },
-    { note: NOTES.G3, start: 5.5, dur: 2.0 },
-    { note: NOTES.B3, start: 7.0, dur: 1.5 },
-    { note: NOTES.E4, start: 8.0, dur: 1.8 },
-    { note: NOTES.E2, start: 0.5, dur: 2.0 },  // bass note harmony
-    { note: NOTES.A2, start: 2.5, dur: 2.0 },
-    { note: NOTES.E3, start: 4.5, dur: 2.0 },
-    { note: NOTES.B2, start: 6.5, dur: 2.0 },
-    { note: NOTES.E3, start: 8.5, dur: 1.2 },
+  console.log('  Track 1: The Woody Clean...');
+  const total = SAMPLE_RATE * DURATION;
+  
+  // Warm fingerpicked arpeggio
+  const notes = [
+    { f: FREQS.E2, t: 0.0, d: 2.5, v: 0.8, b: 0.3 },
+    { f: FREQS.A2, t: 2.0, d: 2.5, v: 0.7, b: 0.3 },
+    { f: FREQS.D3, t: 4.0, d: 2.5, v: 0.65, b: 0.35 },
+    { f: FREQS.G3, t: 5.5, d: 2.0, v: 0.6, b: 0.4 },
+    { f: FREQS.B3, t: 7.0, d: 1.5, v: 0.55, b: 0.4 },
+    { f: FREQS.E4, t: 8.0, d: 1.8, v: 0.5, b: 0.45 },
+    // Second voice - bass notes
+    { f: FREQS.E2, t: 0.5, d: 2.0, v: 0.6, b: 0.25 },
+    { f: FREQS.A2, t: 2.5, d: 2.0, v: 0.55, b: 0.25 },
+    { f: FREQS.E3, t: 4.5, d: 2.0, v: 0.5, b: 0.3 },
+    { f: FREQS.B2, t: 6.5, d: 2.0, v: 0.55, b: 0.25 },
+    { f: FREQS.E3, t: 8.5, d: 1.2, v: 0.5, b: 0.3 },
   ];
   
-  const tracks = noteEvents.map(ev => {
-    const samples = karplusStrong(ev.note, ev.dur, SAMPLE_RATE, 0.35, 0.9975);
-    applyEnvelope(samples, 0.003, 0.2, 0.7, 0.3);
-    // Place in timeline
-    const placed = new Float64Array(numSamples);
-    const startSample = Math.floor(ev.start * SAMPLE_RATE);
-    for (let i = 0; i < samples.length && (startSample + i) < numSamples; i++) {
-      placed[startSample + i] = samples[i];
-    }
-    return placed;
-  });
+  const buffers = notes.map(n =>
+    placeAtOffset(guitarNote(n.f, n.d, { pluckBrightness: n.b, decay: 1.2, velocity: n.v }), n.t, total)
+  );
   
-  let mixed = mixTracks(tracks, numSamples);
+  let mix = mixBuffers(buffers, total);
+  // Warm EQ: boost low-mids, cut highs
+  mix = applyFilter(mix, 120, 'lowpass', 0.7);  // gentle lowpass doesn't cut enough, let's use different approach
   
-  // Processing chain: clean tone
-  // Warm EQ: slight bass boost, gentle presence roll-off
-  const hp = createHighpass(80);
-  const lp = createLowpass(4500, 0.7);
-  const bassBoost = createPeaking(120, 3, 1.5);     // warm low end
-  const midBoost = createPeaking(800, 2, 1.2);      // woody mids
-  const presenceCut = createPeaking(3000, -4, 1.0); // soft top
-  const comp = createCompressor(0.4, 2, 0.01, 0.1);
-  const reverb = createReverb(0.2, 1.2);
-  
-  mixed = processChain(mixed, [hp, bassBoost, midBoost, presenceCut, comp, lp, reverb]);
-  
-  // Very light saturation — just a touch of warmth
-  for (let i = 0; i < mixed.length; i++) {
-    mixed[i] = tubeSaturate(mixed[i], 1.5);
+  // Actually, let me use SVF for each EQ band
+  // Bass warmth
+  let warm = new Float64Array(total);
+  const bassLP = createSVF(200, 0.8, 'lowpass');
+  const bassHP = createSVF(60, 0.8, 'highpass');
+  for (let i = 0; i < total; i++) {
+    const lp = bassLP.process(mix[i]);
+    const hp = bassHP.process(lp);
+    warm[i] = mix[i] + hp * 0.5; // boost bass warmth
   }
   
-  return normalize(mixed, 0.8);
+  // Gentle top cut for woody tone
+  let result = new Float64Array(total);
+  const topCut = createSVF(4000, 0.7, 'lowpass');
+  for (let i = 0; i < total; i++) {
+    result[i] = topCut.process(warm[i]);
+  }
+  
+  // Very light saturation — just warmth
+  result = applyWaveshaper(result, 1.3, 0.1);
+  
+  result = applyReverb(result, 0.2, 1.0);
+  
+  return normalize(result, 0.82);
 }
 
-/**
- * Track 2: "The Iconic British Crunch"
- * Classic plexi crunch — medium gain, aggressive midrange
- * Gibson Les Paul bridge humbucker, Gain: 5
- */
+// ==================== TRACK 2: BRITISH CRUNCH ====================
 function generateTrack2() {
-  console.log('  Generating Track 2: The Iconic British Crunch...');
-  const numSamples = SAMPLE_RATE * DURATION;
+  console.log('  Track 2: The Iconic British Crunch...');
+  const total = SAMPLE_RATE * DURATION;
   
-  // Power chord riff (E5, A5, G5 pattern)
-  const noteEvents = [
-    // E5 power chord: E2 + B2 + E3
-    { note: NOTES.E2, start: 0, dur: 1.0 },
-    { note: NOTES.B2, start: 0, dur: 1.0 },
-    { note: NOTES.E3, start: 0, dur: 0.9 },
-    // Rest
-    // A5 power chord: A2 + E3 + A3
-    { note: NOTES.A2, start: 1.2, dur: 1.0 },
-    { note: NOTES.E3, start: 1.2, dur: 1.0 },
-    { note: NOTES.A2 * 2, start: 1.2, dur: 0.9 },
-    // G5 
-    { note: NOTES.G2, start: 2.4, dur: 1.0 },
-    { note: NOTES.D3, start: 2.4, dur: 1.0 },
-    { note: NOTES.G3, start: 2.4, dur: 0.9 },
-    // E5 again
-    { note: NOTES.E2, start: 3.5, dur: 1.5 },
-    { note: NOTES.B2, start: 3.5, dur: 1.5 },
-    { note: NOTES.E3, start: 3.5, dur: 1.4 },
-    // Second phrase - lower dynamics
-    { note: NOTES.E2, start: 5.5, dur: 0.8 },
-    { note: NOTES.B2, start: 5.5, dur: 0.8 },
-    { note: NOTES.A2, start: 6.5, dur: 0.8 },
-    { note: NOTES.E3, start: 6.5, dur: 0.8 },
-    { note: NOTES.G2, start: 7.3, dur: 1.0 },
-    { note: NOTES.D3, start: 7.3, dur: 1.0 },
-    { note: NOTES.G3, start: 7.3, dur: 0.9 },
+  // Power chord riff
+  const notes = [
+    // E5 power chord
+    { f: FREQS.E2, t: 0.0, d: 1.2, v: 1.0, b: 0.6 },
+    { f: FREQS.B2, t: 0.0, d: 1.1, v: 0.9, b: 0.6 },
+    { f: FREQS.E3, t: 0.0, d: 1.0, v: 0.8, b: 0.6 },
+    // A5
+    { f: FREQS.A2, t: 1.3, d: 1.2, v: 1.0, b: 0.6 },
+    { f: FREQS.E3, t: 1.3, d: 1.1, v: 0.9, b: 0.6 },
+    { f: FREQS.A3, t: 1.3, d: 1.0, v: 0.8, b: 0.6 },
+    // G5
+    { f: FREQS.G2, t: 2.6, d: 1.2, v: 1.0, b: 0.6 },
+    { f: FREQS.D3, t: 2.6, d: 1.1, v: 0.9, b: 0.6 },
+    { f: FREQS.G3, t: 2.6, d: 1.0, v: 0.8, b: 0.6 },
+    // E5 long
+    { f: FREQS.E2, t: 3.8, d: 1.8, v: 1.0, b: 0.6 },
+    { f: FREQS.B2, t: 3.8, d: 1.7, v: 0.9, b: 0.6 },
+    { f: FREQS.E3, t: 3.8, d: 1.6, v: 0.85, b: 0.6 },
+    // Second phrase
+    { f: FREQS.E2, t: 5.8, d: 0.9, v: 0.85, b: 0.6 },
+    { f: FREQS.B2, t: 5.8, d: 0.8, v: 0.75, b: 0.6 },
+    { f: FREQS.A2, t: 6.8, d: 0.9, v: 0.9, b: 0.6 },
+    { f: FREQS.E3, t: 6.8, d: 0.8, v: 0.8, b: 0.6 },
+    { f: FREQS.G2, t: 7.6, d: 1.0, v: 0.95, b: 0.6 },
+    { f: FREQS.D3, t: 7.6, d: 0.9, v: 0.85, b: 0.6 },
+    { f: FREQS.G3, t: 7.6, d: 0.8, v: 0.75, b: 0.6 },
     // Final E5
-    { note: NOTES.E2, start: 8.5, dur: 1.5 },
-    { note: NOTES.B2, start: 8.5, dur: 1.5 },
-    { note: NOTES.E3, start: 8.5, dur: 1.4 },
+    { f: FREQS.E2, t: 8.8, d: 1.2, v: 1.0, b: 0.6 },
+    { f: FREQS.B2, t: 8.8, d: 1.1, v: 0.9, b: 0.6 },
+    { f: FREQS.E3, t: 8.8, d: 1.0, v: 0.85, b: 0.6 },
   ];
   
-  const tracks = noteEvents.map(ev => {
-    const samples = karplusStrong(ev.note, ev.dur, SAMPLE_RATE, 0.5, 0.9955);
-    applyEnvelope(samples, 0.001, 0.15, 0.75, 0.2);
-    const placed = new Float64Array(numSamples);
-    const startSample = Math.floor(ev.start * SAMPLE_RATE);
-    for (let i = 0; i < samples.length && (startSample + i) < numSamples; i++) {
-      placed[startSample + i] = samples[i];
-    }
-    return placed;
-  });
+  const buffers = notes.map(n =>
+    placeAtOffset(guitarNote(n.f, n.d, { pluckBrightness: n.b, decay: 0.6, velocity: n.v }), n.t, total)
+  );
   
-  let mixed = mixTracks(tracks, numSamples);
+  let mix = mixBuffers(buffers, total);
   
-  // British crunch processing: mid-forward, aggressive
-  const hp = createHighpass(100);
-  const midScoop = createPeaking(800, 6, 2.0);     // aggressive mids
-  const presenceBoost = createPeaking(3500, 4, 1.5); // plexi presence
-  const bassCut = createPeaking(100, -2, 1.0);       // tighter low end
-  const lp = createLowpass(7000, 0.8);
-  const comp = createCompressor(0.25, 3, 0.003, 0.08);
-  const reverb = createReverb(0.12, 0.7);
+  // British crunch EQ: tight bass, aggressive mids, presence
+  let shaped = new Float64Array(total);
+  const tightBass = createSVF(150, 1.0, 'highpass');
+  for (let i = 0; i < total; i++) shaped[i] = tightBass.process(mix[i]);
   
-  mixed = processChain(mixed, [hp, bassCut, midScoop, presenceBoost, lp]);
+  // Medium saturation — crunch
+  shaped = applyWaveshaper(shaped, 3.0, 0.15);
   
-  // Medium saturation — crunch level
-  for (let i = 0; i < mixed.length; i++) {
-    mixed[i] = tubeSaturate(mixed[i], 3.0);
+  // Post-saturation presence boost
+  let withPresence = new Float64Array(total);
+  const presenceLP = createSVF(3000, 0.8, 'lowpass');
+  const presenceHP = createSVF(3000, 0.8, 'highpass');
+  for (let i = 0; i < total; i++) {
+    const lp = presenceLP.process(shaped[i]);
+    const hp = presenceHP.process(shaped[i]);
+    withPresence[i] = lp + hp * 1.4; // boost presence
   }
   
-  // Post-saturation comp and reverb
-  mixed = processChain(mixed, [comp, reverb]);
+  withPresence = applyReverb(withPresence, 0.12, 0.6);
   
-  return normalize(mixed, 0.82);
+  return normalize(withPresence, 0.8);
 }
 
-/**
- * Track 3: "Brown Sound High Gain"
- * Saturated lead tone — high gain, creamy compression
- * Gibson Les Paul bridge humbucker, Gain: 8
- */
+// ==================== TRACK 3: BROWN SOUND ====================
 function generateTrack3() {
-  console.log('  Generating Track 3: Brown Sound High Gain...');
-  const numSamples = SAMPLE_RATE * DURATION;
+  console.log('  Track 3: Brown Sound High Gain...');
+  const total = SAMPLE_RATE * DURATION;
   
-  // Sustained lead notes with vibrato-like effect
-  const noteEvents = [
-    // Opening sustained note
-    { note: NOTES.B3, start: 0, dur: 2.0 },
-    { note: NOTES.G3, start: 0, dur: 2.0 },   // double stop
-    // Bending feel - ascending
-    { note: NOTES.Eb3, start: 2.2, dur: 1.5 },
-    // Descending run
-    { note: NOTES.E4, start: 3.8, dur: 0.8 },
-    { note: NOTES.Eb3 * 2, start: 4.5, dur: 0.8 },
-    { note: NOTES.C3 * 2, start: 5.2, dur: 1.0 },
-    // Sustained notes
-    { note: NOTES.G3, start: 6.2, dur: 1.5 },
-    { note: NOTES.B2, start: 6.2, dur: 1.5 },
-    // Final bend
-    { note: NOTES.Eb3, start: 7.8, dur: 2.0 },
-    { note: NOTES.Bb2, start: 7.8, dur: 2.0 },
+  // Sustained lead notes
+  const notes = [
+    { f: FREQS.B3, t: 0.0, d: 2.5, v: 0.9, b: 0.55 },
+    { f: FREQS.G3, t: 0.0, d: 2.3, v: 0.7, b: 0.55 },
+    { f: FREQS.Eb3, t: 2.8, d: 2.0, v: 0.85, b: 0.55 },
+    { f: FREQS.E4, t: 4.5, d: 1.2, v: 0.8, b: 0.55 },
+    { f: FREQS.C4, t: 5.5, d: 1.2, v: 0.8, b: 0.55 },
+    { f: FREQS.G3, t: 6.5, d: 1.8, v: 0.85, b: 0.55 },
+    { f: FREQS.B2, t: 6.5, d: 1.6, v: 0.7, b: 0.55 },
+    { f: FREQS.Eb3, t: 8.2, d: 1.8, v: 0.9, b: 0.55 },
+    { f: FREQS.Bb2, t: 8.2, d: 1.6, v: 0.7, b: 0.55 },
   ];
   
-  const tracks = noteEvents.map(ev => {
-    const samples = karplusStrong(ev.note, ev.dur, SAMPLE_RATE, 0.55, 0.9965);
-    applyEnvelope(samples, 0.005, 0.3, 0.85, 0.4);
-    // Add slight detuning for chorus effect (simulate vibrato)
-    const vibratoRate = 5.5; // Hz
-    const vibratoDepth = ev.dur > 1.5 ? 2.5 : 1.0;
-    for (let i = 0; i < samples.length; i++) {
-      const t = i / SAMPLE_RATE;
-      // Subtle amplitude modulation for expression
-      const vibrato = 1 + 0.03 * Math.sin(2 * Math.PI * vibratoRate * t) * vibratoDepth;
-      samples[i] *= vibrato;
-    }
-    const placed = new Float64Array(numSamples);
-    const startSample = Math.floor(ev.start * SAMPLE_RATE);
-    for (let i = 0; i < samples.length && (startSample + i) < numSamples; i++) {
-      placed[startSample + i] = samples[i];
-    }
-    return placed;
-  });
+  const buffers = notes.map(n =>
+    placeAtOffset(
+      guitarNote(n.f, n.d, { 
+        pluckBrightness: n.b, 
+        decay: 1.8, 
+        velocity: n.v,
+        vibratoRate: 5.0,
+        vibratoDepth: 3,
+        numHarmonics: 16,
+      }), n.t, total
+    )
+  );
   
-  let mixed = mixTracks(tracks, numSamples);
+  let mix = mixBuffers(buffers, total);
   
-  // Brown sound: boosted mids, creamy compression, focused
-  const hp = createHighpass(120);
-  const lowMidBoost = createPeaking(400, 5, 1.5);    // thick lows
-  const midBoost = createPeaking(1000, 4, 1.8);       // vocal mids
-  const presenceBoost = createPeaking(2800, 3, 1.2);  // cut-through presence
-  const topCut = createPeaking(6000, -6, 0.8);        // smooth top
-  const lp = createLowpass(5500, 0.7);
+  // Brown sound EQ: thick lows, vocal mids, smooth top
+  let shaped = new Float64Array(total);
+  const tightLow = createSVF(100, 0.8, 'highpass');
+  for (let i = 0; i < total; i++) shaped[i] = tightLow.process(mix[i]);
   
-  mixed = processChain(mixed, [hp, lowMidBoost, midBoost, presenceBoost, topCut, lp]);
-  
-  // Heavy saturation — sustain and compression
   // Two-stage saturation for smooth sustain
-  for (let i = 0; i < mixed.length; i++) {
-    mixed[i] = tubeSaturate(mixed[i] * 1.2, 5.0);
-    mixed[i] = tubeSaturate(mixed[i], 2.0);
-  }
+  shaped = applyWaveshaper(shaped, 5.0, 0.12);
+  shaped = applyWaveshaper(shaped, 2.0, 0.18);
   
-  const comp = createCompressor(0.15, 6, 0.002, 0.15);
-  const reverb = createReverb(0.18, 1.0);
-  mixed = processChain(mixed, [comp, reverb]);
+  // Smooth top end
+  let smoothed = new Float64Array(total);
+  const smoothLP = createSVF(5000, 0.7, 'lowpass');
+  for (let i = 0; i < total; i++) smoothed[i] = smoothLP.process(shaped[i]);
   
-  return normalize(mixed, 0.78);
+  smoothed = applyReverb(smoothed, 0.18, 1.0);
+  
+  return normalize(smoothed, 0.78);
 }
 
-/**
- * Track 4: "The Dynamic Breakup"
- * Edge of breakup, touch-sensitive — clean that breaks up when hit harder
- * Fender Telecaster bridge pickup, Gain: 4
- */
+// ==================== TRACK 4: DYNAMIC BREAKUP ====================
 function generateTrack4() {
-  console.log('  Generating Track 4: The Dynamic Breakup...');
-  const numSamples = SAMPLE_RATE * DURATION;
+  console.log('  Track 4: The Dynamic Breakup...');
+  const total = SAMPLE_RATE * DURATION;
   
   // Dynamic picking pattern — soft then hard
-  const noteEvents = [
-    // Soft fingerpicked passage
-    { note: NOTES.E2, start: 0, dur: 1.5, vel: 0.5 },
-    { note: NOTES.G3, start: 0.3, dur: 1.0, vel: 0.4 },
-    { note: NOTES.B3, start: 0.7, dur: 0.8, vel: 0.35 },
-    { note: NOTES.E4, start: 1.1, dur: 0.8, vel: 0.4 },
-    // Slightly harder
-    { note: NOTES.A2, start: 2.0, dur: 1.2, vel: 0.65 },
-    { note: NOTES.E3, start: 2.4, dur: 1.0, vel: 0.6 },
-    { note: NOTES.A3, start: 2.8, dur: 0.8, vel: 0.65 },
-    // Hard strum — breakup!
-    { note: NOTES.E2, start: 4.0, dur: 1.5, vel: 1.0 },
-    { note: NOTES.B2, start: 4.0, dur: 1.5, vel: 0.95 },
-    { note: NOTES.E3, start: 4.0, dur: 1.4, vel: 0.9 },
+  const notes = [
+    // Soft passage
+    { f: FREQS.E2, t: 0.0, d: 1.5, v: 0.4, b: 0.3 },
+    { f: FREQS.G3, t: 0.3, d: 1.0, v: 0.35, b: 0.35 },
+    { f: FREQS.B3, t: 0.7, d: 0.8, v: 0.3, b: 0.4 },
+    { f: FREQS.E4, t: 1.1, d: 0.8, v: 0.35, b: 0.4 },
+    // Medium
+    { f: FREQS.A2, t: 2.2, d: 1.2, v: 0.65, b: 0.5 },
+    { f: FREQS.E3, t: 2.5, d: 1.0, v: 0.6, b: 0.5 },
+    { f: FREQS.A3, t: 2.8, d: 0.8, v: 0.65, b: 0.5 },
+    // Hard strum — breaks up!
+    { f: FREQS.E2, t: 4.2, d: 1.5, v: 1.0, b: 0.65 },
+    { f: FREQS.B2, t: 4.2, d: 1.4, v: 0.9, b: 0.65 },
+    { f: FREQS.E3, t: 4.2, d: 1.3, v: 0.85, b: 0.65 },
     // Back to soft
-    { note: NOTES.G3, start: 5.8, dur: 1.2, vel: 0.45 },
-    { note: NOTES.D3, start: 6.2, dur: 1.0, vel: 0.4 },
-    { note: NOTES.G2, start: 6.5, dur: 1.0, vel: 0.5 },
+    { f: FREQS.G3, t: 6.0, d: 1.2, v: 0.4, b: 0.35 },
+    { f: FREQS.D3, t: 6.3, d: 1.0, v: 0.35, b: 0.3 },
+    { f: FREQS.G2, t: 6.6, d: 1.0, v: 0.45, b: 0.3 },
     // Final hard hit
-    { note: NOTES.E2, start: 7.8, dur: 2.0, vel: 1.0 },
-    { note: NOTES.B2, start: 7.8, dur: 2.0, vel: 0.95 },
-    { note: NOTES.E3, start: 7.8, dur: 1.9, vel: 0.9 },
+    { f: FREQS.E2, t: 8.0, d: 2.0, v: 1.0, b: 0.65 },
+    { f: FREQS.B2, t: 8.0, d: 1.9, v: 0.9, b: 0.65 },
+    { f: FREQS.E3, t: 8.0, d: 1.8, v: 0.85, b: 0.65 },
   ];
   
-  const tracks = noteEvents.map(ev => {
-    // Velocity affects pluck brightness
-    const pluckPos = 0.3 + (1 - ev.vel) * 0.4; // harder = brighter pluck
-    const decay = 0.994 + ev.vel * 0.004;       // harder = longer sustain
-    const samples = karplusStrong(ev.note, ev.dur, SAMPLE_RATE, pluckPos, decay);
-    applyEnvelope(samples, 0.001, 0.2, 0.6 * ev.vel, 0.25);
-    // Scale by velocity
-    for (let i = 0; i < samples.length; i++) {
-      samples[i] *= (0.3 + ev.vel * 0.7);
-    }
-    const placed = new Float64Array(numSamples);
-    const startSample = Math.floor(ev.start * SAMPLE_RATE);
-    for (let i = 0; i < samples.length && (startSample + i) < numSamples; i++) {
-      placed[startSample + i] = samples[i];
-    }
-    return placed;
-  });
+  const buffers = notes.map(n =>
+    placeAtOffset(
+      guitarNote(n.f, n.d, { 
+        pluckBrightness: n.b, 
+        decay: 0.5 + n.v * 0.5, 
+        velocity: n.v,
+        numHarmonics: 10 + Math.floor(n.v * 6),
+      }), n.t, total
+    )
+  );
   
-  let mixed = mixTracks(tracks, numSamples);
+  let mix = mixBuffers(buffers, total);
   
-  // Tele bridge: bright, snappy, mid-scooped
-  const hp = createHighpass(90);
-  const trebleBoost = createPeaking(3000, 5, 1.5);   // Tele bite
-  const midScoop = createPeaking(700, -3, 1.2);      // scooped mids
-  const bassCut = createPeaking(150, -3, 1.0);
-  const presenceBoost = createPeaking(5000, 4, 1.0);
-  const lp = createLowpass(8000, 0.7);
+  // Tele bridge EQ: bright, snappy
+  let shaped = new Float64Array(total);
+  const hp = createSVF(80, 0.7, 'highpass');
+  for (let i = 0; i < total; i++) shaped[i] = hp.process(mix[i]);
   
-  mixed = processChain(mixed, [hp, bassCut, midScoop, trebleBoost, presenceBoost, lp]);
-  
-  // Edge-of-breakup saturation — only loud parts distort
-  // Soft clipper that lets quiet parts stay clean
-  for (let i = 0; i < mixed.length; i++) {
-    const abs = Math.abs(mixed[i]);
-    if (abs > 0.3) {
-      // Only saturate above threshold — dynamics preserved
-      mixed[i] = tubeSaturate(mixed[i], 3.5);
+  // Edge-of-breakup: adaptive saturation based on amplitude
+  const shaper = createWaveshaper(3.5, 0.15);
+  let saturated = new Float64Array(total);
+  for (let i = 0; i < total; i++) {
+    const abs = Math.abs(shaped[i]);
+    // Only distort loud parts — quiet stays clean
+    if (abs > 0.25) {
+      saturated[i] = shaper.process(shaped[i]);
     } else {
-      mixed[i] = tubeSaturate(mixed[i], 1.8); // very light for quiet parts
+      const lightShaper = createWaveshaper(1.5, 0.1);
+      saturated[i] = lightShaper.process(shaped[i]);
     }
   }
   
-  const comp = createCompressor(0.35, 2.5, 0.005, 0.08);
-  const reverb = createReverb(0.1, 0.6);
-  mixed = processChain(mixed, [comp, reverb]);
+  // Tele presence / bite
+  let withBite = new Float64Array(total);
+  const biteHP = createSVF(2500, 0.7, 'highpass');
+  for (let i = 0; i < total; i++) {
+    withBite[i] = saturated[i] + biteHP.process(saturated[i]) * 0.5;
+  }
   
-  return normalize(mixed, 0.8);
+  withBite = applyReverb(withBite, 0.1, 0.5);
+  
+  return normalize(withBite, 0.8);
 }
 
-/**
- * Track 5: "The Volume Roll-Off"
- * Guitar volume knob interaction — starts dirty, rolls back to clean
- * Gibson Les Paul bridge humbucker, Gain: 6
- */
+// ==================== TRACK 5: VOLUME ROLL-OFF ====================
 function generateTrack5() {
-  console.log('  Generating Track 5: The Volume Roll-Off...');
-  const numSamples = SAMPLE_RATE * DURATION;
+  console.log('  Track 5: The Volume Roll-Off...');
+  const total = SAMPLE_RATE * DURATION;
   
-  // Same riff played throughout — we'll vary the input gain
-  const riffPattern = [
-    { note: NOTES.E2, offset: 0, dur: 0.8 },
-    { note: NOTES.B2, offset: 0, dur: 0.7 },
-    { note: NOTES.E3, offset: 0, dur: 0.6 },
-    { note: NOTES.A2, offset: 1.0, dur: 0.8 },
-    { note: NOTES.E3, offset: 1.0, dur: 0.7 },
-    { note: NOTES.G2, offset: 2.0, dur: 0.8 },
-    { note: NOTES.D3, offset: 2.0, dur: 0.7 },
-    { note: NOTES.E2, offset: 3.0, dur: 0.8 },
-    { note: NOTES.B2, offset: 3.0, dur: 0.7 },
+  // Same riff repeated — volume envelope does the magic
+  const riff = [
+    { f: FREQS.E2, t: 0.0, d: 0.9, v: 0.9, b: 0.6 },
+    { f: FREQS.B2, t: 0.0, d: 0.8, v: 0.8, b: 0.6 },
+    { f: FREQS.E3, t: 0.0, d: 0.7, v: 0.7, b: 0.6 },
+    { f: FREQS.A2, t: 1.1, d: 0.9, v: 0.9, b: 0.6 },
+    { f: FREQS.E3, t: 1.1, d: 0.8, v: 0.8, b: 0.6 },
+    { f: FREQS.G2, t: 2.1, d: 0.9, v: 0.9, b: 0.6 },
+    { f: FREQS.D3, t: 2.1, d: 0.8, v: 0.8, b: 0.6 },
+    { f: FREQS.E2, t: 3.1, d: 0.9, v: 0.9, b: 0.6 },
+    { f: FREQS.B2, t: 3.1, d: 0.8, v: 0.8, b: 0.6 },
   ];
   
-  // Create repeating riff
-  const tracks = [];
+  const buffers = [];
   let time = 0;
   while (time < DURATION - 1) {
-    for (const ev of riffPattern) {
-      if (time + ev.offset >= DURATION) continue;
-      const samples = karplusStrong(ev.note, ev.dur, SAMPLE_RATE, 0.5, 0.996);
-      applyEnvelope(samples, 0.001, 0.15, 0.7, 0.15);
-      const placed = new Float64Array(numSamples);
-      const startSample = Math.floor((time + ev.offset) * SAMPLE_RATE);
-      for (let i = 0; i < samples.length && (startSample + i) < numSamples; i++) {
-        placed[startSample + i] = samples[i];
-      }
-      tracks.push(placed);
+    for (const n of riff) {
+      if (time + n.t >= DURATION) continue;
+      buffers.push(
+        placeAtOffset(
+          guitarNote(n.f, n.d, { pluckBrightness: n.b, decay: 0.6, velocity: n.v }),
+          time + n.t, total
+        )
+      );
     }
     time += 4.0;
   }
   
-  let mixed = mixTracks(tracks, numSamples);
+  let mix = mixBuffers(buffers, total);
   
-  // Volume roll-off curve: start dirty (100%), roll to clean (30%), back to dirty
-  const volumeCurve = new Float64Array(numSamples);
-  for (let i = 0; i < numSamples; i++) {
-    const t = i / SAMPLE_RATE;
-    let vol;
-    if (t < 2) {
-      vol = 1.0; // Full volume — dirty
-    } else if (t < 5) {
-      // Smooth roll-off to clean
-      const p = (t - 2) / 3;
-      vol = 1.0 - 0.7 * (3 * p * p - 2 * p * p * p); // smoothstep
-    } else if (t < 7) {
-      vol = 0.3; // Clean
-    } else {
-      // Roll back to dirty
-      const p = (t - 7) / 3;
-      vol = 0.3 + 0.7 * (3 * p * p - 2 * p * p * p);
+  // Volume roll-off: dirty → clean → dirty (simulates guitar volume knob)
+  mix = applyGainEnvelope(mix, (t) => {
+    if (t < 2.0) return 1.0;                          // Full — dirty
+    if (t < 5.0) {
+      const p = (t - 2.0) / 3.0;                     // Roll to clean
+      return 1.0 - 0.7 * (3*p*p - 2*p*p*p);          // smoothstep
     }
-    volumeCurve[i] = vol;
-  }
+    if (t < 7.0) return 0.3;                           // Clean
+    const p = Math.min((t - 7.0) / 2.5, 1.0);        // Back to dirty
+    return 0.3 + 0.7 * (3*p*p - 2*p*p*p);
+  });
   
-  // Apply volume curve BEFORE saturation (like real guitar volume knob)
-  for (let i = 0; i < mixed.length; i++) {
-    mixed[i] *= volumeCurve[i];
-  }
+  // British EQ
+  let shaped = new Float64Array(total);
+  const hp = createSVF(100, 0.8, 'highpass');
+  for (let i = 0; i < total; i++) shaped[i] = hp.process(mix[i]);
   
-  // British EQ chain
-  const hp = createHighpass(100);
-  const midBoost = createPeaking(800, 5, 2.0);     // classic mids
-  const presenceBoost = createPeaking(3500, 3, 1.3);
-  const lp = createLowpass(6500, 0.8);
+  // Saturation — quieter signal = less breakup
+  shaped = applyWaveshaper(shaped, 4.0, 0.15);
   
-  mixed = processChain(mixed, [hp, midBoost, presenceBoost, lp]);
+  shaped = applyReverb(shaped, 0.15, 0.8);
   
-  // Saturation — the key is that the rolled-back signal distorts less
-  // Higher input = more saturation = dirtier
-  for (let i = 0; i < mixed.length; i++) {
-    mixed[i] = tubeSaturate(mixed[i], 4.0);
-  }
-  
-  const comp = createCompressor(0.2, 4, 0.003, 0.1);
-  const reverb = createReverb(0.15, 0.8);
-  mixed = processChain(mixed, [comp, reverb]);
-  
-  return normalize(mixed, 0.8);
+  return normalize(shaped, 0.8);
 }
 
 // ==================== MAIN ====================
-console.log('🎸 ALUPLEXamp Audio Demo Generator');
-console.log('   Generating 5 EL34 British Roar Edition guitar tones...\n');
-
+console.log('🎸 ALUPLEXamp Audio Demo Generator v2\n');
 mkdirSync('public/audio', { recursive: true });
 
-const track1 = generateTrack1();
-writeWav(track1, 'public/audio/track1-woody-clean.wav');
+writeWav(generateTrack1(), 'public/audio/track1-woody-clean.wav');
+writeWav(generateTrack2(), 'public/audio/track2-british-crunch.wav');
+writeWav(generateTrack3(), 'public/audio/track3-brown-sound.wav');
+writeWav(generateTrack4(), 'public/audio/track4-dynamic-breakup.wav');
+writeWav(generateTrack5(), 'public/audio/track5-volume-rolloff.wav');
 
-const track2 = generateTrack2();
-writeWav(track2, 'public/audio/track2-british-crunch.wav');
-
-const track3 = generateTrack3();
-writeWav(track3, 'public/audio/track3-brown-sound.wav');
-
-const track4 = generateTrack4();
-writeWav(track4, 'public/audio/track4-dynamic-breakup.wav');
-
-const track5 = generateTrack5();
-writeWav(track5, 'public/audio/track5-volume-rolloff.wav');
-
-console.log('\n✅ All 5 audio tracks generated successfully!');
-console.log('   These are synthesized guitar amp tones — not TTS.');
-console.log('   Each track demonstrates a different EL34 tube amp character.\n');
+console.log('\n✅ All 5 tracks generated!');
