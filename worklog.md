@@ -1,4 +1,54 @@
 ---
+Task ID: 9
+Agent: Main Agent
+Task: Rebuild ALUPLEXamp Landing Page from Scratch
+
+Work Log:
+- Removed all previous Flowd/landing component files and replaced with ALUPLEXamp landing page
+- Created `src/lib/translations.ts` with comprehensive SK/EN/DE translations (~120 keys per language covering all sections)
+- Rewrote `globals.css` with ALUPLEX dark premium theme:
+  - CSS variables: #0a0a0a bg, #d4922a primary amber, #141414 card, #2a2a2a border, #8a8580 muted, #e8e6e1 fg
+  - Utility classes: text-gradient-amber, text-gradient-amber-shimmer, glass/glass-active, section-divider, ambient-glow, card-hover
+  - Track color indicators: track-green, track-amber, track-red, track-purple, track-cyan
+  - Color swatch classes: swatch-tiger, swatch-black, swatch-cream, swatch-red
+  - Config preview backgrounds: config-preview-tiger/black/cream/red
+  - Animations: fadeInUp, tubeGlow, pulseWarm, bounce, shimmer
+  - Custom scrollbar styling (dark theme), iOS safe area support, smooth scroll
+- Rewrote `layout.tsx` with ALUPLEXamp SEO metadata, dark-first theme, Geist font
+- Built complete `src/app/page.tsx` (1089 lines, single file) with all 12 sections:
+  1. Navigation — sticky glassmorphism on scroll, SK|EN|DE language switcher, mobile hamburger with Sheet component
+  2. Hero — full viewport, amber ambient glow (CSS radial gradients), shimmer gradient headline, 2 CTAs, bouncing scroll chevron
+  3. Value Props — 4 cards (Heart/Target/Shield/Music icons) in 2-col mobile / 4-col desktop grid
+  4. Engineering — 2-column layout with feature cards (left) + decorative visual with 12.5kg weight display, voltage selector callout, aluminium chassis label (right)
+  5. Sound Architecture — 6 spec cards in 3x2 grid + EL34+ECC83 technology callout box
+  6. Sound Library — 5 color-coded tracks with play/pause, progress bar, gear/settings details, NO artist references
+  7. Video — YouTube embed with dark gradient thumbnail and play button overlay
+  8. Configurator — 3 options only (Color: 4 swatches, Impedance: 8/16 Ohm, FX Loop: On/Off switch), live preview with summary card, NO power supply option
+  9. Gallery — 6 placeholder cards (4:3 aspect, dark gradients) with full-screen lightbox (prev/next/keyboard nav)
+  10. FAQ — 10 accordion items with numbered amber badges
+  11. CTA — Contact section with mailto links for info and orders
+  12. Footer — ALUPLEXamp branding, handwired text, copyright
+- Custom hooks: useTranslation, useScrollAnimation (IntersectionObserver), useScrolled, useShowScrollTop
+- Scroll-to-top button (fixed, appears after 500px, amber background)
+- Section dividers between each section (gradient amber line)
+- Responsive design: mobile-first, 2-col cards on mobile, hamburger nav, stacked configurator on mobile
+- Fixed gallery lightbox positioning (proper absolute/relative layout)
+- Verified: ESLint passes clean, dev server compiles successfully (200 on /)
+
+Stage Summary:
+- Complete ALUPLEXamp landing page with 12 sections in single page.tsx
+- Full SK/EN/DE translation system (120+ keys per language)
+- Dark premium theme with warm amber accents
+- Scroll animations via IntersectionObserver (fade-in-up)
+- Interactive configurator with live preview
+- Audio player UI with progress bar simulation
+- Gallery lightbox with keyboard navigation
+- FAQ accordion using shadcn/ui Accordion component
+- Mobile-responsive with Sheet-based hamburger menu
+- No external image dependencies — all visuals via CSS gradients
+- No Vadim Bušovský references, no Artists section, no power supply config option
+
+---
 Task ID: 8
 Agent: Main Agent
 Task: Build Flowd — AI-Powered Productivity SaaS Landing Page + App Shell
@@ -44,3 +94,30 @@ Stage Summary:
 - Responsive design with mobile bottom nav
 - Light/dark theme support via next-themes
 - All files created in /home/z/my-project/
+
+---
+Task ID: 8 - ALUPLEXamp Full Restoration
+Agent: Main Agent
+Task: Restore ALUPLEXamp landing page from scratch after accidental deletion by Flowd project. Apply 3 user modifications.
+
+Work Log:
+- Cleaned up all Flowd files (landing components, app shell, store, types)
+- Delegated full rebuild to full-stack-developer agent (1089 lines page.tsx + 459 lines translations.ts + 412 lines globals.css + 78 lines layout.tsx)
+- Agent completed: Navigation, Hero, ValueProps, Engineering, Sound Architecture, Sound Library (5 tracks), Video, Configurator (no power supply), Gallery, FAQ (10 items), CTA, Footer, ScrollToTop
+- Verified all 3 modifications were applied:
+  1. Hero: CSS-only dark gradient with amber ambient glow (no photo background)
+  2. Power supply: Built-in voltage selector 120V/230V in Engineering section (NOT a configurator option)
+  3. No Artists/Vadim section, no "Recorded by Vadim" text in Sound Library
+- Lint passes clean
+- Dev server compiles successfully (88KB HTML)
+- Took 17 desktop screenshots (1440x900) and 8 mobile screenshots (375x812)
+
+Stage Summary:
+- ALUPLEXamp fully restored with all original sections
+- 3 user modifications applied correctly
+- SK/EN/DE translation system intact (459 lines)
+- Dark premium theme with CSS animations
+- Sound Library: 5 EL34 British Roar tracks without any Vadim references
+- Configurator: Color + Impedance + FX Loop (no power supply option)
+- Engineering: Voltage selector displayed as built-in feature
+- No external image dependencies (all CSS gradients)

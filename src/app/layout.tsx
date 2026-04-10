@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
-import { Toaster } from "@/components/ui/toaster";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,36 +14,39 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Flowd — AI-Powered Productivity",
+  title: "ALUPLEXamp — Modern Plexi Tone Machine",
   description:
-    "Flowd is an AI-powered productivity system that plans your day, prioritizes tasks, builds habits, and helps you focus on what matters most.",
+    "Handcrafted tube guitar amplifier with aluminium chassis. Class AB, 30W, ECC83 + EL34 tubes. Built for musicians who demand perfect British tone.",
   keywords: [
-    "productivity",
-    "AI",
-    "task manager",
-    "habit tracker",
-    "pomodoro timer",
-    "AI assistant",
-    "daily planner",
-    "focus timer",
-    "productivity app",
+    "tube amplifier",
+    "guitar amplifier",
+    "ALUPLEXamp",
+    "handcrafted amp",
+    "EL34",
+    "ECC83",
+    "plexi",
+    "British tone",
+    "aluminium chassis",
+    "turret board",
+    "Class AB",
+    "30W amplifier",
   ],
-  authors: [{ name: "Flowd" }],
+  authors: [{ name: "ALUPLEXamp" }],
   icons: {
     icon: "/logo.svg",
   },
   openGraph: {
-    title: "Flowd — AI-Powered Productivity",
+    title: "ALUPLEXamp — Modern Plexi Tone Machine",
     description:
-      "Stop guessing what to do next. Flowd's AI plans your day, prioritizes tasks, and builds habits — so you focus on what matters.",
-    siteName: "Flowd",
+      "A premium handcrafted tube guitar amplifier with aluminium chassis. 30W of pure British tone — EL34 + ECC83.",
+    siteName: "ALUPLEXamp",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Flowd — AI-Powered Productivity",
+    title: "ALUPLEXamp — Modern Plexi Tone Machine",
     description:
-      "AI-powered productivity system: task manager + habits + pomodoro + AI assistant.",
+      "Handcrafted tube guitar amplifier. Class AB, 30W, EL34 + ECC83. Pure British tone.",
   },
   robots: {
     index: true,
@@ -58,18 +60,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="sk" suppressHydrationWarning className="dark">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
       >
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
+          defaultTheme="dark"
           enableSystem
           disableTransitionOnChange
         >
           {children}
-          <Toaster />
         </ThemeProvider>
       </body>
     </html>
