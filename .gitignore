@@ -50,5 +50,15 @@ test
 prompt
 
 server.log
+
+# Database
+*.db
+*.db-journal
+/db/
+
+# Worklog & search results
+worklog.md
+search_*.json
+
 # Skills directory
 /skills/
