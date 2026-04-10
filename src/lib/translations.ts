@@ -4,7 +4,6 @@ export const translations: Record<string, Record<string, string>> = {
   // ========== SLOVAK ==========
   sk: {
     // Navigation
-    'nav.soundlib': 'Knižnica zvukov',
     'nav.specs': 'Špecifikácie',
     'nav.config': 'Konfigurátor',
     'nav.gallery': 'Galéria',
@@ -16,7 +15,7 @@ export const translations: Record<string, Record<string, string>> = {
     'hero.title': 'ALUPLEXamp',
     'hero.subtitle': 'Moderný Plexi Tone Machine',
     'hero.description': 'Prémiový lampový gitarský zosilňovač s hliníkovým podvozkom, postavený pre hudobníkov, ktorí požadujú dokonalý britský zvuk. Každý kus je ručne zmontovaný, jeden po druhom.',
-    'hero.cta.listen': 'Počúvaj',
+    'hero.cta.listen': 'Objaviť',
     'hero.cta.configure': 'Konfigurovať',
 
     // Value Props
@@ -116,6 +115,9 @@ export const translations: Record<string, Record<string, string>> = {
     'gal.rear': 'Zadný panel',
     'gal.detail': 'Detailný záber',
     'gal.quarter': 'Pohľad z 3/4',
+    'gal.wiring': 'Zapojenie',
+    'gal.closeup': 'Zábery zblízka',
+    'gal.studio': 'V štúdiu',
 
     // FAQ
     'faq.title': 'Často kladené otázky',
@@ -156,7 +158,6 @@ export const translations: Record<string, Record<string, string>> = {
   // ========== ENGLISH ==========
   en: {
     // Navigation
-    'nav.soundlib': 'Sound Library',
     'nav.specs': 'Specs',
     'nav.config': 'Configurator',
     'nav.gallery': 'Gallery',
@@ -168,7 +169,7 @@ export const translations: Record<string, Record<string, string>> = {
     'hero.title': 'ALUPLEXamp',
     'hero.subtitle': 'Modern Plexi Tone Machine',
     'hero.description': 'A premium tube guitar amplifier with an aluminium chassis, built for musicians who demand perfect British tone. Each unit is handcrafted, one at a time.',
-    'hero.cta.listen': 'Listen',
+    'hero.cta.listen': 'Discover',
     'hero.cta.configure': 'Configure',
 
     // Value Props
@@ -268,6 +269,9 @@ export const translations: Record<string, Record<string, string>> = {
     'gal.rear': 'Rear Panel',
     'gal.detail': 'Detail Shot',
     'gal.quarter': 'Three-Quarter View',
+    'gal.wiring': 'Wiring',
+    'gal.closeup': 'Close-up',
+    'gal.studio': 'In Studio',
 
     // FAQ
     'faq.title': 'Frequently Asked Questions',
@@ -308,7 +312,6 @@ export const translations: Record<string, Record<string, string>> = {
   // ========== GERMAN ==========
   de: {
     // Navigation
-    'nav.soundlib': 'Sound-Bibliothek',
     'nav.specs': 'Spezifikationen',
     'nav.config': 'Konfigurator',
     'nav.gallery': 'Galerie',
@@ -320,7 +323,7 @@ export const translations: Record<string, Record<string, string>> = {
     'hero.title': 'ALUPLEXamp',
     'hero.subtitle': 'Modern Plexi Tone Machine',
     'hero.description': 'Ein Premium-Röhrengitarrenverstärker mit Aluminiumchassis, gebaut für Musiker, die den perfekten britischen Ton verlangen. Jedes Stück wird handgefertigt, eines nach dem anderen.',
-    'hero.cta.listen': 'Anhören',
+    'hero.cta.listen': 'Entdecken',
     'hero.cta.configure': 'Konfigurieren',
 
     // Value Props
@@ -420,6 +423,9 @@ export const translations: Record<string, Record<string, string>> = {
     'gal.rear': 'Rückseite',
     'gal.detail': 'Detailaufnahme',
     'gal.quarter': 'Dreiviertelansicht',
+    'gal.wiring': 'Verkabelung',
+    'gal.closeup': 'Nahaufnahme',
+    'gal.studio': 'Im Studio',
 
     // FAQ
     'faq.title': 'Häufig gestellte Fragen',

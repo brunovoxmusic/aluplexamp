@@ -161,6 +161,16 @@
   60% { transform: translateY(-6px) translateX(-50%); }
 }
 
+@keyframes heroFadeInUp {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes heroImgZoom {
+  from { transform: scale(1.08); }
+  to { transform: scale(1); }
+}
+
 @keyframes shimmer {
   0% { background-position: -200% center; }
   100% { background-position: 200% center; }
@@ -169,7 +179,7 @@
 .fade-in-up {
   opacity: 0;
   transform: translateY(30px);
-  transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .fade-in-up.visible {
@@ -178,7 +188,7 @@
 }
 
 .tube-glow {
-  animation: tubeGlow 4s ease-in-out infinite;
+  animation: tubeGlow 5s ease-in-out infinite;
 }
 
 .pulse-warm {
@@ -186,7 +196,22 @@
 }
 
 .bounce-chevron {
-  animation: bounce 2s infinite;
+  animation: bounce 2.5s infinite;
+}
+
+.hero-fade-item {
+  opacity: 0;
+  animation: heroFadeInUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.hero-img-zoom {
+  animation: heroImgZoom 12s ease-out forwards;
+}
+
+.hero-grid-pattern {
+  background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+  background-size: 60px 60px;
 }
 
 /* ========== Gradient Text ========== */
@@ -217,17 +242,17 @@
 }
 
 .glass-active {
-  background: rgba(10, 10, 10, 0.9);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(212, 146, 42, 0.15);
+  background: rgba(10, 10, 10, 0.88);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-bottom: 1px solid rgba(212, 146, 42, 0.1);
 }
 
 /* ========== Section Divider ========== */
 
 .section-divider {
   height: 1px;
-  background: linear-gradient(90deg, transparent 0%, #2a2a2a 20%, #d4922a 50%, #2a2a2a 80%, transparent 100%);
+  background: linear-gradient(90deg, transparent 0%, rgba(42,42,42,0.5) 15%, rgba(212,146,42,0.15) 50%, rgba(42,42,42,0.5) 85%, transparent 100%);
   max-width: 80rem;
   margin: 0 auto;
 }
@@ -311,13 +336,13 @@
 /* ========== Card Hover ========== */
 
 .card-hover {
-  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease, border-color 0.4s ease;
 }
 
 .card-hover:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(212, 146, 42, 0.1);
-  border-color: rgba(212, 146, 42, 0.3);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(212, 146, 42, 0.08);
+  border-color: rgba(212, 146, 42, 0.2);
 }
 
 /* ========== Track Color Indicators ========== */

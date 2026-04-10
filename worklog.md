@@ -147,3 +147,37 @@ Stage Summary:
 - Engineering section shows real chassis back view (aluplex-back-naked.jpg)
 - Video section thumbnail uses aluplex-109.jpg with overlay
 - Configurator preview shows real product image (DSC6821.jpg)
+---
+Task ID: 1
+Agent: Main Agent
+Task: Comprehensive design analysis and maximal improvement of ALUPLEXamp landing page
+
+Work Log:
+- Read and analyzed complete page.tsx (1041 lines), translations.ts (458 lines), globals.css (413 lines)
+- Identified 20 available product images in /public/aluplex/
+- Completely rewrote page.tsx with comprehensive design overhaul
+- Removed SoundLibrary section (per previous user request + current analysis)
+- Removed Sound Library nav link, updated hero CTA from "Listen" to "Discover" targeting specs
+- Redesigned Hero section: full-bleed cinematic background image (aluplex-1.jpg), multi-layer gradient overlays, animated hero-fade-item staggered reveals, key specs strip (30W, EL34, 12.5kg, Handwired), hero-grid-pattern decorative element, hero-img-zoom slow zoom animation
+- Improved Navigation: larger touch targets, refined glass-active blur with saturate, better mobile sheet design
+- Enhanced ValueProps: improved card styling with backdrop-blur, better hover animations with cubic-bezier easing
+- Redesigned Engineering section: section header with decorative line + label, improved feature cards with icon+title row layout, dramatic chassis image with gradient overlay, refined voltage callout
+- Improved Sound Architecture: centered decorative section headers, larger spec card icons, enhanced EL34 callout with radial gradient
+- Enhanced Configurator: refined color swatches with hover scale effect, improved preview panel with rounded-3xl, better summary with dividers
+- Expanded Gallery: 6→9 images (added DSC6827, DSC01623, aluplex-138), first image spans 2 cols/rows on desktop, improved lightbox with top bar controls, always-visible labels, expand icon on hover
+- Improved FAQ: larger number badges, better accordion padding, refined border on open state
+- Enhanced CTA: added Music icon, decorative blur orbs, improved button hover effects with scale
+- Improved ScrollToTop: smooth fade-in/slide-up transition instead of sudden appearance
+- Updated globals.css: new heroFadeInUp and heroImgZoom keyframes, improved cubic-bezier easing on all transitions, refined glass-active with saturate(180%), subtler section dividers, improved card-hover with more lift (4px) and softer shadows, slower tube-glow (5s), slower bounce (2.5s)
+- Updated translations.ts for all 3 languages (SK/EN/DE): removed nav.soundlib, updated hero.cta.listen (Objaviť/Discover/Entdecken), added 3 new gallery labels (wiring, closeup, studio)
+- Cleaned up unused imports (Pause, Play removed)
+
+Stage Summary:
+- Complete design overhaul of all sections with premium dark aesthetic
+- Sound Library section removed, navigation updated
+- Hero redesigned with cinematic full-bleed background
+- Gallery expanded from 6 to 9 images with varied grid layout
+- All responsive breakpoints improved (mobile-first approach)
+- New CSS animations: hero-fade-item, hero-img-zoom, hero-grid-pattern
+- Enhanced transitions with cubic-bezier easing throughout
+- Lint clean, dev server running, page serving correctly

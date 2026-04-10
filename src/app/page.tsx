@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Heart, Target, Shield, Music, ThermometerSun, Weight, Magnet, ShieldCheck,
   Zap, Power, Mic2, Volume2, Headphones, Settings, ChevronDown, ChevronUp,
-  ChevronLeft, ChevronRight, Menu, X, Play, Pause, Wrench,
+  ChevronLeft, ChevronRight, Menu, X, Wrench, ArrowRight, Sparkles, Flame, CircleDot,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -77,7 +77,6 @@ function Navigation({ lang, setLang, t }: { lang: Language; setLang: (l: Languag
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const navLinks = [
-    { id: 'soundlib', label: t('nav.soundlib') },
     { id: 'specs', label: t('nav.specs') },
     { id: 'config', label: t('nav.config') },
     { id: 'gallery', label: t('nav.gallery') },
@@ -94,24 +93,24 @@ function Navigation({ lang, setLang, t }: { lang: Language; setLang: (l: Languag
   const langOptions: Language[] = ['sk', 'en', 'de'];
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'glass-active shadow-lg' : 'bg-transparent'}`}>
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? 'glass-active shadow-lg shadow-black/20' : 'bg-transparent'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-16 sm:h-20">
           {/* Logo */}
           <a
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             className="cursor-pointer flex items-center"
           >
-            <img src="/aluplex/logo.png" alt="ALUPLEXamp" className="h-8 w-auto" />
+            <img src="/aluplex/logo.png" alt="ALUPLEXamp" className="h-7 sm:h-8 w-auto" />
           </a>
 
           {/* Desktop Nav */}
-          <div className="hidden md:flex items-center gap-1">
+          <div className="hidden lg:flex items-center gap-1">
             {navLinks.map((link) => (
               <button
                 key={link.id}
                 onClick={() => scrollTo(link.id)}
-                className="px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-white/5"
+                className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors duration-200 rounded-lg hover:bg-white/5"
               >
                 {link.label}
               </button>
@@ -119,16 +118,16 @@ function Navigation({ lang, setLang, t }: { lang: Language; setLang: (l: Languag
           </div>
 
           {/* Right side: Language + Mobile toggle */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 sm:gap-3">
             {/* Language Switcher */}
-            <div className="hidden sm:flex items-center gap-1 bg-secondary/50 rounded-lg p-0.5">
+            <div className="hidden sm:flex items-center gap-0.5 bg-white/[0.04] rounded-xl p-1 border border-white/[0.06]">
               {langOptions.map((l) => (
                 <button
                   key={l}
                   onClick={() => setLang(l)}
-                  className={`px-2.5 py-1 text-xs font-medium rounded-md transition-all ${
+                  className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all duration-200 ${
                     lang === l
-                      ? 'bg-primary text-primary-foreground shadow-sm'
+                      ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20'
                       : 'text-muted-foreground hover:text-foreground'
                   }`}
                 >
@@ -139,26 +138,26 @@ function Navigation({ lang, setLang, t }: { lang: Language; setLang: (l: Languag
 
             {/* Mobile hamburger */}
             <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-              <SheetTrigger asChild className="md:hidden">
-                <button className="p-2 text-muted-foreground hover:text-foreground transition-colors" aria-label="Menu">
+              <SheetTrigger asChild className="lg:hidden">
+                <button className="p-2.5 text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-white/5" aria-label="Menu">
                   <Menu className="size-5" />
                 </button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-72 bg-[#0a0a0a] border-[#2a2a2a]">
-                <SheetHeader className="mb-6">
-                  <SheetTitle className="text-foreground flex items-center">
-                    <img src="/aluplex/logo.png" alt="ALUPLEXamp" className="h-8 w-auto" />
+              <SheetContent side="right" className="w-80 bg-[#0a0a0a]/95 backdrop-blur-xl border-[#2a2a2a]/50">
+                <SheetHeader className="mb-8">
+                  <SheetTitle className="text-foreground flex items-center gap-3">
+                    <img src="/aluplex/logo.png" alt="ALUPLEXamp" className="h-7 w-auto" />
                   </SheetTitle>
                 </SheetHeader>
                 {/* Mobile Language Switcher */}
-                <div className="flex items-center gap-1 bg-secondary/50 rounded-lg p-0.5 mb-6 w-fit">
+                <div className="flex items-center gap-0.5 bg-white/[0.04] rounded-xl p-1 mb-8 w-fit border border-white/[0.06]">
                   {langOptions.map((l) => (
                     <button
                       key={l}
                       onClick={() => { setLang(l); }}
-                      className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+                      className={`px-4 py-2 text-xs font-semibold rounded-lg transition-all duration-200 ${
                         lang === l
-                          ? 'bg-primary text-primary-foreground shadow-sm'
+                          ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20'
                           : 'text-muted-foreground hover:text-foreground'
                       }`}
                     >
@@ -172,7 +171,7 @@ function Navigation({ lang, setLang, t }: { lang: Language; setLang: (l: Languag
                     <button
                       key={link.id}
                       onClick={() => scrollTo(link.id)}
-                      className="text-left px-4 py-3 text-sm text-muted-foreground hover:text-foreground hover:bg-white/5 rounded-lg transition-colors"
+                      className="text-left px-4 py-3.5 text-sm text-muted-foreground hover:text-foreground hover:bg-white/5 rounded-xl transition-all duration-200"
                     >
                       {link.label}
                     </button>
@@ -190,7 +189,7 @@ function Navigation({ lang, setLang, t }: { lang: Language; setLang: (l: Languag
   );
 }
 
-// ========== HERO SECTION ==========
+// ========== HERO SECTION (Complete Redesign) ==========
 
 function HeroSection({ t }: { t: (k: string) => string }) {
   const scrollTo = (id: string) => {
@@ -199,75 +198,104 @@ function HeroSection({ t }: { t: (k: string) => string }) {
   };
 
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden bg-[#0a0a0a]">
-      {/* Ambient glow behind content */}
-      <div className="absolute top-0 right-0 w-2/3 h-full bg-[radial-gradient(ellipse_at_70%_40%,rgba(212,146,42,0.06)_0%,transparent_60%)] pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-1/2 h-1/2 bg-[radial-gradient(ellipse,rgba(212,146,42,0.03)_0%,transparent_60%)] pointer-events-none" />
+    <section className="relative min-h-screen flex items-end sm:items-center overflow-hidden bg-[#0a0a0a]">
+      {/* Background Image - full bleed */}
+      <div className="absolute inset-0 z-0">
+        <img
+          src="/aluplex/aluplex-1.jpg"
+          alt="ALUPLEXamp"
+          className="w-full h-full object-cover hero-img-zoom"
+        />
+        {/* Multi-layer gradient overlay for text readability */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a] via-[#0a0a0a]/80 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/40 to-[#0a0a0a]/60" />
+        {/* Amber glow accent */}
+        <div className="absolute top-1/3 right-1/4 w-[600px] h-[400px] bg-[radial-gradient(ellipse,rgba(212,146,42,0.08)_0%,transparent_70%)] pointer-events-none" />
+      </div>
 
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32">
-        <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-          {/* Left — Text content */}
-          <div className="order-2 lg:order-1">
-            <Badge className="mb-6 px-4 py-1.5 text-sm bg-primary/10 text-primary border-primary/20 hover:bg-primary/15">
+      {/* Decorative grid pattern */}
+      <div className="absolute inset-0 hero-grid-pattern pointer-events-none opacity-[0.03]" />
+
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20 sm:pb-16 pt-32 sm:pt-0">
+        <div className="max-w-2xl">
+          {/* Badge */}
+          <div className="hero-fade-item" style={{ animationDelay: '0.2s' }}>
+            <Badge className="mb-6 sm:mb-8 px-4 py-2 text-xs sm:text-sm bg-primary/10 text-primary border-primary/20 hover:bg-primary/15 backdrop-blur-sm">
+              <Sparkles className="size-3.5 mr-2" />
               {t('hero.badge')}
             </Badge>
+          </div>
 
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tighter mb-5 text-gradient-amber-shimmer leading-[1.1]">
+          {/* Title */}
+          <div className="hero-fade-item" style={{ animationDelay: '0.4s' }}>
+            <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tighter mb-4 sm:mb-6 text-gradient-amber-shimmer leading-[1.05]">
               {t('hero.title')}
             </h1>
+          </div>
 
-            <p className="text-base sm:text-lg md:text-xl font-light text-muted-foreground mb-4 tracking-wide">
+          {/* Subtitle */}
+          <div className="hero-fade-item" style={{ animationDelay: '0.6s' }}>
+            <p className="text-lg sm:text-xl md:text-2xl font-light text-foreground/90 mb-3 sm:mb-4 tracking-wide">
               {t('hero.subtitle')}
             </p>
+          </div>
 
-            <p className="text-sm sm:text-base text-muted-foreground/80 max-w-lg mb-10 leading-relaxed">
+          {/* Description */}
+          <div className="hero-fade-item" style={{ animationDelay: '0.7s' }}>
+            <p className="text-sm sm:text-base text-muted-foreground max-w-lg mb-8 sm:mb-12 leading-relaxed">
               {t('hero.description')}
             </p>
+          </div>
 
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-              <Button
-                size="lg"
-                onClick={() => scrollTo('soundlib')}
-                className="bg-primary text-primary-foreground hover:bg-primary/90 px-8 py-6 text-base font-semibold rounded-lg shadow-lg shadow-primary/20"
-              >
-                {t('hero.cta.listen')}
-                <ChevronDown className="size-4 ml-1" />
-              </Button>
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={() => scrollTo('config')}
-                className="border-[#2a2a2a] text-foreground hover:bg-white/5 hover:text-foreground px-8 py-6 text-base rounded-lg"
-              >
-                {t('hero.cta.configure')}
-                <Settings className="size-4 ml-1" />
-              </Button>
+          {/* Key specs strip */}
+          <div className="hero-fade-item flex flex-wrap items-center gap-3 sm:gap-4 mb-8 sm:mb-12" style={{ animationDelay: '0.8s' }}>
+            <div className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-white/[0.05] border border-white/[0.08] backdrop-blur-sm">
+              <Zap className="size-3.5 sm:size-4 text-primary" />
+              <span className="text-xs sm:text-sm font-semibold text-foreground/80">30W</span>
+            </div>
+            <div className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-white/[0.05] border border-white/[0.08] backdrop-blur-sm">
+              <Flame className="size-3.5 sm:size-4 text-primary" />
+              <span className="text-xs sm:text-sm font-semibold text-foreground/80">EL34</span>
+            </div>
+            <div className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-white/[0.05] border border-white/[0.08] backdrop-blur-sm">
+              <CircleDot className="size-3.5 sm:size-4 text-primary" />
+              <span className="text-xs sm:text-sm font-semibold text-foreground/80">12.5 kg</span>
+            </div>
+            <div className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-white/[0.05] border border-white/[0.08] backdrop-blur-sm">
+              <Wrench className="size-3.5 sm:size-4 text-primary" />
+              <span className="text-xs sm:text-sm font-semibold text-foreground/80">Handwired</span>
             </div>
           </div>
 
-          {/* Right — Product image */}
-          <div className="order-1 lg:order-2 relative">
-            <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-black/50 border border-[#2a2a2a]/50">
-              <img
-                src="/aluplex/aluplex-56.jpg"
-                alt="ALUPLEXamp — British Roar Edition"
-                className="w-full h-auto object-cover"
-              />
-              {/* Subtle vignette overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a]/30 via-transparent to-[#0a0a0a]/10" />
-              {/* Bottom amber glow line */}
-              <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
-            </div>
-            {/* Decorative floating accent */}
-            <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute -top-4 -left-4 w-24 h-24 bg-primary/5 rounded-full blur-2xl pointer-events-none" />
+          {/* CTA Buttons */}
+          <div className="hero-fade-item flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4" style={{ animationDelay: '0.9s' }}>
+            <Button
+              size="lg"
+              onClick={() => scrollTo('specs')}
+              className="bg-primary text-primary-foreground hover:bg-primary/90 px-8 py-6 text-base font-semibold rounded-xl shadow-xl shadow-primary/20 transition-all duration-300 hover:shadow-primary/30 hover:scale-[1.02]"
+            >
+              {t('hero.cta.listen')}
+              <ArrowRight className="size-4 ml-2" />
+            </Button>
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={() => scrollTo('config')}
+              className="border-white/10 text-foreground hover:bg-white/5 hover:text-foreground hover:border-white/20 px-8 py-6 text-base rounded-xl backdrop-blur-sm transition-all duration-300"
+            >
+              {t('hero.cta.configure')}
+              <Settings className="size-4 ml-2" />
+            </Button>
           </div>
         </div>
       </div>
 
       {/* Bouncing scroll indicator */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 bounce-chevron">
-        <ChevronDown className="size-6 text-muted-foreground/40" />
+      <div className="absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 bounce-chevron z-10">
+        <div className="flex flex-col items-center gap-2">
+          <span className="text-[10px] text-muted-foreground/40 uppercase tracking-[0.2em]">Scroll</span>
+          <ChevronDown className="size-5 text-muted-foreground/30" />
+        </div>
       </div>
     </section>
   );
@@ -285,17 +313,17 @@ function ValueProps({ t }: { t: (k: string) => string }) {
   ];
 
   return (
-    <section className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8" ref={ref}>
+    <section className="py-16 sm:py-24 lg:py-28 px-4 sm:px-6 lg:px-8" ref={ref}>
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
           {cards.map((card, i) => (
             <div
               key={i}
-              className="fade-in-up bg-card border border-[#2a2a2a] rounded-xl p-5 sm:p-6 text-center card-hover"
+              className="fade-in-up group bg-card/50 border border-[#2a2a2a]/60 rounded-2xl p-5 sm:p-6 lg:p-8 text-center card-hover backdrop-blur-sm"
               style={{ transitionDelay: `${i * 100}ms` }}
             >
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-primary/10 mb-4">
-                <card.icon className="size-6 text-primary" />
+              <div className="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-primary/10 group-hover:bg-primary/20 transition-colors duration-300 mb-4">
+                <card.icon className="size-5 sm:size-6 text-primary" />
               </div>
               <h3 className="text-sm sm:text-base font-semibold text-foreground mb-2">{card.title}</h3>
               <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{card.desc}</p>
@@ -319,60 +347,75 @@ function EngineeringSection({ t }: { t: (k: string) => string }) {
   ];
 
   return (
-    <section id="specs" className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8" ref={ref}>
+    <section id="specs" className="py-16 sm:py-24 lg:py-28 px-4 sm:px-6 lg:px-8" ref={ref}>
       <div className="max-w-7xl mx-auto">
-        <div className="grid md:grid-cols-2 gap-12 lg:gap-16 items-start">
+        <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-start">
           {/* Left */}
-          <div className="fade-in-up">
-            <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
-              {t('eng.title')}
-            </h2>
-            <p className="text-muted-foreground leading-relaxed mb-8">
-              {t('eng.subtitle')}
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <div className="fade-in-up">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-8 h-[2px] bg-primary" />
+                <span className="text-xs font-semibold text-primary uppercase tracking-[0.2em]">{t('eng.title')}</span>
+              </div>
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-6 leading-tight">
+                {t('eng.title')}
+              </h2>
+              <p className="text-muted-foreground leading-relaxed mb-8 text-sm sm:text-base max-w-xl">
+                {t('eng.subtitle')}
+              </p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               {features.map((f, i) => (
                 <div
                   key={i}
-                  className="bg-card border border-[#2a2a2a] rounded-xl p-4 card-hover"
+                  className="fade-in-up group bg-card/50 border border-[#2a2a2a]/60 rounded-2xl p-5 card-hover backdrop-blur-sm"
                   style={{ transitionDelay: `${(i + 1) * 100}ms` }}
                 >
-                  <f.icon className="size-5 text-primary mb-3" />
-                  <h4 className="text-sm font-semibold text-foreground mb-1">{f.title}</h4>
-                  <p className="text-xs text-muted-foreground">{f.desc}</p>
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-9 h-9 rounded-xl bg-primary/10 group-hover:bg-primary/20 flex items-center justify-center transition-colors">
+                      <f.icon className="size-4 text-primary" />
+                    </div>
+                    <h4 className="text-sm font-semibold text-foreground">{f.title}</h4>
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{f.desc}</p>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Right — decorative visual */}
+          {/* Right — Visual */}
           <div className="fade-in-up" style={{ transitionDelay: '200ms' }}>
-            <div className="relative bg-card border border-[#2a2a2a] rounded-2xl p-8 sm:p-10 tube-glow">
+            <div className="relative bg-card/50 border border-[#2a2a2a]/60 rounded-3xl overflow-hidden tube-glow backdrop-blur-sm">
               {/* Real chassis back image */}
-              <div className="mb-8 rounded-xl overflow-hidden border border-[#2a2a2a] shadow-lg">
+              <div className="relative">
                 <img src="/aluplex/aluplex-back-naked.jpg" alt="ALUPLEXamp chassis internals" className="w-full h-auto object-cover" />
+                <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent" />
               </div>
 
-              {/* Weight display */}
-              <div className="text-center mb-10">
-                <p className="text-xs text-muted-foreground uppercase tracking-widest mb-2">{t('eng.weight.title')}</p>
-                <div className="text-7xl sm:text-8xl font-bold text-gradient-amber leading-none">12.5</div>
-                <p className="text-lg text-muted-foreground mt-2">{t('eng.weight.label')}</p>
-              </div>
-
-              {/* Voltage callout */}
-              <div className="bg-secondary border border-[#2a2a2a] rounded-lg p-4 mb-6">
-                <div className="flex items-center gap-2 mb-1">
-                  <Power className="size-4 text-primary" />
-                  <span className="text-xs font-semibold text-foreground uppercase tracking-wider">{t('eng.voltage')}</span>
+              <div className="p-6 sm:p-8 lg:p-10 -mt-12 relative">
+                {/* Weight display */}
+                <div className="text-center mb-8">
+                  <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-[0.3em] mb-3">{t('eng.weight.title')}</p>
+                  <div className="text-6xl sm:text-7xl lg:text-8xl font-bold text-gradient-amber leading-none">12.5</div>
+                  <p className="text-base sm:text-lg text-muted-foreground mt-2 font-light">{t('eng.weight.label')}</p>
                 </div>
-              </div>
 
-              {/* Chassis label */}
-              <div className="text-center pt-4 border-t border-[#2a2a2a]">
-                <p className="text-xs sm:text-sm font-mono text-muted-foreground/60 tracking-[0.3em] uppercase">
-                  {t('eng.chassis')}
-                </p>
+                {/* Voltage callout */}
+                <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-4 mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                      <Power className="size-5 text-primary" />
+                    </div>
+                    <span className="text-xs sm:text-sm font-semibold text-foreground uppercase tracking-wider">{t('eng.voltage')}</span>
+                  </div>
+                </div>
+
+                {/* Chassis label */}
+                <div className="text-center pt-6 border-t border-white/[0.06]">
+                  <p className="text-[10px] sm:text-xs font-mono text-muted-foreground/40 tracking-[0.4em] uppercase">
+                    {t('eng.chassis')}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -396,32 +439,42 @@ function SoundArchitecture({ t }: { t: (k: string) => string }) {
   ];
 
   return (
-    <section className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8" ref={ref}>
+    <section className="py-16 sm:py-24 lg:py-28 px-4 sm:px-6 lg:px-8" ref={ref}>
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-12 fade-in-up">
-          <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">{t('sa.title')}</h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">{t('sa.subtitle')}</p>
+        {/* Section Header */}
+        <div className="text-center mb-12 sm:mb-16 fade-in-up">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <div className="w-8 h-[2px] bg-primary" />
+            <span className="text-xs font-semibold text-primary uppercase tracking-[0.2em]">{t('sa.title')}</span>
+            <div className="w-8 h-[2px] bg-primary" />
+          </div>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4">{t('sa.title')}</h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto text-sm sm:text-base">{t('sa.subtitle')}</p>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 mb-12">
+        {/* Spec Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 mb-10 sm:mb-14">
           {specs.map((spec, i) => (
             <div
               key={i}
-              className="fade-in-up bg-card border border-[#2a2a2a] rounded-xl p-5 sm:p-6 text-center card-hover"
+              className="fade-in-up group bg-card/50 border border-[#2a2a2a]/60 rounded-2xl p-5 sm:p-6 lg:p-8 text-center card-hover backdrop-blur-sm"
               style={{ transitionDelay: `${i * 80}ms` }}
             >
-              <spec.icon className="size-6 text-primary mx-auto mb-3" />
-              <p className="text-xs sm:text-sm text-foreground font-medium">{spec.label}</p>
+              <div className="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-primary/10 group-hover:bg-primary/20 transition-colors duration-300 mb-4">
+                <spec.icon className="size-5 sm:size-6 text-primary" />
+              </div>
+              <p className="text-xs sm:text-sm text-foreground font-medium leading-relaxed">{spec.label}</p>
             </div>
           ))}
         </div>
 
         {/* EL34 + ECC83 Callout */}
-        <div className="fade-in-up bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 border border-primary/20 rounded-2xl p-6 sm:p-8" style={{ transitionDelay: '400ms' }}>
-          <h3 className="text-lg sm:text-xl font-bold text-foreground mb-3">
+        <div className="fade-in-up relative overflow-hidden bg-gradient-to-r from-primary/[0.04] via-primary/[0.08] to-primary/[0.04] border border-primary/15 rounded-3xl p-6 sm:p-8 lg:p-10 backdrop-blur-sm" style={{ transitionDelay: '400ms' }}>
+          <div className="absolute top-0 right-0 w-64 h-64 bg-[radial-gradient(ellipse,rgba(212,146,42,0.06)_0%,transparent_70%)] pointer-events-none" />
+          <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground mb-3">
             {t('sa.el34.title')}
           </h3>
-          <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-3xl">
+          <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-3xl relative z-10">
             {t('sa.el34.desc')}
           </p>
         </div>
@@ -429,198 +482,6 @@ function SoundArchitecture({ t }: { t: (k: string) => string }) {
     </section>
   );
 }
-
-// ========== SOUND LIBRARY ==========
-
-interface TrackInfo {
-  name: string;
-  gear: string;
-  settings: string;
-  desc: string;
-  color: string;
-  trackClass: string;
-}
-
-function SoundLibrary({ t }: { t: (k: string) => string }) {
-  const ref = useScrollAnimation();
-  const [activeTrack, setActiveTrack] = useState<number | null>(null);
-  const [playing, setPlaying] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  const tracks: TrackInfo[] = [
-    {
-      name: t('sl.track1.name'),
-      gear: t('sl.track1.gear'),
-      settings: t('sl.track1.settings'),
-      desc: t('sl.track1.desc'),
-      color: '#3a9a5c',
-      trackClass: 'track-green',
-    },
-    {
-      name: t('sl.track2.name'),
-      gear: t('sl.track2.gear'),
-      settings: t('sl.track2.settings'),
-      desc: t('sl.track2.desc'),
-      color: '#d4922a',
-      trackClass: 'track-amber',
-    },
-    {
-      name: t('sl.track3.name'),
-      gear: t('sl.track3.gear'),
-      settings: t('sl.track3.settings'),
-      desc: t('sl.track3.desc'),
-      color: '#c62828',
-      trackClass: 'track-red',
-    },
-    {
-      name: t('sl.track4.name'),
-      gear: t('sl.track4.gear'),
-      settings: t('sl.track4.settings'),
-      desc: t('sl.track4.desc'),
-      color: '#7c3aed',
-      trackClass: 'track-purple',
-    },
-    {
-      name: t('sl.track5.name'),
-      gear: t('sl.track5.gear'),
-      settings: t('sl.track5.settings'),
-      desc: t('sl.track5.desc'),
-      color: '#0891b2',
-      trackClass: 'track-cyan',
-    },
-  ];
-
-  const togglePlay = (index: number) => {
-    if (activeTrack === index && playing) {
-      setPlaying(false);
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    } else {
-      setActiveTrack(index);
-      setPlaying(true);
-      setProgress(0);
-      if (intervalRef.current) clearInterval(intervalRef.current);
-      intervalRef.current = setInterval(() => {
-        setProgress((prev) => {
-          if (prev >= 100) {
-            setPlaying(false);
-            if (intervalRef.current) clearInterval(intervalRef.current);
-            return 100;
-          }
-          return prev + 0.5;
-        });
-      }, 100);
-    }
-  };
-
-  const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const pct = (x / rect.width) * 100;
-    setProgress(Math.max(0, Math.min(100, pct)));
-  };
-
-  useEffect(() => {
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-  }, []);
-
-  const formatTime = (pct: number) => {
-    const totalSec = Math.floor((pct / 100) * 180);
-    const min = Math.floor(totalSec / 60);
-    const sec = totalSec % 60;
-    return `${min}:${sec.toString().padStart(2, '0')}`;
-  };
-
-  return (
-    <section id="soundlib" className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8" ref={ref}>
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-12 fade-in-up">
-          <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">{t('sl.title')}</h2>
-          <p className="text-muted-foreground mb-4">{t('sl.subtitle')}</p>
-          <Badge className="px-4 py-1.5 bg-secondary border-[#2a2a2a] text-muted-foreground">
-            {t('sl.badge')}
-          </Badge>
-        </div>
-
-        <div className="space-y-3 max-w-4xl mx-auto">
-          {tracks.map((track, i) => (
-            <div
-              key={i}
-              className={`fade-in-up bg-card border border-[#2a2a2a] rounded-xl overflow-hidden card-hover ${track.trackClass}`}
-              style={{ transitionDelay: `${i * 80}ms` }}
-            >
-              {/* Track Header */}
-              <div
-                className="p-4 sm:p-5 cursor-pointer"
-                onClick={() => togglePlay(i)}
-              >
-                <div className="flex items-center gap-4">
-                  {/* Play button */}
-                  <button
-                    className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all"
-                    style={{ backgroundColor: `${track.color}20` }}
-                    aria-label={playing && activeTrack === i ? 'Pause' : 'Play'}
-                  >
-                    {playing && activeTrack === i ? (
-                      <Pause className="size-4 sm:size-5" style={{ color: track.color }} />
-                    ) : (
-                      <Play className="size-4 sm:size-5 ml-0.5" style={{ color: track.color }} />
-                    )}
-                  </button>
-
-                  {/* Track info */}
-                  <div className="flex-1 min-w-0">
-                    <h4 className="text-sm sm:text-base font-semibold text-foreground truncate">{track.name}</h4>
-                    <p className="text-xs text-muted-foreground truncate">{track.gear}</p>
-                  </div>
-
-                  {/* Time */}
-                  <span className="text-xs text-muted-foreground font-mono flex-shrink-0">
-                    {activeTrack === i ? formatTime(progress) : '3:00'}
-                  </span>
-                </div>
-
-                {/* Progress bar */}
-                {activeTrack === i && (
-                  <div className="mt-3">
-                    <div
-                      className="w-full h-1 bg-[#2a2a2a] rounded-full cursor-pointer py-3 -my-3"
-                      onClick={handleProgressClick}
-                    >
-                      <div
-                        className="h-full rounded-full transition-all duration-100"
-                        style={{ width: `${progress}%`, backgroundColor: track.color }}
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Expanded details */}
-              <div className="px-4 sm:px-5 pb-4 sm:pb-5 pt-0">
-                <div className="grid sm:grid-cols-2 gap-3 text-xs">
-                  <div>
-                    <span className="text-muted-foreground uppercase tracking-wider">{t('sl.gear')}</span>
-                    <p className="text-foreground mt-1">{track.gear}</p>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground uppercase tracking-wider">{t('sl.settings')}</span>
-                    <p className="text-foreground mt-1 font-mono">{track.settings}</p>
-                  </div>
-                </div>
-                <p className="text-xs sm:text-sm text-muted-foreground mt-3 leading-relaxed">{track.desc}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-
 
 // ========== CONFIGURATOR ==========
 
@@ -645,11 +506,17 @@ function ConfiguratorSection({ t }: { t: (k: string) => string }) {
   };
 
   return (
-    <section id="config" className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8" ref={ref}>
+    <section id="config" className="py-16 sm:py-24 lg:py-28 px-4 sm:px-6 lg:px-8" ref={ref}>
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-12 fade-in-up">
-          <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">{t('cfg.title')}</h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">{t('cfg.subtitle')}</p>
+        {/* Section Header */}
+        <div className="text-center mb-12 sm:mb-16 fade-in-up">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <div className="w-8 h-[2px] bg-primary" />
+            <span className="text-xs font-semibold text-primary uppercase tracking-[0.2em]">{t('cfg.title')}</span>
+            <div className="w-8 h-[2px] bg-primary" />
+          </div>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4">{t('cfg.title')}</h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto text-sm sm:text-base">{t('cfg.subtitle')}</p>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
@@ -657,23 +524,23 @@ function ConfiguratorSection({ t }: { t: (k: string) => string }) {
           <div className="space-y-8 fade-in-up">
             {/* Color */}
             <div>
-              <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider mb-4">{t('cfg.color')}</h3>
-              <div className="grid grid-cols-4 gap-3">
+              <h3 className="text-xs sm:text-sm font-semibold text-foreground uppercase tracking-[0.15em] mb-4">{t('cfg.color')}</h3>
+              <div className="grid grid-cols-4 gap-2.5 sm:gap-3">
                 {colors.map((c) => (
                   <button
                     key={c.id}
                     onClick={() => setColor(c.id)}
-                    className={`group relative rounded-xl overflow-hidden border-2 transition-all ${
-                      color === c.id ? 'border-primary shadow-lg shadow-primary/10' : 'border-[#2a2a2a] hover:border-[#3a3a3a]'
+                    className={`group relative rounded-2xl overflow-hidden border-2 transition-all duration-300 ${
+                      color === c.id ? 'border-primary shadow-lg shadow-primary/10 scale-[1.02]' : 'border-[#2a2a2a]/60 hover:border-[#3a3a3a]'
                     }`}
                   >
-                    <div className={`aspect-square ${c.swatch}`} />
-                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-2">
+                    <div className={`aspect-square ${c.swatch} transition-transform duration-300 group-hover:scale-110`} />
+                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-2.5">
                       <span className="text-[10px] sm:text-xs text-white/90 font-medium">{c.label}</span>
                     </div>
                     {color === c.id && (
-                      <div className="absolute top-2 right-2 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
-                        <svg className="size-2.5 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                      <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-primary flex items-center justify-center shadow-lg">
+                        <svg className="size-3 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                         </svg>
                       </div>
@@ -685,16 +552,16 @@ function ConfiguratorSection({ t }: { t: (k: string) => string }) {
 
             {/* Impedance */}
             <div>
-              <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider mb-4">{t('cfg.impedance')}</h3>
+              <h3 className="text-xs sm:text-sm font-semibold text-foreground uppercase tracking-[0.15em] mb-4">{t('cfg.impedance')}</h3>
               <div className="flex gap-3">
                 {['8', '16'].map((val) => (
                   <button
                     key={val}
                     onClick={() => setImpedance(val)}
-                    className={`flex-1 py-3 px-4 rounded-lg border-2 text-sm font-semibold transition-all ${
+                    className={`flex-1 py-3.5 px-4 rounded-xl border-2 text-sm font-semibold transition-all duration-300 ${
                       impedance === val
-                        ? 'border-primary bg-primary/10 text-primary'
-                        : 'border-[#2a2a2a] text-muted-foreground hover:border-[#3a3a3a] hover:text-foreground'
+                        ? 'border-primary bg-primary/10 text-primary shadow-lg shadow-primary/10'
+                        : 'border-[#2a2a2a]/60 text-muted-foreground hover:border-[#3a3a3a] hover:text-foreground'
                     }`}
                   >
                     {val} Ohm
@@ -704,11 +571,11 @@ function ConfiguratorSection({ t }: { t: (k: string) => string }) {
             </div>
 
             {/* FX Loop */}
-            <div>
+            <div className="bg-card/50 border border-[#2a2a2a]/60 rounded-2xl p-5 backdrop-blur-sm">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">{t('cfg.fxloop')}</h3>
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <h3 className="text-xs sm:text-sm font-semibold text-foreground uppercase tracking-[0.15em]">{t('cfg.fxloop')}</h3>
+                  <p className="text-xs text-muted-foreground mt-1.5">
                     {fxLoop ? t('cfg.fxloop.on') : t('cfg.fxloop.off')}
                   </p>
                 </div>
@@ -719,38 +586,41 @@ function ConfiguratorSection({ t }: { t: (k: string) => string }) {
 
           {/* Preview */}
           <div className="fade-in-up" style={{ transitionDelay: '150ms' }}>
-            <div className={`rounded-2xl p-8 sm:p-10 ${previewClass} min-h-[300px] flex flex-col justify-between`}>
+            <div className={`rounded-3xl overflow-hidden ${previewClass} border border-[#2a2a2a]/60`}>
               {/* Branding */}
-              <div>
-                <p className="text-xs text-muted-foreground/50 font-mono tracking-[0.4em] uppercase mb-2">
+              <div className="p-6 sm:p-8">
+                <p className="text-[10px] sm:text-xs text-muted-foreground/40 font-mono tracking-[0.4em] uppercase mb-2">
                   {t('cfg.preview.brand')}
                 </p>
-                <div className="w-16 h-[1px] bg-primary/30 mb-6" />
+                <div className="w-12 h-[1px] bg-primary/30" />
               </div>
 
               {/* Visual center */}
-              <div className="flex-1 flex items-center justify-center my-8">
-                <div className="text-center">
-                  <img src="/aluplex/DSC6821.jpg" alt="ALUPLEXamp" className="w-48 sm:w-56 mx-auto mb-4 rounded-lg opacity-80 object-cover aspect-[3/2]" />
-                  <p className="text-sm text-muted-foreground/50 font-mono">ALUPLEXamp</p>
+              <div className="flex items-center justify-center px-6 sm:px-8 pb-6">
+                <div className="text-center w-full">
+                  <img src="/aluplex/DSC6821.jpg" alt="ALUPLEXamp" className="w-full max-w-sm mx-auto rounded-2xl opacity-90 object-cover aspect-[3/2] shadow-2xl shadow-black/30" />
                 </div>
               </div>
 
               {/* Summary */}
-              <div className="bg-[#0a0a0a]/60 border border-[#2a2a2a] rounded-xl p-4">
-                <h4 className="text-xs font-semibold text-primary uppercase tracking-wider mb-3">{t('cfg.summary')}</h4>
-                <div className="space-y-2 text-xs">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">{t('cfg.summary.color')}</span>
-                    <span className="text-foreground font-medium">{colors.find(c => c.id === color)?.label}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">{t('cfg.summary.impedance')}</span>
-                    <span className="text-foreground font-medium">{impedance} Ohm</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">{t('cfg.summary.fxloop')}</span>
-                    <span className="text-foreground font-medium">{fxLoop ? t('cfg.fxloop.on') : t('cfg.fxloop.off')}</span>
+              <div className="px-6 sm:px-8 pb-6 sm:pb-8">
+                <div className="bg-[#0a0a0a]/60 border border-white/[0.06] rounded-2xl p-5">
+                  <h4 className="text-xs font-semibold text-primary uppercase tracking-[0.15em] mb-4">{t('cfg.summary')}</h4>
+                  <div className="space-y-3 text-sm">
+                    <div className="flex justify-between items-center">
+                      <span className="text-muted-foreground">{t('cfg.summary.color')}</span>
+                      <span className="text-foreground font-medium">{colors.find(c => c.id === color)?.label}</span>
+                    </div>
+                    <div className="w-full h-px bg-white/[0.04]" />
+                    <div className="flex justify-between items-center">
+                      <span className="text-muted-foreground">{t('cfg.summary.impedance')}</span>
+                      <span className="text-foreground font-medium">{impedance} Ohm</span>
+                    </div>
+                    <div className="w-full h-px bg-white/[0.04]" />
+                    <div className="flex justify-between items-center">
+                      <span className="text-muted-foreground">{t('cfg.summary.fxloop')}</span>
+                      <span className="text-foreground font-medium">{fxLoop ? t('cfg.fxloop.on') : t('cfg.fxloop.off')}</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -759,9 +629,10 @@ function ConfiguratorSection({ t }: { t: (k: string) => string }) {
             <div className="mt-6">
               <Button
                 onClick={() => scrollTo('contact')}
-                className="w-full bg-primary text-primary-foreground hover:bg-primary/90 py-5 text-base font-semibold rounded-lg"
+                className="w-full bg-primary text-primary-foreground hover:bg-primary/90 py-5 sm:py-6 text-base font-semibold rounded-xl shadow-xl shadow-primary/20 transition-all duration-300 hover:shadow-primary/30 hover:scale-[1.01]"
               >
                 {t('cfg.cta')}
+                <ArrowRight className="size-4 ml-2" />
               </Button>
             </div>
           </div>
@@ -784,6 +655,9 @@ function GallerySection({ t }: { t: (k: string) => string }) {
     { label: t('gal.rear'), src: '/aluplex/DSC6793.jpg' },
     { label: t('gal.detail'), src: '/aluplex/DSC6798.jpg' },
     { label: t('gal.quarter'), src: '/aluplex/DSC6803.jpg' },
+    { label: t('gal.wiring'), src: '/aluplex/DSC6827.jpg' },
+    { label: t('gal.closeup'), src: '/aluplex/DSC01623.jpg' },
+    { label: t('gal.studio'), src: '/aluplex/aluplex-138.jpg' },
   ];
 
   const prev = () => {
@@ -806,28 +680,43 @@ function GallerySection({ t }: { t: (k: string) => string }) {
   });
 
   return (
-    <section id="gallery" className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8" ref={ref}>
+    <section id="gallery" className="py-16 sm:py-24 lg:py-28 px-4 sm:px-6 lg:px-8" ref={ref}>
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-12 fade-in-up">
-          <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">{t('gal.title')}</h2>
-          <p className="text-muted-foreground">{t('gal.subtitle')}</p>
+        {/* Section Header */}
+        <div className="text-center mb-12 sm:mb-16 fade-in-up">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <div className="w-8 h-[2px] bg-primary" />
+            <span className="text-xs font-semibold text-primary uppercase tracking-[0.2em]">{t('gal.title')}</span>
+            <div className="w-8 h-[2px] bg-primary" />
+          </div>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4">{t('gal.title')}</h2>
+          <p className="text-muted-foreground text-sm sm:text-base">{t('gal.subtitle')}</p>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
+        {/* Gallery Grid - varied sizes */}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5 sm:gap-3 lg:gap-4">
           {items.map((item, i) => (
             <button
               key={i}
               onClick={() => setLightbox(i)}
-              className={`fade-in-up group relative aspect-[4/3] rounded-xl overflow-hidden border border-[#2a2a2a] cursor-pointer card-hover`}
-              style={{ transitionDelay: `${i * 80}ms` }}
+              className={`fade-in-up group relative aspect-[4/3] rounded-2xl overflow-hidden border border-[#2a2a2a]/40 cursor-pointer card-hover ${
+                i === 0 ? 'md:col-span-2 md:row-span-2 md:aspect-auto' : ''
+              }`}
+              style={{ transitionDelay: `${i * 60}ms` }}
               aria-label={item.label}
             >
-              {/* Real image */}
-              <img src={item.src} alt={item.label} className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-              {/* Hover overlay with label */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                <span className="text-xs text-white/90 font-medium">{item.label}</span>
+              <img src={item.src} alt={item.label} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+              {/* Always-on gradient */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+              {/* Hover overlay */}
+              <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/5 transition-colors duration-300" />
+              {/* Label */}
+              <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4">
+                <span className="text-[10px] sm:text-xs text-white/70 font-medium group-hover:text-white/90 transition-colors">{item.label}</span>
+              </div>
+              {/* Expand icon */}
+              <div className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 scale-75 group-hover:scale-100">
+                <X className="size-3 text-white rotate-45" />
               </div>
             </button>
           ))}
@@ -836,36 +725,39 @@ function GallerySection({ t }: { t: (k: string) => string }) {
         {/* Lightbox */}
         {lightbox !== null && (
           <div className="lightbox-overlay" onClick={() => setLightbox(null)}>
+            <div className="absolute top-0 left-0 right-0 z-[102] flex items-center justify-between p-4 sm:p-6">
+              <button
+                className="p-2.5 rounded-xl bg-black/40 backdrop-blur-sm text-white hover:bg-black/60 transition-colors border border-white/10"
+                onClick={() => setLightbox(null)}
+                aria-label="Close"
+              >
+                <X className="size-5" />
+              </button>
+              <div className="px-4 py-2 rounded-xl bg-black/40 backdrop-blur-sm border border-white/10">
+                <span className="text-xs text-white/60 font-medium">{lightbox + 1} / {items.length}</span>
+              </div>
+            </div>
             <button
-              className="absolute top-4 right-4 z-[101] p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
-              onClick={() => setLightbox(null)}
-              aria-label="Close"
-            >
-              <X className="size-6" />
-            </button>
-            <button
-              className="absolute left-4 top-1/2 -translate-y-1/2 z-[101] p-2 sm:p-3 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
+              className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 z-[101] p-2.5 sm:p-3 rounded-xl bg-black/40 backdrop-blur-sm text-white hover:bg-black/60 transition-colors border border-white/10"
               onClick={(e) => { e.stopPropagation(); prev(); }}
               aria-label="Previous"
             >
-              <ChevronLeft className="size-6" />
+              <ChevronLeft className="size-5" />
             </button>
             <button
-              className="absolute right-4 top-1/2 -translate-y-1/2 z-[101] p-2 sm:p-3 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
+              className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-[101] p-2.5 sm:p-3 rounded-xl bg-black/40 backdrop-blur-sm text-white hover:bg-black/60 transition-colors border border-white/10"
               onClick={(e) => { e.stopPropagation(); next(); }}
               aria-label="Next"
             >
-              <ChevronRight className="size-6" />
+              <ChevronRight className="size-5" />
             </button>
-            <div
-              className="relative w-[90vw] max-w-4xl aspect-[4/3] rounded-2xl overflow-hidden border border-[#2a2a2a]"
+            <div className="relative w-[92vw] sm:w-[85vw] max-w-5xl aspect-[4/3] rounded-2xl overflow-hidden border border-white/10 shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
               <img src={items[lightbox].src} alt={items[lightbox].label} className="absolute inset-0 w-full h-full object-cover" />
             </div>
-            {/* Counter */}
-            <p className="absolute bottom-4 left-1/2 -translate-x-1/2 text-sm text-muted-foreground/50">
-              {lightbox + 1} / {items.length}
+            <p className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 text-xs sm:text-sm text-white/50 bg-black/40 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/10">
+              {items[lightbox].label}
             </p>
           </div>
         )}
@@ -884,30 +776,36 @@ function FAQSection({ t }: { t: (k: string) => string }) {
   }));
 
   return (
-    <section id="faq" className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8" ref={ref}>
+    <section id="faq" className="py-16 sm:py-24 lg:py-28 px-4 sm:px-6 lg:px-8" ref={ref}>
       <div className="max-w-3xl mx-auto">
-        <div className="text-center mb-12 fade-in-up">
-          <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">{t('faq.title')}</h2>
-          <p className="text-muted-foreground">{t('faq.subtitle')}</p>
+        {/* Section Header */}
+        <div className="text-center mb-12 sm:mb-16 fade-in-up">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <div className="w-8 h-[2px] bg-primary" />
+            <span className="text-xs font-semibold text-primary uppercase tracking-[0.2em]">{t('faq.title')}</span>
+            <div className="w-8 h-[2px] bg-primary" />
+          </div>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4">{t('faq.title')}</h2>
+          <p className="text-muted-foreground text-sm sm:text-base">{t('faq.subtitle')}</p>
         </div>
 
         <div className="fade-in-up" style={{ transitionDelay: '100ms' }}>
-          <Accordion type="single" collapsible className="space-y-2">
+          <Accordion type="single" collapsible className="space-y-2 sm:space-y-3">
             {faqs.map((faq, i) => (
               <AccordionItem
                 key={i}
                 value={`faq-${i}`}
-                className="bg-card border border-[#2a2a2a] rounded-xl px-5 data-[state=open]:border-primary/30 transition-colors"
+                className="bg-card/50 border border-[#2a2a2a]/60 rounded-2xl px-4 sm:px-6 data-[state=open]:border-primary/20 data-[state=open]:bg-card/80 transition-all duration-300 backdrop-blur-sm"
               >
-                <AccordionTrigger className="text-left text-sm sm:text-base font-medium text-foreground hover:text-primary hover:no-underline py-4">
-                  <div className="flex items-center gap-3">
-                    <span className="flex-shrink-0 w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
+                <AccordionTrigger className="text-left text-sm sm:text-base font-medium text-foreground hover:text-primary hover:no-underline py-4 sm:py-5">
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    <span className="flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
                       {i + 1}
                     </span>
                     {faq.q}
                   </div>
                 </AccordionTrigger>
-                <AccordionContent className="text-sm text-muted-foreground leading-relaxed pb-4 pl-10">
+                <AccordionContent className="text-sm text-muted-foreground leading-relaxed pb-4 sm:pb-5 pl-10 sm:pl-12">
                   {faq.a}
                 </AccordionContent>
               </AccordionItem>
@@ -925,25 +823,30 @@ function CTASection({ t }: { t: (k: string) => string }) {
   const ref = useScrollAnimation();
 
   return (
-    <section id="contact" className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8" ref={ref}>
+    <section id="contact" className="py-16 sm:py-24 lg:py-28 px-4 sm:px-6 lg:px-8" ref={ref}>
       <div className="max-w-3xl mx-auto">
-        <div className="fade-in-up relative rounded-2xl overflow-hidden border border-primary/20 p-8 sm:p-12 text-center">
-          {/* Background */}
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(212,146,42,0.08)_0%,transparent_70%)]" />
+        <div className="fade-in-up relative rounded-3xl overflow-hidden border border-primary/15 p-8 sm:p-12 lg:p-16 text-center">
+          {/* Background effects */}
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.04] via-primary/[0.08] to-primary/[0.04]" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(212,146,42,0.06)_0%,transparent_60%)]" />
+          <div className="absolute -top-20 -right-20 w-40 h-40 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
 
           <div className="relative z-10">
-            <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">{t('cta.title')}</h2>
-            <p className="text-muted-foreground mb-8 max-w-xl mx-auto">{t('cta.subtitle')}</p>
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 mb-6 sm:mb-8">
+              <Music className="size-7 text-primary" />
+            </div>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4 sm:mb-6">{t('cta.title')}</h2>
+            <p className="text-muted-foreground mb-8 sm:mb-10 max-w-xl mx-auto text-sm sm:text-base leading-relaxed">{t('cta.subtitle')}</p>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
               <a href="mailto:info@aluplexamp.com">
-                <Button className="bg-primary text-primary-foreground hover:bg-primary/90 px-8 py-5 text-base font-semibold rounded-lg shadow-lg shadow-primary/20">
+                <Button className="bg-primary text-primary-foreground hover:bg-primary/90 px-8 py-5 sm:py-6 text-base font-semibold rounded-xl shadow-xl shadow-primary/20 transition-all duration-300 hover:shadow-primary/30 hover:scale-[1.02] w-full sm:w-auto">
                   {t('cta.contact')}
                 </Button>
               </a>
               <a href="mailto:order@aluplexamp.com">
-                <Button variant="outline" className="border-[#2a2a2a] text-foreground hover:bg-white/5 hover:text-foreground px-8 py-5 text-base rounded-lg">
+                <Button variant="outline" className="border-white/10 text-foreground hover:bg-white/5 hover:text-foreground hover:border-white/20 px-8 py-5 sm:py-6 text-base rounded-xl backdrop-blur-sm transition-all duration-300 w-full sm:w-auto">
                   {t('cta.order')}
                 </Button>
               </a>
@@ -959,24 +862,24 @@ function CTASection({ t }: { t: (k: string) => string }) {
 
 function Footer({ t }: { t: (k: string) => string }) {
   return (
-    <footer className="border-t border-[#2a2a2a] py-10 px-4 sm:px-6 lg:px-8 safe-bottom">
+    <footer className="border-t border-[#2a2a2a]/50 py-10 sm:py-12 px-4 sm:px-6 lg:px-8 safe-bottom mt-auto">
       <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col items-center gap-4 text-center">
+        <div className="flex flex-col items-center gap-5 text-center">
           {/* Logo */}
           <div className="flex items-center">
-            <img src="/aluplex/logo.png" alt="ALUPLEXamp" className="h-7 w-auto" />
+            <img src="/aluplex/logo.png" alt="ALUPLEXamp" className="h-7 w-auto opacity-70" />
           </div>
 
           <p className="text-sm text-muted-foreground">{t('footer.tagline')}</p>
 
           {/* Handwired */}
-          <div className="flex items-center gap-2 text-muted-foreground/60 text-xs">
+          <div className="flex items-center gap-2 text-muted-foreground/50 text-xs">
             <Wrench className="size-3" />
             <span>{t('footer.handwired')}</span>
           </div>
 
           {/* Copyright */}
-          <p className="text-xs text-muted-foreground/40 mt-2">{t('footer.copyright')}</p>
+          <p className="text-xs text-muted-foreground/30 mt-1">{t('footer.copyright')}</p>
         </div>
       </div>
     </footer>
@@ -988,12 +891,12 @@ function Footer({ t }: { t: (k: string) => string }) {
 function ScrollToTop() {
   const show = useShowScrollTop(500);
 
-  if (!show) return null;
-
   return (
     <button
       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-      className="fixed bottom-6 right-6 z-40 w-11 h-11 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg shadow-primary/30 hover:bg-primary/90 transition-all hover:scale-105"
+      className={`fixed bottom-6 right-6 z-40 w-11 h-11 rounded-xl bg-primary/90 backdrop-blur-sm text-primary-foreground flex items-center justify-center shadow-xl shadow-primary/20 hover:bg-primary transition-all duration-300 hover:scale-105 ${
+        show ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
+      }`}
       aria-label="Scroll to top"
     >
       <ChevronUp className="size-5" />
@@ -1023,8 +926,6 @@ export default function Home() {
         <EngineeringSection t={t} />
         <SectionDivider />
         <SoundArchitecture t={t} />
-        <SectionDivider />
-        <SoundLibrary t={t} />
         <SectionDivider />
         <ConfiguratorSection t={t} />
         <SectionDivider />
