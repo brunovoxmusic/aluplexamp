@@ -271,3 +271,40 @@ Stage Summary:
 - Audio files now contain real synthesized guitar tones (not silence/zeros)
 - v2 engine uses additive synthesis + SVF filters + LUT waveshaper (numerically stable)
 - All 5 tracks verified with ffprobe and amplitude analysis
+
+---
+Task ID: 5
+Agent: Main Agent
+Task: Redesign audio player based on reference image inspiration
+
+Work Log:
+- Analyzed reference image with VLM: dark professional aesthetic, preset buttons, large circular play button, full-width waveform visualization, amber/orange accents
+- Added new CSS animations to globals.css:
+  - `waveformPulse` — subtle pulsing during playback
+  - `playBtnPulse` — pulsing shadow ring on play button
+  - `eqBar1` through `eqBar5` — 5 individual EQ bar animations for playing state visualizer
+  - `.waveform-track-btn` / `.waveform-track-btn.active` — track selector button styles
+  - `.waveform-playing` / `.play-btn-pulse` — animation classes
+- Completely rewrote SoundLibrary component:
+  - `generateWaveform()` — fetches audio, decodes via AudioContext, extracts 120 peak values per track
+  - Canvas-based waveform rendering with HiDPI support (devicePixelRatio)
+  - Mirrored bars from center (top + bottom), amber gradient for played portion, muted for unplayed
+  - Glowing cursor line + dot at playback position
+  - 5 preset-style tag buttons (CLEAN, CRUNCH, HIGH GAIN, DYNAMIC, ROLL-OFF) replacing old card list
+  - Active button highlighted with primary color
+  - Large 56-64px circular play/pause button with pulse animation when playing
+  - 5-bar animated equalizer visualizer next to track name when playing
+  - Track info: name, gear, mono settings string, description (always visible)
+  - Waveform seekable via click and drag (mouse + touch)
+  - Loading skeleton with pulsing bars while waveforms load
+  - "Now Playing" pill indicator preserved below player
+  - Fallback waveform generation if AudioContext decode fails
+- Lint clean, dev server compiling
+
+Stage Summary:
+- Premium waveform audio player replacing old card-based list
+- Canvas-rendered waveform with real audio data (120 bars per track)
+- Preset-style track selector buttons with amber active state
+- Large circular play button with pulse animation
+- 5-bar EQ visualizer, seekable waveform, touch support
+- All 5 tracks load waveforms in parallel on mount

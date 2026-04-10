@@ -366,6 +366,52 @@
   animation: audioBarBounce 0.8s ease-in-out infinite;
 }
 
+/* ========== Waveform Player ========== */
+
+@keyframes waveformPulse {
+  0%, 100% { opacity: 0.85; }
+  50% { opacity: 1; }
+}
+
+@keyframes playBtnPulse {
+  0% { box-shadow: 0 0 0 0 rgba(212, 146, 42, 0.4); }
+  70% { box-shadow: 0 0 0 12px rgba(212, 146, 42, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(212, 146, 42, 0); }
+}
+
+@keyframes eqBar1 { 0%,100%{height:20%} 25%{height:80%} 50%{height:45%} 75%{height:95%} }
+@keyframes eqBar2 { 0%,100%{height:60%} 25%{height:30%} 50%{height:90%} 75%{height:40%} }
+@keyframes eqBar3 { 0%,100%{height:40%} 25%{height:70%} 50%{height:25%} 75%{height:85%} }
+@keyframes eqBar4 { 0%,100%{height:75%} 25%{height:35%} 50%{height:60%} 75%{height:90%} }
+@keyframes eqBar5 { 0%,100%{height:30%} 25%{height:55%} 50%{height:80%} 75%{height:45%} }
+
+.eq-bar-1 { animation: eqBar1 1.2s ease-in-out infinite; }
+.eq-bar-2 { animation: eqBar2 1.0s ease-in-out infinite 0.1s; }
+.eq-bar-3 { animation: eqBar3 0.9s ease-in-out infinite 0.2s; }
+.eq-bar-4 { animation: eqBar4 1.1s ease-in-out infinite 0.15s; }
+.eq-bar-5 { animation: eqBar5 0.85s ease-in-out infinite 0.25s; }
+
+.waveform-playing {
+  animation: waveformPulse 2s ease-in-out infinite;
+}
+
+.play-btn-pulse {
+  animation: playBtnPulse 2s ease-in-out infinite;
+}
+
+.waveform-track-btn {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.waveform-track-btn:hover {
+  transform: translateY(-1px);
+}
+
+.waveform-track-btn.active {
+  background: rgba(212, 146, 42, 0.1);
+  border-color: rgba(212, 146, 42, 0.5);
+}
+
 /* ========== Progress Bar ========== */
 
 .progress-bar {

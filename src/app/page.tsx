@@ -484,94 +484,205 @@ function SoundArchitecture({ t }: { t: (k: string) => string }) {
   );
 }
 
-// ========== SOUND LIBRARY ==========
+// ========== SOUND LIBRARY — Premium Waveform Player ==========
 
-interface TrackInfo {
-  name: string;
-  gear: string;
-  settings: string;
-  desc: string;
-  color: string;
-  accentClass: string;
-  audioSrc: string;
+interface WaveformData {
+  peaks: number[];
+  duration: number;
+}
+
+function generateWaveform(audioSrc: string): Promise<WaveformData> {
+  return new Promise((resolve) => {
+    const audio = new Audio();
+    audio.crossOrigin = 'anonymous';
+    const peaks: number[] = [];
+    const numBars = 120;
+    audio.src = audioSrc;
+    audio.addEventListener('loadedmetadata', () => {
+      const dur = audio.duration;
+      const sampleInterval = Math.floor(dur / numBars);
+      const audioCtx = new AudioContext();
+      fetch(audioSrc)
+        .then(r => r.arrayBuffer())
+        .then(buf => audioCtx.decodeAudioData(buf))
+        .then(audioBuffer => {
+          const channelData = audioBuffer.getChannelData(0);
+          const samplesPerBar = Math.floor(channelData.length / numBars);
+          for (let i = 0; i < numBars; i++) {
+            let max = 0;
+            const start = i * samplesPerBar;
+            for (let j = start; j < start + samplesPerBar && j < channelData.length; j++) {
+              const abs = Math.abs(channelData[j]);
+              if (abs > max) max = abs;
+            }
+            peaks.push(max);
+          }
+          audioCtx.close();
+          resolve({ peaks, duration: dur });
+        })
+        .catch(() => {
+          // Fallback: generate pseudo-random waveform
+          const fallbackPeaks: number[] = [];
+          for (let i = 0; i < numBars; i++) {
+            const base = 0.3 + 0.5 * Math.sin(i * 0.15) * Math.sin(i * 0.07);
+            fallbackPeaks.push(Math.max(0.08, Math.min(1, base + (Math.random() - 0.5) * 0.3)));
+          }
+          resolve({ peaks: fallbackPeaks, duration: dur });
+        });
+    });
+    audio.addEventListener('error', () => {
+      const fallbackPeaks: number[] = [];
+      for (let i = 0; i < numBars; i++) {
+        fallbackPeaks.push(0.2 + Math.random() * 0.6);
+      }
+      resolve({ peaks: fallbackPeaks, duration: 10 });
+    });
+  });
 }
 
 function SoundLibrary({ t }: { t: (k: string) => string }) {
   const ref = useScrollAnimation();
-  const [activeTrack, setActiveTrack] = useState<number | null>(null);
+  const [activeTrack, setActiveTrack] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [waveforms, setWaveforms] = useState<WaveformData[]>([]);
+  const [loaded, setLoaded] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const progressRef = useRef<HTMLDivElement>(null);
+  const waveformRef = useRef<HTMLCanvasElement | null>(null);
+  const waveformContainerRef = useRef<HTMLDivElement | null>(null);
   const isDragging = useRef(false);
 
-  const tracks: TrackInfo[] = [
-    {
-      name: t('sl.track1.name'),
-      gear: t('sl.track1.gear'),
-      settings: t('sl.track1.settings'),
-      desc: t('sl.track1.desc'),
-      color: '#3a9a5c',
-      accentClass: 'accent-green',
-      audioSrc: '/audio/track1-woody-clean.wav',
-    },
-    {
-      name: t('sl.track2.name'),
-      gear: t('sl.track2.gear'),
-      settings: t('sl.track2.settings'),
-      desc: t('sl.track2.desc'),
-      color: '#d4922a',
-      accentClass: 'accent-amber',
-      audioSrc: '/audio/track2-british-crunch.wav',
-    },
-    {
-      name: t('sl.track3.name'),
-      gear: t('sl.track3.gear'),
-      settings: t('sl.track3.settings'),
-      desc: t('sl.track3.desc'),
-      color: '#c62828',
-      accentClass: 'accent-red',
-      audioSrc: '/audio/track3-brown-sound.wav',
-    },
-    {
-      name: t('sl.track4.name'),
-      gear: t('sl.track4.gear'),
-      settings: t('sl.track4.settings'),
-      desc: t('sl.track4.desc'),
-      color: '#7c3aed',
-      accentClass: 'accent-purple',
-      audioSrc: '/audio/track4-dynamic-breakup.wav',
-    },
-    {
-      name: t('sl.track5.name'),
-      gear: t('sl.track5.gear'),
-      settings: t('sl.track5.settings'),
-      desc: t('sl.track5.desc'),
-      color: '#0891b2',
-      accentClass: 'accent-cyan',
-      audioSrc: '/audio/track5-volume-rolloff.wav',
-    },
+  const tracks = [
+    { name: t('sl.track1.name'), gear: t('sl.track1.gear'), settings: t('sl.track1.settings'), desc: t('sl.track1.desc'), src: '/audio/track1-woody-clean.wav', tag: 'CLEAN' },
+    { name: t('sl.track2.name'), gear: t('sl.track2.gear'), settings: t('sl.track2.settings'), desc: t('sl.track2.desc'), src: '/audio/track2-british-crunch.wav', tag: 'CRUNCH' },
+    { name: t('sl.track3.name'), gear: t('sl.track3.gear'), settings: t('sl.track3.settings'), desc: t('sl.track3.desc'), src: '/audio/track3-brown-sound.wav', tag: 'HIGH GAIN' },
+    { name: t('sl.track4.name'), gear: t('sl.track4.gear'), settings: t('sl.track4.settings'), desc: t('sl.track4.desc'), src: '/audio/track4-dynamic-breakup.wav', tag: 'DYNAMIC' },
+    { name: t('sl.track5.name'), gear: t('sl.track5.gear'), settings: t('sl.track5.settings'), desc: t('sl.track5.desc'), src: '/audio/track5-volume-rolloff.wav', tag: 'ROLL-OFF' },
   ];
 
+  // Load all waveforms on mount
+  useEffect(() => {
+    Promise.all(tracks.map(tr => generateWaveform(tr.src))).then(data => {
+      setWaveforms(data);
+      setLoaded(true);
+    });
+  }, []);
+
+  // Draw waveform on canvas
+  useEffect(() => {
+    const canvas = waveformRef.current;
+    if (!canvas || !waveforms.length) return;
+
+    const drawWaveform = () => {
+      const container = waveformContainerRef.current;
+      if (!container) return;
+
+      const dpr = window.devicePixelRatio || 1;
+      const rect = container.getBoundingClientRect();
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      canvas.style.width = rect.width + 'px';
+      canvas.style.height = rect.height + 'px';
+
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      ctx.scale(dpr, dpr);
+
+      const w = rect.width;
+      const h = rect.height;
+      const waveform = waveforms[activeTrack];
+      if (!waveform) return;
+
+      ctx.clearRect(0, 0, w, h);
+
+      const peaks = waveform.peaks;
+      const numBars = peaks.length;
+      const barGap = 2;
+      const barWidth = Math.max(1, (w - barGap * (numBars - 1)) / numBars);
+      const progress = duration > 0 ? currentTime / duration : 0;
+      const progressIdx = Math.floor(progress * numBars);
+
+      // Center line
+      const centerY = h / 2;
+
+      for (let i = 0; i < numBars; i++) {
+        const x = i * (barWidth + barGap);
+        const peak = peaks[i];
+        const barH = Math.max(2, peak * (h * 0.42));
+
+        if (i <= progressIdx) {
+          // Played portion — amber gradient
+          const gradient = ctx.createLinearGradient(x, centerY - barH, x, centerY + barH);
+          gradient.addColorStop(0, '#e8a84a');
+          gradient.addColorStop(0.5, '#d4922a');
+          gradient.addColorStop(1, '#b07820');
+          ctx.fillStyle = gradient;
+        } else {
+          // Unplayed portion — muted
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+        }
+
+        // Draw mirrored bars (top + bottom from center)
+        ctx.beginPath();
+        ctx.roundRect(x, centerY - barH, barWidth, barH * 2, barWidth / 2);
+        ctx.fill();
+      }
+
+      // Progress cursor line
+      if (progress > 0 && progress < 1) {
+        const cursorX = progressIdx * (barWidth + barGap) + barWidth / 2;
+        ctx.beginPath();
+        ctx.strokeStyle = '#e8a84a';
+        ctx.lineWidth = 2;
+        ctx.shadowColor = 'rgba(212, 146, 42, 0.6)';
+        ctx.shadowBlur = 8;
+        ctx.moveTo(cursorX, 4);
+        ctx.lineTo(cursorX, h - 4);
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+
+        // Cursor dot
+        ctx.beginPath();
+        ctx.fillStyle = '#e8a84a';
+        ctx.arc(cursorX, centerY, 4, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    };
+
+    drawWaveform();
+    window.addEventListener('resize', drawWaveform);
+    return () => window.removeEventListener('resize', drawWaveform);
+  }, [waveforms, activeTrack, currentTime, duration]);
+
   const playTrack = (index: number) => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
     if (activeTrack === index && playing) {
-      audioRef.current?.pause();
+      audio.pause();
       setPlaying(false);
       return;
     }
 
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    audio.src = tracks[index].audioSrc;
+    audio.src = tracks[index].src;
     audio.load();
     audio.play().then(() => {
       setActiveTrack(index);
       setPlaying(true);
-    }).catch(() => {
-      // Autoplay blocked
-    });
+    }).catch(() => {});
+  };
+
+  const togglePlay = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (playing) {
+      audio.pause();
+      setPlaying(false);
+    } else {
+      audio.play().then(() => setPlaying(true)).catch(() => {});
+    }
   };
 
   const handleTimeUpdate = () => {
@@ -591,36 +702,43 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
     setCurrentTime(0);
   };
 
-  const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!audioRef.current || !duration) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const pct = Math.max(0, Math.min(1, x / rect.width));
+  const seekToPosition = (e: React.MouseEvent<HTMLDivElement> | MouseEvent) => {
+    if (!audioRef.current || !duration || !waveformContainerRef.current) return;
+    const rect = waveformContainerRef.current.getBoundingClientRect();
+    const x = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
+    const pct = x / rect.width;
     audioRef.current.currentTime = pct * duration;
     setCurrentTime(pct * duration);
   };
 
-  const handleProgressMouseDown = () => {
+  const handleWaveformMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     isDragging.current = true;
+    seekToPosition(e);
   };
 
   useEffect(() => {
     const handleMouseUp = () => { isDragging.current = false; };
     const handleMouseMove = (e: MouseEvent) => {
-      if (!isDragging.current || !audioRef.current || !duration || !progressRef.current) return;
-      const rect = progressRef.current.getBoundingClientRect();
-      const x = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
-      const pct = x / rect.width;
-      audioRef.current.currentTime = pct * duration;
-      setCurrentTime(pct * duration);
+      if (isDragging.current) seekToPosition(e);
     };
+    const handleTouchMove = (e: TouchEvent) => {
+      if (isDragging.current && e.touches[0]) {
+        seekToPosition(e.touches[0] as unknown as MouseEvent);
+      }
+    };
+    const handleTouchEnd = () => { isDragging.current = false; };
+
     window.addEventListener('mouseup', handleMouseUp);
     window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('touchmove', handleTouchMove);
+    window.addEventListener('touchend', handleTouchEnd);
     return () => {
       window.removeEventListener('mouseup', handleMouseUp);
       window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [duration]);
+  }, [duration, waveforms, activeTrack]);
 
   const formatTime = (seconds: number) => {
     if (!seconds || isNaN(seconds)) return '0:00';
@@ -629,15 +747,15 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
     return `${m}:${s.toString().padStart(2, '0')}`;
   };
 
-  const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
+  const currentTrack = tracks[activeTrack];
 
   return (
     <section id="soundlib" className="py-16 sm:py-24 lg:py-28 px-4 sm:px-6 lg:px-8" ref={ref}>
       <audio ref={audioRef} onTimeUpdate={handleTimeUpdate} onLoadedMetadata={handleLoadedMetadata} onEnded={handleEnded} preload="metadata" />
 
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-3xl mx-auto">
         {/* Section Header */}
-        <div className="text-center mb-12 sm:mb-16 fade-in-up">
+        <div className="text-center mb-10 sm:mb-14 fade-in-up">
           <div className="flex items-center justify-center gap-3 mb-4">
             <div className="w-8 h-[2px] bg-primary" />
             <span className="text-xs font-semibold text-primary uppercase tracking-[0.2em]">{t('sl.title')}</span>
@@ -650,108 +768,125 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
           </Badge>
         </div>
 
-        {/* Track List */}
-        <div className="space-y-2.5 sm:space-y-3">
-          {tracks.map((track, i) => {
-            const isActive = activeTrack === i;
-            const isCurrentlyPlaying = isActive && playing;
-            return (
-              <div
-                key={i}
-                className={`fade-in-up group rounded-2xl overflow-hidden transition-all duration-400 ${
-                  isActive
-                    ? `bg-card border-2 ${track.accentClass}`
-                    : 'bg-card/50 border border-[#2a2a2a]/60 hover:border-[#3a3a3a]/80'
-                }`}
-                style={{ transitionDelay: `${i * 60}ms` }}
-              >
-                {/* Track Header — always visible */}
-                <div
-                  className="p-4 sm:p-5 cursor-pointer select-none"
-                  onClick={() => playTrack(i)}
+        {/* Player Container */}
+        <div className="fade-in-up relative bg-card/80 border border-[#2a2a2a]/80 rounded-3xl overflow-hidden backdrop-blur-sm" style={{ transitionDelay: '100ms' }}>
+          {/* Ambient glow behind player */}
+          <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-[500px] h-[200px] bg-[radial-gradient(ellipse,rgba(212,146,42,0.06)_0%,transparent_70%)] pointer-events-none" />
+
+          {/* Track Selector Buttons */}
+          <div className="relative p-4 sm:p-6 pb-0">
+            <div className="flex flex-wrap gap-2">
+              {tracks.map((track, i) => (
+                <button
+                  key={i}
+                  onClick={() => { if (i !== activeTrack) { setActiveTrack(i); setPlaying(false); setCurrentTime(0); } else { playTrack(i); } }}
+                  className={`waveform-track-btn px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl border text-[11px] sm:text-xs font-bold tracking-wider uppercase ${
+                    activeTrack === i
+                      ? 'active border-primary/50 bg-primary/10 text-primary'
+                      : 'border-[#2a2a2a] bg-white/[0.02] text-muted-foreground hover:text-foreground hover:border-[#3a3a3a]'
+                  }`}
                 >
-                  <div className="flex items-center gap-3 sm:gap-4">
-                    {/* Play / Pause button */}
-                    <button
-                      className={`flex-shrink-0 w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center transition-all duration-300 ${
-                        isActive
-                          ? 'shadow-lg'
-                          : 'bg-white/[0.04] group-hover:bg-white/[0.07]'
-                      }`}
-                      style={isActive ? { backgroundColor: `${track.color}18`, boxShadow: `0 4px 20px ${track.color}15` } : undefined}
-                      aria-label={isCurrentlyPlaying ? 'Pause' : 'Play'}
-                    >
-                      {/* Animated bars when playing */}
-                      {isCurrentlyPlaying ? (
-                        <div className="flex items-end gap-[2px] h-4">
-                          <span className="w-[3px] rounded-full audio-bar" style={{ backgroundColor: track.color, animationDelay: '0s' }} />
-                          <span className="w-[3px] rounded-full audio-bar" style={{ backgroundColor: track.color, animationDelay: '0.15s' }} />
-                          <span className="w-[3px] rounded-full audio-bar" style={{ backgroundColor: track.color, animationDelay: '0.3s' }} />
-                          <span className="w-[3px] rounded-full audio-bar" style={{ backgroundColor: track.color, animationDelay: '0.1s' }} />
-                        </div>
-                      ) : (
-                        <svg className="size-4 sm:size-5 ml-0.5" style={{ color: isActive ? track.color : 'currentColor' }} fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M8 5v14l11-7z" />
-                        </svg>
-                      )}
-                    </button>
+                  {track.tag}
+                </button>
+              ))}
+            </div>
+          </div>
 
-                    {/* Track info */}
-                    <div className="flex-1 min-w-0">
-                      <h4 className={`text-sm sm:text-base font-semibold truncate transition-colors ${isActive ? 'text-foreground' : 'text-foreground/80 group-hover:text-foreground'}`}>
-                        {track.name}
-                      </h4>
-                      <p className="text-xs text-muted-foreground truncate mt-0.5">{track.gear}</p>
-                    </div>
-
-                    {/* Time */}
-                    <span className={`text-xs font-mono flex-shrink-0 tabular-nums ${isActive ? 'text-foreground/60' : 'text-muted-foreground/50'}`}>
-                      {isActive ? formatTime(currentTime) : formatTime(duration || 0)}
-                    </span>
-                  </div>
-
-                  {/* Progress bar — visible only when active */}
-                  {isActive && (
-                    <div
-                      ref={progressRef}
-                      className="mt-3.5 cursor-pointer py-2 -my-2"
-                      onClick={(e) => handleProgressClick(e)}
-                      onMouseDown={handleProgressMouseDown}
-                    >
-                      <div className="w-full h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
-                        <div
-                          className="h-full rounded-full transition-[width] duration-150"
-                          style={{ width: `${progressPercent}%`, backgroundColor: track.color }}
-                        />
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Expanded details — shown when active */}
-                {isActive && (
-                  <div className="px-4 sm:px-5 pb-4 sm:pb-5 pt-0 border-t border-white/[0.04]">
-                    <div className="grid sm:grid-cols-2 gap-3 pt-4 text-xs">
-                      <div>
-                        <span className="text-muted-foreground uppercase tracking-wider font-semibold">{t('sl.gear')}</span>
-                        <p className="text-foreground/80 mt-1.5">{track.gear}</p>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground uppercase tracking-wider font-semibold">{t('sl.settings')}</span>
-                        <p className="text-foreground/80 mt-1.5 font-mono text-[11px]">{track.settings}</p>
-                      </div>
-                    </div>
-                    <p className="text-xs sm:text-sm text-muted-foreground mt-3 leading-relaxed">{track.desc}</p>
-                  </div>
-                )}
+          {/* Track Info */}
+          <div className="relative px-4 sm:px-6 pt-5 sm:pt-6">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex-1 min-w-0">
+                <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground truncate">
+                  {currentTrack.name}
+                </h3>
+                <p className="text-xs sm:text-sm text-muted-foreground mt-1 truncate">
+                  {currentTrack.gear}
+                </p>
               </div>
-            );
-          })}
+              {/* EQ Visualizer (playing state) */}
+              {playing && (
+                <div className="flex items-end gap-[3px] h-6 sm:h-8 flex-shrink-0 mt-1">
+                  <div className="w-[3px] rounded-full bg-primary eq-bar-1" />
+                  <div className="w-[3px] rounded-full bg-primary eq-bar-2" />
+                  <div className="w-[3px] rounded-full bg-primary eq-bar-3" />
+                  <div className="w-[3px] rounded-full bg-primary eq-bar-4" />
+                  <div className="w-[3px] rounded-full bg-primary eq-bar-5" />
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Waveform Display */}
+          <div className="relative px-4 sm:px-6 pt-4 sm:pt-5">
+            <div
+              ref={waveformContainerRef}
+              className={`relative w-full h-24 sm:h-28 lg:h-32 rounded-2xl bg-white/[0.02] border border-white/[0.04] cursor-pointer overflow-hidden ${playing ? 'waveform-playing' : ''}`}
+              onMouseDown={handleWaveformMouseDown}
+              onTouchStart={(e) => { isDragging.current = true; if (e.touches[0]) seekToPosition(e.touches[0] as unknown as MouseEvent); }}
+            >
+              <canvas ref={waveformRef} className="absolute inset-0 w-full h-full" />
+              {!loaded && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="flex gap-1">
+                    {[...Array(20)].map((_, i) => (
+                      <div key={i} className="w-1 bg-primary/30 rounded-full animate-pulse" style={{ height: `${8 + Math.random() * 40}px`, animationDelay: `${i * 0.05}s` }} />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Time Display */}
+            <div className="flex items-center justify-between mt-2.5 px-1">
+              <span className="text-[11px] sm:text-xs font-mono text-muted-foreground/60 tabular-nums">
+                {formatTime(currentTime)}
+              </span>
+              <span className="text-[11px] sm:text-xs font-mono text-muted-foreground/60 tabular-nums">
+                {formatTime(duration)}
+              </span>
+            </div>
+          </div>
+
+          {/* Controls Row */}
+          <div className="relative px-4 sm:px-6 pt-3 pb-4 sm:pb-6">
+            <div className="flex items-center gap-4">
+              {/* Large Play Button */}
+              <button
+                onClick={togglePlay}
+                className={`flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-105 ${
+                  playing
+                    ? 'bg-primary text-primary-foreground play-btn-pulse shadow-lg shadow-primary/30'
+                    : 'bg-primary text-primary-foreground hover:shadow-lg hover:shadow-primary/20'
+                }`}
+                aria-label={playing ? 'Pause' : 'Play'}
+              >
+                {playing ? (
+                  <svg className="size-5 sm:size-6" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
+                  </svg>
+                ) : (
+                  <svg className="size-5 sm:size-6 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                )}
+              </button>
+
+              {/* Track Settings + Description */}
+              <div className="flex-1 min-w-0">
+                <p className="text-[10px] sm:text-[11px] font-mono text-muted-foreground/50 uppercase tracking-wider truncate">
+                  {currentTrack.settings}
+                </p>
+                <p className="text-xs sm:text-sm text-muted-foreground mt-1 leading-relaxed line-clamp-2">
+                  {currentTrack.desc}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Now playing indicator */}
-        {activeTrack !== null && playing && (
-          <div className="mt-8 text-center fade-in-up">
+        {/* Now Playing Pill */}
+        {playing && (
+          <div className="mt-6 flex justify-center">
             <div className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-white/[0.03] border border-white/[0.06]">
               <div className="flex items-end gap-[2px] h-3.5">
                 <span className="w-[2px] rounded-full bg-primary/60 audio-bar" style={{ animationDelay: '0s' }} />
@@ -760,7 +895,7 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
                 <span className="w-[2px] rounded-full bg-primary/60 audio-bar" style={{ animationDelay: '0.3s' }} />
               </div>
               <span className="text-xs text-muted-foreground font-medium">
-                {t('sl.nowplaying')}: {tracks[activeTrack].name}
+                {t('sl.nowplaying')}: {currentTrack.name}
               </span>
             </div>
           </div>
