@@ -15,7 +15,7 @@ export const translations: Record<string, Record<string, string>> = {
     'hero.badge': '✦ Ručne stavaný pre tých, ktorí poznajú rozdiel',
     'hero.title': 'ALUPLEXamp',
     'hero.subtitle': 'Kde sa hliník stretáva s dušou zvuku',
-    'hero.description': 'Zašumený svit vákuových lampičiek prežiarený hliníkom a skrytý za krištáľovým plexisklom. ALUPLEXamp nie je len aparat — je to most medzi vašimi prstami a tónom, po ktorom ste celý život túžili. Každý kus sa rodí ručne. Každý rozpráva váš príbeh.',
+    'hero.description': 'Zašumený svit vákuových lampičiek prežiarený hliníkom. ALUPLEXamp nie je len aparat — je to most medzi vašimi prstami a tónom, po ktorom ste celý život túžili. Každý kus sa rodí ručne. Každý rozpráva váš príbeh.',
     'hero.cta.listen': 'Zažiť zvuk',
     'hero.cta.configure': 'Vytvoriť svoj',
 
@@ -175,7 +175,7 @@ export const translations: Record<string, Record<string, string>> = {
     'hero.badge': '✦ Hand-built for those who know the difference',
     'hero.title': 'ALUPLEXamp',
     'hero.subtitle': 'Where aluminium meets the soul of sound',
-    'hero.description': 'The warm amber glow of vacuum tubes, framed in brushed aluminium and crystal-clear plexiglass. ALUPLEXamp isn\'t just an amplifier — it\'s the bridge between your fingers and the tone you\'ve been chasing your entire life. Each one is born by hand. Each one tells your story.',
+    'hero.description': 'The warm amber glow of vacuum tubes, framed in brushed aluminium. ALUPLEXamp isn\'t just an amplifier — it\'s the bridge between your fingers and the tone you\'ve been chasing your entire life. Each one is born by hand. Each one tells your story.',
     'hero.cta.listen': 'Experience the Tone',
     'hero.cta.configure': 'Build Yours',
 
@@ -335,7 +335,7 @@ export const translations: Record<string, Record<string, string>> = {
     'hero.badge': '✦ Handgefertigt für die, die den Unterschied kennen',
     'hero.title': 'ALUPLEXamp',
     'hero.subtitle': 'Wo Aluminium auf die Seele des Klangs trifft',
-    'hero.description': 'Das warme Bernsteinleuchten der Vakuumröhren, eingerahmt in gebürstetes Aluminium und kristallklaren Plexiglas. ALUPLEXamp ist nicht nur ein Verstärker — er ist die Brücke zwischen Ihren Fingern und dem Ton, dem Sie Ihr ganzes Leben lang gefolgt sind. Jedes Stück entsteht von Hand. Jedes erzählt Ihre Geschichte.',
+    'hero.description': 'Das warme Bernsteinleuchten der Vakuumröhren, eingerahmt in gebürstetes Aluminium. ALUPLEXamp ist nicht nur ein Verstärker — er ist die Brücke zwischen Ihren Fingern und dem Ton, dem Sie Ihr ganzes Leben lang gefolgt sind. Jedes Stück entsteht von Hand. Jedes erzählt Ihre Geschichte.',
     'hero.cta.listen': 'Den Ton erleben',
     'hero.cta.configure': 'Ihren bauen',
 

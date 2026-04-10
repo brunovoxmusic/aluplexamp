@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ALUPLEXamp — Modern Plexi Tone Machine",
+  title: "ALUPLEXamp — Modern British Tone Machine",
   description:
     "Handcrafted tube guitar amplifier with aluminium chassis. Class AB, 30W, ECC83 + EL34 tubes. Built for musicians who demand perfect British tone.",
   keywords: [
@@ -24,7 +24,6 @@ export const metadata: Metadata = {
     "handcrafted amp",
     "EL34",
     "ECC83",
-    "plexi",
     "British tone",
     "aluminium chassis",
     "turret board",
@@ -36,7 +35,7 @@ export const metadata: Metadata = {
     icon: "/logo.svg",
   },
   openGraph: {
-    title: "ALUPLEXamp — Modern Plexi Tone Machine",
+    title: "ALUPLEXamp — Modern British Tone Machine",
     description:
       "A premium handcrafted tube guitar amplifier with aluminium chassis. 30W of pure British tone — EL34 + ECC83.",
     siteName: "ALUPLEXamp",
@@ -44,7 +43,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "ALUPLEXamp — Modern Plexi Tone Machine",
+    title: "ALUPLEXamp — Modern British Tone Machine",
     description:
       "Handcrafted tube guitar amplifier. Class AB, 30W, EL34 + ECC83. Pure British tone.",
   },
