@@ -1,8 +1,7 @@
 #!/bin/bash
 cd /home/z/my-project
+rm -rf .next
 while true; do
-  echo "Starting Next.js dev server at $(date)..."
-  npx next dev -p 3000 2>&1
-  echo "Server crashed at $(date), restarting in 2s..."
+  bun run dev >> /home/z/my-project/dev.log 2>&1
   sleep 2
 done
