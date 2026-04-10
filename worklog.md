@@ -403,3 +403,41 @@ Stage Summary:
 - Only verified ALUPLEXamp brand images used throughout the site
 - All translations updated (SK/EN/DE) for new gallery labels
 - No hydration issues, clean lint, successful compilation
+
+---
+Task ID: 11
+Agent: Main
+Task: Complete copywriting overhaul of ALUPLEXamp website texts
+
+Work Log:
+- Read and analyzed complete translations.ts (477 lines) and page.tsx (1549 lines)
+- Rewrote ALL translation values across SK/EN/DE with elite copywriting tone:
+  - Hero: punchier badge ("Nekompromisný boutique tón"), poetic 2-sentence description, action-oriented CTAs ("Zažiť zvuk" / "Experience the Tone")
+  - Value Props: evocative descriptions emphasizing craft, purity, and living tone
+  - Engineering: renamed to "Sila pod kapotou" / "Under the Hood" / "Unter der Haube", richer feature descriptions emphasizing aluminium philosophy
+  - Sound Architecture: poetic subtitle about tubes/circuits/tone that breathes, dramatically expanded EL34 description (4+ sentences per language)
+  - Sound Library: renamed to "Tónová knižnica" / "Tone Library" / "Tonen-Bibliothek", enhanced track descriptions with sensory language
+  - Configurator: personalized "Build Yours" framing with "just for you" promise
+  - Gallery: poetic subtitle about craftsmanship and perfect tone
+  - FAQ: all 10 answers expanded with passionate, detailed, technically grounded copy
+  - CTA: emotionally charged "Pripravený objaviť svoj tón?" with storytelling subtitle
+  - Footer: refined tagline and handwired description with "v Slovensku" / "in Slovakia"
+- Added 2 new translation keys to all 3 languages:
+  - `eng.headline`: "Hliník. Remeslo. Výkon." / "Aluminium. Craftsmanship. Power." / "Aluminium. Handwerk. Power."
+  - `vp.section`: "Naša filozofia" / "Our Philosophy" / "Unsere Philosophie"
+- Made 3 structural changes in page.tsx:
+  1. Engineering section h2: changed from `{t('eng.title')}` to `{t('eng.headline')}` (line 378)
+  2. Value Props section: added centered section header with decorative lines + `vp.section` label
+  3. CTA section: added amber decorative line (`w-12 h-[2px] bg-primary`) after Music icon
+- All existing translation keys preserved — only values changed
+- Track names, gear/settings, and FAQ questions left unchanged
+- No code structure, CSS classes, or component logic modified
+- ESLint passes clean (0 errors)
+- Dev server compiles successfully (200 on /)
+
+Stage Summary:
+- Complete poetic copywriting overhaul of all 3 language translations
+- New tone: confident, passionate, technically grounded but evocative
+- 2 new translation keys added (eng.headline, vp.section)
+- 3 minimal structural changes in page.tsx (eng headline, VP section header, CTA amber line)
+- File remains valid TypeScript, lint clean, production-ready

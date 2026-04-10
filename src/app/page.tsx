@@ -332,6 +332,14 @@ function ValueProps({ t }: { t: (k: string) => string }) {
   return (
     <section className="py-16 sm:py-24 lg:py-28 px-4 sm:px-6 lg:px-8" ref={ref}>
       <div className="max-w-7xl mx-auto">
+        {/* Section Header */}
+        <div className="text-center mb-10 sm:mb-14 fade-in-up">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <div className="w-8 h-[2px] bg-primary" />
+            <span className="text-xs font-semibold text-primary uppercase tracking-[0.2em]">{t('vp.section')}</span>
+            <div className="w-8 h-[2px] bg-primary" />
+          </div>
+        </div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
           {cards.map((card, i) => (
             <div
@@ -375,7 +383,7 @@ function EngineeringSection({ t }: { t: (k: string) => string }) {
                 <span className="text-xs font-semibold text-primary uppercase tracking-[0.2em]">{t('eng.title')}</span>
               </div>
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-6 leading-tight">
-                {t('eng.title')}
+                {t('eng.headline')}
               </h2>
               <p className="text-muted-foreground leading-relaxed mb-8 text-sm sm:text-base max-w-xl">
                 {t('eng.subtitle')}
@@ -1441,6 +1449,7 @@ function CTASection({ t }: { t: (k: string) => string }) {
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 mb-6 sm:mb-8">
               <Music className="size-7 text-primary" />
             </div>
+            <div className="w-12 h-[2px] bg-primary mx-auto mb-6" />
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4 sm:mb-6">{t('cta.title')}</h2>
             <p className="text-muted-foreground mb-8 sm:mb-10 max-w-xl mx-auto text-sm sm:text-base leading-relaxed">{t('cta.subtitle')}</p>
 
