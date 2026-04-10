@@ -345,13 +345,26 @@
   border-color: rgba(212, 146, 42, 0.2);
 }
 
-/* ========== Track Color Indicators ========== */
+/* ========== Track Accent Colors ========== */
 
-.track-green { border-left: 3px solid #3a9a5c; }
-.track-amber { border-left: 3px solid #d4922a; }
-.track-red { border-left: 3px solid #c62828; }
-.track-purple { border-left: 3px solid #7c3aed; }
-.track-cyan { border-left: 3px solid #0891b2; }
+.accent-green { border-color: rgba(58, 154, 92, 0.4) !important; }
+.accent-amber { border-color: rgba(212, 146, 42, 0.4) !important; }
+.accent-red { border-color: rgba(198, 40, 40, 0.4) !important; }
+.accent-purple { border-color: rgba(124, 58, 237, 0.4) !important; }
+.accent-cyan { border-color: rgba(8, 145, 178, 0.4) !important; }
+
+/* ========== Audio Bars Animation ========== */
+
+@keyframes audioBarBounce {
+  0%, 100% { height: 4px; }
+  50% { height: 100%; }
+}
+
+.audio-bar {
+  display: inline-block;
+  height: 4px;
+  animation: audioBarBounce 0.8s ease-in-out infinite;
+}
 
 /* ========== Progress Bar ========== */
 

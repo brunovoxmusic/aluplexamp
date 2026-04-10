@@ -4,6 +4,7 @@ export const translations: Record<string, Record<string, string>> = {
   // ========== SLOVAK ==========
   sk: {
     // Navigation
+    'nav.soundlib': 'Zvukové ukážky',
     'nav.specs': 'Špecifikácie',
     'nav.config': 'Konfigurátor',
     'nav.gallery': 'Galéria',
@@ -82,6 +83,7 @@ export const translations: Record<string, Record<string, string>> = {
     'sl.track5.desc': 'Interakcia hlasitosti gitary čistí zisk',
     'sl.gear': 'Nástroj',
     'sl.settings': 'Nastavenia',
+    'sl.nowplaying': 'Práve prehrávam',
 
     // Video
     'video.title': 'Pozrite si test zvuku',
@@ -158,6 +160,7 @@ export const translations: Record<string, Record<string, string>> = {
   // ========== ENGLISH ==========
   en: {
     // Navigation
+    'nav.soundlib': 'Sound Demos',
     'nav.specs': 'Specs',
     'nav.config': 'Configurator',
     'nav.gallery': 'Gallery',
@@ -236,6 +239,7 @@ export const translations: Record<string, Record<string, string>> = {
     'sl.track5.desc': 'Guitar volume knob interaction cleans up the gain',
     'sl.gear': 'Gear',
     'sl.settings': 'Settings',
+    'sl.nowplaying': 'Now Playing',
 
     // Video
     'video.title': 'Watch the Sound Test',
@@ -312,6 +316,7 @@ export const translations: Record<string, Record<string, string>> = {
   // ========== GERMAN ==========
   de: {
     // Navigation
+    'nav.soundlib': 'Sound-Demos',
     'nav.specs': 'Spezifikationen',
     'nav.config': 'Konfigurator',
     'nav.gallery': 'Galerie',
@@ -390,6 +395,7 @@ export const translations: Record<string, Record<string, string>> = {
     'sl.track5.desc': 'Lautstärkeregler-Interaktion reduziert den Gain',
     'sl.gear': 'Equipment',
     'sl.settings': 'Einstellungen',
+    'sl.nowplaying': 'Läuft gerade',
 
     // Video
     'video.title': 'Soundtest ansehen',

@@ -77,6 +77,7 @@ function Navigation({ lang, setLang, t }: { lang: Language; setLang: (l: Languag
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const navLinks = [
+    { id: 'soundlib', label: t('nav.soundlib') },
     { id: 'specs', label: t('nav.specs') },
     { id: 'config', label: t('nav.config') },
     { id: 'gallery', label: t('nav.gallery') },
@@ -478,6 +479,292 @@ function SoundArchitecture({ t }: { t: (k: string) => string }) {
             {t('sa.el34.desc')}
           </p>
         </div>
+      </div>
+    </section>
+  );
+}
+
+// ========== SOUND LIBRARY ==========
+
+interface TrackInfo {
+  name: string;
+  gear: string;
+  settings: string;
+  desc: string;
+  color: string;
+  accentClass: string;
+  audioSrc: string;
+}
+
+function SoundLibrary({ t }: { t: (k: string) => string }) {
+  const ref = useScrollAnimation();
+  const [activeTrack, setActiveTrack] = useState<number | null>(null);
+  const [playing, setPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const progressRef = useRef<HTMLDivElement>(null);
+  const isDragging = useRef(false);
+
+  const tracks: TrackInfo[] = [
+    {
+      name: t('sl.track1.name'),
+      gear: t('sl.track1.gear'),
+      settings: t('sl.track1.settings'),
+      desc: t('sl.track1.desc'),
+      color: '#3a9a5c',
+      accentClass: 'accent-green',
+      audioSrc: '/audio/track1-woody-clean.wav',
+    },
+    {
+      name: t('sl.track2.name'),
+      gear: t('sl.track2.gear'),
+      settings: t('sl.track2.settings'),
+      desc: t('sl.track2.desc'),
+      color: '#d4922a',
+      accentClass: 'accent-amber',
+      audioSrc: '/audio/track2-british-crunch.wav',
+    },
+    {
+      name: t('sl.track3.name'),
+      gear: t('sl.track3.gear'),
+      settings: t('sl.track3.settings'),
+      desc: t('sl.track3.desc'),
+      color: '#c62828',
+      accentClass: 'accent-red',
+      audioSrc: '/audio/track3-brown-sound.wav',
+    },
+    {
+      name: t('sl.track4.name'),
+      gear: t('sl.track4.gear'),
+      settings: t('sl.track4.settings'),
+      desc: t('sl.track4.desc'),
+      color: '#7c3aed',
+      accentClass: 'accent-purple',
+      audioSrc: '/audio/track4-dynamic-breakup.wav',
+    },
+    {
+      name: t('sl.track5.name'),
+      gear: t('sl.track5.gear'),
+      settings: t('sl.track5.settings'),
+      desc: t('sl.track5.desc'),
+      color: '#0891b2',
+      accentClass: 'accent-cyan',
+      audioSrc: '/audio/track5-volume-rolloff.wav',
+    },
+  ];
+
+  const playTrack = (index: number) => {
+    if (activeTrack === index && playing) {
+      audioRef.current?.pause();
+      setPlaying(false);
+      return;
+    }
+
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    audio.src = tracks[index].audioSrc;
+    audio.load();
+    audio.play().then(() => {
+      setActiveTrack(index);
+      setPlaying(true);
+    }).catch(() => {
+      // Autoplay blocked
+    });
+  };
+
+  const handleTimeUpdate = () => {
+    if (!isDragging.current && audioRef.current) {
+      setCurrentTime(audioRef.current.currentTime);
+    }
+  };
+
+  const handleLoadedMetadata = () => {
+    if (audioRef.current) {
+      setDuration(audioRef.current.duration);
+    }
+  };
+
+  const handleEnded = () => {
+    setPlaying(false);
+    setCurrentTime(0);
+  };
+
+  const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!audioRef.current || !duration) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const pct = Math.max(0, Math.min(1, x / rect.width));
+    audioRef.current.currentTime = pct * duration;
+    setCurrentTime(pct * duration);
+  };
+
+  const handleProgressMouseDown = () => {
+    isDragging.current = true;
+  };
+
+  useEffect(() => {
+    const handleMouseUp = () => { isDragging.current = false; };
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDragging.current || !audioRef.current || !duration || !progressRef.current) return;
+      const rect = progressRef.current.getBoundingClientRect();
+      const x = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
+      const pct = x / rect.width;
+      audioRef.current.currentTime = pct * duration;
+      setCurrentTime(pct * duration);
+    };
+    window.addEventListener('mouseup', handleMouseUp);
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => {
+      window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, [duration]);
+
+  const formatTime = (seconds: number) => {
+    if (!seconds || isNaN(seconds)) return '0:00';
+    const m = Math.floor(seconds / 60);
+    const s = Math.floor(seconds % 60);
+    return `${m}:${s.toString().padStart(2, '0')}`;
+  };
+
+  const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
+
+  return (
+    <section id="soundlib" className="py-16 sm:py-24 lg:py-28 px-4 sm:px-6 lg:px-8" ref={ref}>
+      <audio ref={audioRef} onTimeUpdate={handleTimeUpdate} onLoadedMetadata={handleLoadedMetadata} onEnded={handleEnded} preload="metadata" />
+
+      <div className="max-w-4xl mx-auto">
+        {/* Section Header */}
+        <div className="text-center mb-12 sm:mb-16 fade-in-up">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <div className="w-8 h-[2px] bg-primary" />
+            <span className="text-xs font-semibold text-primary uppercase tracking-[0.2em]">{t('sl.title')}</span>
+            <div className="w-8 h-[2px] bg-primary" />
+          </div>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4">{t('sl.title')}</h2>
+          <p className="text-muted-foreground mb-6 text-sm sm:text-base">{t('sl.subtitle')}</p>
+          <Badge className="px-4 py-1.5 bg-white/[0.04] border-white/[0.08] text-muted-foreground text-xs backdrop-blur-sm">
+            {t('sl.badge')}
+          </Badge>
+        </div>
+
+        {/* Track List */}
+        <div className="space-y-2.5 sm:space-y-3">
+          {tracks.map((track, i) => {
+            const isActive = activeTrack === i;
+            const isCurrentlyPlaying = isActive && playing;
+            return (
+              <div
+                key={i}
+                className={`fade-in-up group rounded-2xl overflow-hidden transition-all duration-400 ${
+                  isActive
+                    ? `bg-card border-2 ${track.accentClass}`
+                    : 'bg-card/50 border border-[#2a2a2a]/60 hover:border-[#3a3a3a]/80'
+                }`}
+                style={{ transitionDelay: `${i * 60}ms` }}
+              >
+                {/* Track Header — always visible */}
+                <div
+                  className="p-4 sm:p-5 cursor-pointer select-none"
+                  onClick={() => playTrack(i)}
+                >
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    {/* Play / Pause button */}
+                    <button
+                      className={`flex-shrink-0 w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center transition-all duration-300 ${
+                        isActive
+                          ? 'shadow-lg'
+                          : 'bg-white/[0.04] group-hover:bg-white/[0.07]'
+                      }`}
+                      style={isActive ? { backgroundColor: `${track.color}18`, boxShadow: `0 4px 20px ${track.color}15` } : undefined}
+                      aria-label={isCurrentlyPlaying ? 'Pause' : 'Play'}
+                    >
+                      {/* Animated bars when playing */}
+                      {isCurrentlyPlaying ? (
+                        <div className="flex items-end gap-[2px] h-4">
+                          <span className="w-[3px] rounded-full audio-bar" style={{ backgroundColor: track.color, animationDelay: '0s' }} />
+                          <span className="w-[3px] rounded-full audio-bar" style={{ backgroundColor: track.color, animationDelay: '0.15s' }} />
+                          <span className="w-[3px] rounded-full audio-bar" style={{ backgroundColor: track.color, animationDelay: '0.3s' }} />
+                          <span className="w-[3px] rounded-full audio-bar" style={{ backgroundColor: track.color, animationDelay: '0.1s' }} />
+                        </div>
+                      ) : (
+                        <svg className="size-4 sm:size-5 ml-0.5" style={{ color: isActive ? track.color : 'currentColor' }} fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M8 5v14l11-7z" />
+                        </svg>
+                      )}
+                    </button>
+
+                    {/* Track info */}
+                    <div className="flex-1 min-w-0">
+                      <h4 className={`text-sm sm:text-base font-semibold truncate transition-colors ${isActive ? 'text-foreground' : 'text-foreground/80 group-hover:text-foreground'}`}>
+                        {track.name}
+                      </h4>
+                      <p className="text-xs text-muted-foreground truncate mt-0.5">{track.gear}</p>
+                    </div>
+
+                    {/* Time */}
+                    <span className={`text-xs font-mono flex-shrink-0 tabular-nums ${isActive ? 'text-foreground/60' : 'text-muted-foreground/50'}`}>
+                      {isActive ? formatTime(currentTime) : formatTime(duration || 0)}
+                    </span>
+                  </div>
+
+                  {/* Progress bar — visible only when active */}
+                  {isActive && (
+                    <div
+                      ref={progressRef}
+                      className="mt-3.5 cursor-pointer py-2 -my-2"
+                      onClick={(e) => handleProgressClick(e)}
+                      onMouseDown={handleProgressMouseDown}
+                    >
+                      <div className="w-full h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
+                        <div
+                          className="h-full rounded-full transition-[width] duration-150"
+                          style={{ width: `${progressPercent}%`, backgroundColor: track.color }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Expanded details — shown when active */}
+                {isActive && (
+                  <div className="px-4 sm:px-5 pb-4 sm:pb-5 pt-0 border-t border-white/[0.04]">
+                    <div className="grid sm:grid-cols-2 gap-3 pt-4 text-xs">
+                      <div>
+                        <span className="text-muted-foreground uppercase tracking-wider font-semibold">{t('sl.gear')}</span>
+                        <p className="text-foreground/80 mt-1.5">{track.gear}</p>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground uppercase tracking-wider font-semibold">{t('sl.settings')}</span>
+                        <p className="text-foreground/80 mt-1.5 font-mono text-[11px]">{track.settings}</p>
+                      </div>
+                    </div>
+                    <p className="text-xs sm:text-sm text-muted-foreground mt-3 leading-relaxed">{track.desc}</p>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Now playing indicator */}
+        {activeTrack !== null && playing && (
+          <div className="mt-8 text-center fade-in-up">
+            <div className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-white/[0.03] border border-white/[0.06]">
+              <div className="flex items-end gap-[2px] h-3.5">
+                <span className="w-[2px] rounded-full bg-primary/60 audio-bar" style={{ animationDelay: '0s' }} />
+                <span className="w-[2px] rounded-full bg-primary/60 audio-bar" style={{ animationDelay: '0.2s' }} />
+                <span className="w-[2px] rounded-full bg-primary/60 audio-bar" style={{ animationDelay: '0.1s' }} />
+                <span className="w-[2px] rounded-full bg-primary/60 audio-bar" style={{ animationDelay: '0.3s' }} />
+              </div>
+              <span className="text-xs text-muted-foreground font-medium">
+                {t('sl.nowplaying')}: {tracks[activeTrack].name}
+              </span>
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );
@@ -926,6 +1213,8 @@ export default function Home() {
         <EngineeringSection t={t} />
         <SectionDivider />
         <SoundArchitecture t={t} />
+        <SectionDivider />
+        <SoundLibrary t={t} />
         <SectionDivider />
         <ConfiguratorSection t={t} />
         <SectionDivider />
