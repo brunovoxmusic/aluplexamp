@@ -1,4 +1,34 @@
 ---
+Task ID: 3
+Agent: Main Agent
+Task: Add subtle background photos to specific sections for visual depth
+
+Work Log:
+- Read worklog and analyzed current project state (1559-line page.tsx, 553-line globals.css)
+- Added `.section-bg-photo` CSS utility class system to globals.css:
+  - Base class: `position: relative; overflow: hidden` on container
+  - `::before` pseudo-element: full-bleed background image at 4% opacity, `pointer-events: none`, `z-index: 0`
+  - Direct children get `position: relative; z-index: 1` for stacking
+  - `.section-bg-photo-right` variant: photo aligned to right center (for EL34 callout)
+- Value Props section: wrapped content in `section-bg-photo` div with `aluplex-138.jpg` (side angle photo), added top/bottom gradient overlays (`from-[#0a0a0a] to-transparent`) for readability at section edges
+- Sound Architecture EL34 Callout: added absolutely positioned `<img>` (`aluplex-123.jpg`) at 4% opacity, right 2/3 of callout, with `grayscale mix-blend-luminosity` to prevent color clashing with amber theme
+- CTA Section: added `section-bg-photo` class to existing CTA card with `DSC6827.jpg` background, photo appears behind existing amber gradient overlays for emotional impact
+- Design principles followed:
+  - All photos at 3-4% opacity ("is there a photo there?" subtlety)
+  - `grayscale` filter on EL34 photo prevents color conflict with #FFB800 amber theme
+  - `mix-blend-luminosity` further desaturates to luminance only
+  - Dark gradient overlays ensure text readability at section edges
+  - No modifications to Hero, Engineering, Sound Library, Configurator, Gallery, or FAQ sections
+- Lint passes clean (0 errors, 0 warnings)
+- Dev server compiles successfully (200 on /)
+
+Stage Summary:
+- 3 sections enhanced with subtle amplifier photography backgrounds
+- CSS utility class system `.section-bg-photo` added for reusable background photo styling
+- Maintained dark obsidian (#0a0a0a) dominance — photos are perceptible but not prominent
+- Zero regressions, all existing layouts and z-index stacking preserved
+
+---
 Task ID: 9
 Agent: Main Agent
 Task: Rebuild ALUPLEXamp Landing Page from Scratch
