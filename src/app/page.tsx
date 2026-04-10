@@ -1236,15 +1236,24 @@ function GallerySection({ t }: { t: (k: string) => string }) {
   const [lightbox, setLightbox] = useState<number | null>(null);
 
   const items = [
-    { label: t('gal.front'), src: '/aluplex/DSC6775.jpg' },
-    { label: t('gal.control'), src: '/aluplex/DSC6790.jpg' },
-    { label: t('gal.turret'), src: '/aluplex/DSC6792.jpg' },
-    { label: t('gal.rear'), src: '/aluplex/DSC6793.jpg' },
-    { label: t('gal.detail'), src: '/aluplex/DSC6798.jpg' },
-    { label: t('gal.quarter'), src: '/aluplex/DSC6803.jpg' },
-    { label: t('gal.wiring'), src: '/aluplex/DSC6827.jpg' },
-    { label: t('gal.closeup'), src: '/aluplex/DSC01623.jpg' },
+    // --- Real ALUPLEXamp photos ---
+    { label: t('gal.front'), src: '/aluplex/aluplex-1.jpg' },
+    { label: t('gal.control'), src: '/aluplex/DSC6775.jpg' },
+    { label: t('gal.internals'), src: '/aluplex/aluplex-back-naked.jpg' },
+    { label: t('glow'), src: '/aluplex/DSC6821.jpg' },
+    { label: t('gal.tubes'), src: '/aluplex/DSC6827.jpg' },
+    { label: t('gal.side'), src: '/aluplex/aluplex-56.jpg' },
+    { label: t('gal.wiring'), src: '/aluplex/DSC6790.jpg' },
     { label: t('gal.studio'), src: '/aluplex/aluplex-138.jpg' },
+    { label: t('gal.naked'), src: '/aluplex/aluplex-109.jpg' },
+    { label: t('gal.rear'), src: '/aluplex/aluplex-123.jpg' },
+    // --- AI-generated complementary images ---
+    { label: t('glow'), src: '/aluplex/gen-front-glow.jpg' },
+    { label: t('gal.tubes'), src: '/aluplex/gen-tubes-detail.jpg' },
+    { label: t('gal.chassis'), src: '/aluplex/gen-chassis-top.jpg' },
+    { label: t('gal.side'), src: '/aluplex/gen-side-angle.jpg' },
+    { label: t('gal.rear'), src: '/aluplex/gen-rear-panel.jpg' },
+    { label: t('gal.studio'), src: '/aluplex/gen-studio-scene.jpg' },
   ];
 
   const prev = () => {
