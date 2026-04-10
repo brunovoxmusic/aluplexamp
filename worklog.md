@@ -519,3 +519,40 @@ Stage Summary:
 - All technical debt resolved (unused vars, missing deps, semantic HTML)
 - FAQ duplicate key bug fixed (27 TS1117 errors eliminated)
 - Zero regressions, production-ready quality
+
+---
+Task ID: 13
+Agent: Main Agent
+Task: Improve HERO section design and update subtitle tagline
+
+Work Log:
+- Updated tagline in translations.ts for all 3 languages:
+  - SK: "Kde sa hliník stretáva s dušou zvuku" → "Váš podpis v každom tóne"
+  - EN: "Where aluminium meets the soul of sound" → "Your signature in every note"
+  - DE: "Wo Aluminium auf die Seele des Klangs trifft" → "Ihre Signatur in jedem Ton"
+- Completely redesigned HeroSection in page.tsx with premium improvements:
+  1. Center-aligned layout (was left-aligned) for maximum visual impact
+  2. Darker background (#050505) for deeper contrast with slideshow
+  3. Larger, more dramatic title typography (up to 8.5rem on xl)
+  4. Animated golden line separator (hero-line-reveal) between title and subtitle
+  5. Ken Burns slow zoom effect on slideshow images (hero-ken-burns)
+  6. Cinematic vignette overlay (hero-vignette) for depth
+  7. Refined spec strip with rounded-full glass pills (was rounded-lg rectangles)
+  8. Enhanced CTA buttons with group hover animations (arrow slides, settings rotate)
+  9. Clickable scroll indicator button (scrolls to soundlib)
+  10. Multi-layer gradient overlays optimized for centered text readability
+  11. Dual amber glow orbs (top-right + bottom-left) for atmospheric depth
+- Updated globals.css with new animations:
+  - heroKenBurns: 25s ease-in-out infinite alternate zoom (scale 1 → 1.08)
+  - heroLineReveal: scaleX-based line reveal for smooth GPU performance
+  - heroSlideFadeIn: refined timing (6%/28%/36% keyframes) with subtle zoom
+- Added CSS utility classes: .hero-ken-burns, .hero-vignette, .hero-line-reveal, .hero-subtitle-text
+- Lint passes clean, dev server compiles successfully
+
+Stage Summary:
+- Hero redesigned from left-aligned to center-aligned premium layout
+- Tagline changed to "Váš podpis v každom tóne" across all 3 languages
+- New CSS animations: Ken Burns zoom, golden line reveal, cinematic vignette
+- Enhanced CTA interactions with directional hover animations
+- Darker, more dramatic hero background (#050505)
+- Zero regressions, production-ready

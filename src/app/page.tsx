@@ -208,112 +208,122 @@ function HeroSection({ t }: { t: (k: string) => string }) {
   };
 
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden bg-[#0a0a0a]">
-      {/* Slideshow Background — 5 images with CSS fade cycle */}
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#050505]">
+      {/* Slideshow Background — 5 images with CSS fade cycle + Ken Burns */}
       <div className="absolute inset-0 z-0" aria-hidden="true">
         {HERO_SLIDES.map((src, i) => (
           <div key={i} className="hero-slide">
             <img
               src={src}
               alt=""
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover scale-105 hero-ken-burns"
             />
           </div>
         ))}
 
-        {/* Multi-layer overlay for text readability */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a] via-[#0a0a0a]/75 to-[#0a0a0a]/30" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/30 to-[#0a0a0a]/50" />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0a]/40 via-transparent to-transparent" />
+        {/* Dramatic multi-layer overlay — darker for contrast */}
+        <div className="absolute inset-0 bg-[#050505]/55" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/40 to-[#050505]/70" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#050505]/60 via-transparent to-[#050505]/30" />
 
-        {/* Amber glow accent */}
-        <div className="absolute top-1/3 right-1/4 w-[600px] h-[400px] bg-[radial-gradient(ellipse,rgba(212,146,42,0.06)_0%,transparent_70%)] pointer-events-none" />
+        {/* Vignette effect for cinematic depth */}
+        <div className="absolute inset-0 hero-vignette" />
+
+        {/* Subtle amber glow — top right */}
+        <div className="absolute -top-32 -right-32 w-[500px] h-[500px] bg-[radial-gradient(circle,rgba(255,184,0,0.05)_0%,transparent_60%)] pointer-events-none" />
+        {/* Subtle amber glow — bottom left */}
+        <div className="absolute -bottom-32 -left-32 w-[400px] h-[400px] bg-[radial-gradient(circle,rgba(255,184,0,0.03)_0%,transparent_60%)] pointer-events-none" />
       </div>
 
       {/* Decorative grid pattern */}
-      <div className="absolute inset-0 hero-grid-pattern pointer-events-none opacity-[0.03]" />
+      <div className="absolute inset-0 hero-grid-pattern pointer-events-none opacity-[0.02]" />
 
-      {/* Content — left aligned with generous top spacing */}
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 sm:py-36 lg:py-40">
-        <div className="max-w-2xl">
-          {/* Badge */}
-          <div className="hero-fade-item" style={{ animationDelay: '0.3s' }}>
-            <Badge className="mb-8 sm:mb-10 px-4 py-2 text-xs sm:text-sm bg-primary/10 text-primary border-primary/20 hover:bg-primary/15 backdrop-blur-sm">
-              <Sparkles className="size-3.5 mr-2" />
-              {t('hero.badge')}
-            </Badge>
-          </div>
+      {/* Content — centered with generous spacing */}
+      <div className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-32 sm:py-36 lg:py-44 text-center">
+        {/* Badge */}
+        <div className="hero-fade-item" style={{ animationDelay: '0.2s' }}>
+          <Badge className="mb-8 sm:mb-10 px-5 py-2.5 text-xs sm:text-sm bg-primary/[0.08] text-primary/90 border-primary/15 hover:bg-primary/[0.12] backdrop-blur-md">
+            <Sparkles className="size-3.5 mr-2" />
+            {t('hero.badge')}
+          </Badge>
+        </div>
 
-          {/* Title */}
-          <div className="hero-fade-item" style={{ animationDelay: '0.5s' }}>
-            <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tighter mb-4 sm:mb-6 text-gradient-amber-shimmer leading-[1.05] break-words">
-              {t('hero.title')}
-            </h1>
-          </div>
+        {/* Title — larger, more dramatic */}
+        <div className="hero-fade-item" style={{ animationDelay: '0.4s' }}>
+          <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-[7rem] xl:text-[8.5rem] font-bold tracking-[-0.04em] mb-6 sm:mb-8 text-gradient-amber-shimmer leading-[0.9]">
+            {t('hero.title')}
+          </h1>
+        </div>
 
-          {/* Subtitle */}
-          <div className="hero-fade-item" style={{ animationDelay: '0.7s' }}>
-            <p className="text-lg sm:text-xl md:text-2xl font-light text-foreground/90 mb-3 sm:mb-4 tracking-wide">
-              {t('hero.subtitle')}
-            </p>
-          </div>
+        {/* Animated golden line separator */}
+        <div className="hero-fade-item flex justify-center mb-6 sm:mb-8" style={{ animationDelay: '0.6s' }}>
+          <div className="hero-line-reveal h-[1px] bg-gradient-to-r from-transparent via-primary/60 to-transparent w-24 sm:w-32" />
+        </div>
 
-          {/* Description */}
-          <div className="hero-fade-item" style={{ animationDelay: '0.8s' }}>
-            <p className="text-sm sm:text-base text-muted-foreground max-w-lg mb-8 sm:mb-12 leading-relaxed">
-              {t('hero.description')}
-            </p>
-          </div>
+        {/* Subtitle — refined typography */}
+        <div className="hero-fade-item" style={{ animationDelay: '0.7s' }}>
+          <p className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-light text-foreground/85 mb-4 sm:mb-5 tracking-wide hero-subtitle-text">
+            {t('hero.subtitle')}
+          </p>
+        </div>
 
-          {/* Key specs strip */}
-          <div className="hero-fade-item flex flex-wrap items-center gap-3 sm:gap-4 mb-8 sm:mb-12" style={{ animationDelay: '0.9s' }}>
-            <div className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-white/[0.05] border border-white/[0.08] backdrop-blur-sm">
-              <Zap className="size-3.5 sm:size-4 text-primary" />
-              <span className="text-xs sm:text-sm font-semibold text-foreground/80">30W</span>
-            </div>
-            <div className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-white/[0.05] border border-white/[0.08] backdrop-blur-sm">
-              <Flame className="size-3.5 sm:size-4 text-primary" />
-              <span className="text-xs sm:text-sm font-semibold text-foreground/80">EL34</span>
-            </div>
-            <div className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-white/[0.05] border border-white/[0.08] backdrop-blur-sm">
-              <CircleDot className="size-3.5 sm:size-4 text-primary" />
-              <span className="text-xs sm:text-sm font-semibold text-foreground/80">12.5 kg</span>
-            </div>
-            <div className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-white/[0.05] border border-white/[0.08] backdrop-blur-sm">
-              <Wrench className="size-3.5 sm:size-4 text-primary" />
-              <span className="text-xs sm:text-sm font-semibold text-foreground/80">Handwired</span>
-            </div>
-          </div>
+        {/* Description */}
+        <div className="hero-fade-item" style={{ animationDelay: '0.85s' }}>
+          <p className="text-sm sm:text-base text-muted-foreground/70 max-w-xl mx-auto mb-10 sm:mb-14 leading-relaxed">
+            {t('hero.description')}
+          </p>
+        </div>
 
-          {/* CTA Buttons */}
-          <div className="hero-fade-item flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4" style={{ animationDelay: '1.0s' }}>
-            <Button
-              size="lg"
-              onClick={() => scrollTo('specs')}
-              className="bg-primary text-primary-foreground hover:bg-primary/90 px-8 py-6 text-base font-semibold rounded-xl shadow-xl shadow-primary/20 transition-all duration-300 hover:shadow-primary/30 hover:scale-[1.02]"
+        {/* Key specs strip — centered, refined glass pills */}
+        <div className="hero-fade-item flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 mb-10 sm:mb-14" style={{ animationDelay: '0.95s' }}>
+          {[
+            { icon: Zap, label: '30W' },
+            { icon: Flame, label: 'EL34' },
+            { icon: CircleDot, label: '12.5 kg' },
+            { icon: Wrench, label: 'Handwired' },
+          ].map((spec, i) => (
+            <div
+              key={i}
+              className="flex items-center gap-2 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-full bg-white/[0.04] border border-white/[0.07] backdrop-blur-md transition-all duration-500 hover:bg-white/[0.07] hover:border-primary/20"
             >
-              {t('hero.cta.listen')}
-              <ArrowRight className="size-4 ml-2" />
-            </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              onClick={() => scrollTo('config')}
-              className="border-white/10 text-foreground hover:bg-white/5 hover:text-foreground hover:border-white/20 px-8 py-6 text-base rounded-xl backdrop-blur-sm transition-all duration-300"
-            >
-              {t('hero.cta.configure')}
-              <Settings className="size-4 ml-2" />
-            </Button>
-          </div>
+              <spec.icon className="size-3.5 sm:size-4 text-primary/80" />
+              <span className="text-xs sm:text-sm font-medium text-foreground/70 tracking-wide">{spec.label}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* CTA Buttons */}
+        <div className="hero-fade-item flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4" style={{ animationDelay: '1.1s' }}>
+          <Button
+            size="lg"
+            onClick={() => scrollTo('soundlib')}
+            className="bg-primary text-primary-foreground hover:bg-primary/90 px-8 sm:px-10 py-5 sm:py-6 text-base font-semibold rounded-xl shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-primary/40 hover:scale-[1.03] active:scale-[0.98] group"
+          >
+            {t('hero.cta.listen')}
+            <ArrowRight className="size-4 ml-2 transition-transform duration-300 group-hover:translate-x-1" />
+          </Button>
+          <Button
+            variant="outline"
+            size="lg"
+            onClick={() => scrollTo('config')}
+            className="border-white/[0.08] text-foreground/80 hover:bg-white/[0.06] hover:text-foreground hover:border-white/15 px-8 sm:px-10 py-5 sm:py-6 text-base rounded-xl backdrop-blur-md transition-all duration-300 hover:scale-[1.03] active:scale-[0.98] group"
+          >
+            {t('hero.cta.configure')}
+            <Settings className="size-4 ml-2 transition-transform duration-300 group-hover:rotate-90" />
+          </Button>
         </div>
       </div>
 
-      {/* Bouncing scroll indicator */}
-      <div className="absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 bounce-chevron z-10">
-        <div className="flex flex-col items-center gap-2">
-          <span className="text-[10px] text-muted-foreground/40 uppercase tracking-[0.2em]">Scroll</span>
-          <ChevronDown className="size-5 text-muted-foreground/30" />
-        </div>
+      {/* Refined scroll indicator */}
+      <div className="absolute bottom-6 sm:bottom-10 left-1/2 -translate-x-1/2 z-10 hero-fade-item" style={{ animationDelay: '1.5s' }}>
+        <button
+          onClick={() => scrollTo('soundlib')}
+          className="flex flex-col items-center gap-2 group cursor-pointer"
+          aria-label="Scroll down"
+        >
+          <span className="text-[10px] text-muted-foreground/30 uppercase tracking-[0.25em] group-hover:text-muted-foreground/50 transition-colors duration-300">Scroll</span>
+          <ChevronDown className="size-4 text-muted-foreground/25 bounce-chevron" />
+        </button>
       </div>
     </section>
   );
