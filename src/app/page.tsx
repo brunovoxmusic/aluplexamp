@@ -1263,13 +1263,6 @@ function GallerySection({ t }: { t: (k: string) => string }) {
     { label: t('gal.studio'), src: '/aluplex/aluplex-138.jpg' },
     { label: t('gal.naked'), src: '/aluplex/aluplex-109.jpg' },
     { label: t('gal.rear'), src: '/aluplex/aluplex-123.jpg' },
-    // --- AI-generated complementary images ---
-    { label: t('glow'), src: '/aluplex/gen-front-glow.jpg' },
-    { label: t('gal.tubes'), src: '/aluplex/gen-tubes-detail.jpg' },
-    { label: t('gal.chassis'), src: '/aluplex/gen-chassis-top.jpg' },
-    { label: t('gal.side'), src: '/aluplex/gen-side-angle.jpg' },
-    { label: t('gal.rear'), src: '/aluplex/gen-rear-panel.jpg' },
-    { label: t('gal.studio'), src: '/aluplex/gen-studio-scene.jpg' },
   ];
 
   const prev = () => {
