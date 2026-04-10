@@ -98,12 +98,13 @@ function Navigation({ lang, setLang, t }: { lang: Language; setLang: (l: Languag
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-20">
           {/* Logo */}
-          <a
+          <button
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             className="cursor-pointer flex items-center"
+            aria-label="ALUPLEXamp Home"
           >
             <img src="/aluplex/logo.png" alt="ALUPLEXamp" className="h-7 sm:h-8 w-auto" />
-          </a>
+          </button>
 
           {/* Desktop Nav */}
           <div className="hidden lg:flex items-center gap-1">
@@ -524,7 +525,6 @@ function generateWaveform(audioSrc: string): Promise<WaveformData> {
     audio.src = audioSrc;
     audio.addEventListener('loadedmetadata', () => {
       const dur = audio.duration;
-      const sampleInterval = Math.floor(dur / numBars);
       const audioCtx = new AudioContext();
       fetch(audioSrc)
         .then(r => r.arrayBuffer())
@@ -1290,7 +1290,7 @@ function GallerySection({ t }: { t: (k: string) => string }) {
     };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
-  });
+  }, [lightbox]);
 
   return (
     <section id="gallery" className="py-16 sm:py-24 lg:py-28 px-4 sm:px-6 lg:px-8" ref={ref}>
@@ -1530,7 +1530,7 @@ export default function Home() {
   const { lang, setLang, t } = useTranslation();
 
   return (
-    <div className="min-h-screen flex flex-col bg-background text-foreground">
+    <div className="min-h-screen flex flex-col bg-background text-foreground grain-overlay">
       <Navigation lang={lang} setLang={setLang} t={t} />
       <main className="flex-1">
         <HeroSection t={t} />
