@@ -16,8 +16,8 @@ export const translations: Record<string, Record<string, string>> = {
     'hero.title': 'ALUPLEXamp',
     'hero.subtitle': 'Váš podpis v každom tóne',
     'hero.description': 'Teplý svit vákuových lamp prežiarený hliníkom. ALUPLEXamp nie je len aparat — je to most medzi vašimi prstami a tónom, po ktorom ste celý život túžili. Každý kus sa rodí ručne. Každý rozpráva váš príbeh.',
-    'hero.cta.listen': 'Zažite zvuk',
-    'hero.cta.configure': 'Vytvorte si svoj',
+    'hero.cta.listen': 'Vypočúvaj ukážky',
+    'hero.cta.configure': 'Konfigurovať môj originál',
 
     // Value Props
     'vp.section': 'Čo nás odlišuje',
@@ -156,6 +156,10 @@ export const translations: Record<string, Record<string, string>> = {
     'cta.order': 'Objednajte teraz',
 
     // Footer
+    'footer.nav': 'Navigácia',
+    'footer.contact': 'Kontakt',
+    'footer.email.info': 'info@aluplexamp.com',
+    'footer.email.order': 'order@aluplexamp.com',
     'footer.tagline': 'Architektúra zvuku. Postavená ručne.',
     'footer.handwired': 'Ručne zapojené s vášňou na Slovensku',
     'footer.copyright': '© 2025 ALUPLEXamp. Všetky práva vyhradené.',
@@ -176,8 +180,8 @@ export const translations: Record<string, Record<string, string>> = {
     'hero.title': 'ALUPLEXamp',
     'hero.subtitle': 'Your signature in every note',
     'hero.description': 'The warm amber glow of vacuum tubes, framed in brushed aluminium. ALUPLEXamp isn\'t just an amplifier — it\'s the bridge between your fingers and the tone you\'ve been chasing your entire life. Each one is born by hand. Each one tells your story.',
-    'hero.cta.listen': 'Experience the Tone',
-    'hero.cta.configure': 'Build Yours',
+    'hero.cta.listen': 'Listen to Demos',
+    'hero.cta.configure': 'Configure My Original',
 
     // Value Props
     'vp.section': 'What Defines Us',
@@ -316,6 +320,10 @@ export const translations: Record<string, Record<string, string>> = {
     'cta.order': 'Order Now',
 
     // Footer
+    'footer.nav': 'Navigation',
+    'footer.contact': 'Contact',
+    'footer.email.info': 'info@aluplexamp.com',
+    'footer.email.order': 'order@aluplexamp.com',
     'footer.tagline': 'The Architecture of Sound. Built by Hand.',
     'footer.handwired': 'Handwired with soul in Slovakia',
     'footer.copyright': '© 2025 ALUPLEXamp. All rights reserved.',
@@ -336,8 +344,8 @@ export const translations: Record<string, Record<string, string>> = {
     'hero.title': 'ALUPLEXamp',
     'hero.subtitle': 'Ihre Signatur in jedem Ton',
     'hero.description': 'Das warme Bernsteinleuchten der Vakuumröhren, eingerahmt in gebürstetes Aluminium. ALUPLEXamp ist nicht nur ein Verstärker — er ist die Brücke zwischen Ihren Fingern und dem Ton, dem Sie Ihr ganzes Leben lang gefolgt sind. Jedes Stück entsteht von Hand. Jedes erzählt Ihre Geschichte.',
-    'hero.cta.listen': 'Den Ton erleben',
-    'hero.cta.configure': 'Ihren bauen',
+    'hero.cta.listen': 'Demos anhören',
+    'hero.cta.configure': 'Mein Original konfigurieren',
 
     // Value Props
     'vp.section': 'Was uns definiert',
@@ -476,6 +484,10 @@ export const translations: Record<string, Record<string, string>> = {
     'cta.order': 'Jetzt bestellen',
 
     // Footer
+    'footer.nav': 'Navigation',
+    'footer.contact': 'Kontakt',
+    'footer.email.info': 'info@aluplexamp.com',
+    'footer.email.order': 'order@aluplexamp.com',
     'footer.tagline': 'Die Architektur des Klangs. Von Hand gebaut.',
     'footer.handwired': 'Mit Seele handverdrahtet in der Slowakei',
     'footer.copyright': '© 2025 ALUPLEXamp. Alle Rechte vorbehalten.',
