@@ -548,10 +548,17 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
   const [duration, setDuration] = useState(0);
   const [waveforms, setWaveforms] = useState<WaveformData[]>([]);
   const [loaded, setLoaded] = useState(false);
+  const [volume, setVolume] = useState(0.8);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const waveformRef = useRef<HTMLCanvasElement | null>(null);
   const waveformContainerRef = useRef<HTMLDivElement | null>(null);
+  const progressRef = useRef<HTMLDivElement | null>(null);
   const isDragging = useRef(false);
+  const dragTarget = useRef<'waveform' | 'progress'>('waveform');
+
+  const trackAccents = ['rgba(58,154,92,1)', 'rgba(212,146,42,1)', 'rgba(198,40,40,1)', 'rgba(124,58,237,1)', 'rgba(8,145,178,1)'];
+  const trackAccentsFaded = ['rgba(58,154,92,0.15)', 'rgba(212,146,42,0.15)', 'rgba(198,40,40,0.15)', 'rgba(124,58,237,0.15)', 'rgba(8,145,178,0.15)'];
+  const trackAccentsMid = ['rgba(58,154,92,0.5)', 'rgba(212,146,42,0.5)', 'rgba(198,40,40,0.5)', 'rgba(124,58,237,0.5)', 'rgba(8,145,178,0.5)'];
 
   const tracks = [
     { name: t('sl.track1.name'), gear: t('sl.track1.gear'), settings: t('sl.track1.settings'), desc: t('sl.track1.desc'), src: '/audio/track1-woody-clean.wav', tag: 'CLEAN' },
@@ -568,6 +575,11 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
       setLoaded(true);
     });
   }, []);
+
+  // Set volume
+  useEffect(() => {
+    if (audioRef.current) audioRef.current.volume = volume;
+  }, [volume]);
 
   // Draw waveform on canvas
   useEffect(() => {
@@ -602,9 +614,8 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
       const barWidth = Math.max(1, (w - barGap * (numBars - 1)) / numBars);
       const progress = duration > 0 ? currentTime / duration : 0;
       const progressIdx = Math.floor(progress * numBars);
-
-      // Center line
       const centerY = h / 2;
+      const accent = trackAccents[activeTrack];
 
       for (let i = 0; i < numBars; i++) {
         const x = i * (barWidth + barGap);
@@ -612,40 +623,43 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
         const barH = Math.max(2, peak * (h * 0.42));
 
         if (i <= progressIdx) {
-          // Played portion — amber gradient
           const gradient = ctx.createLinearGradient(x, centerY - barH, x, centerY + barH);
-          gradient.addColorStop(0, '#e8a84a');
-          gradient.addColorStop(0.5, '#d4922a');
-          gradient.addColorStop(1, '#b07820');
+          gradient.addColorStop(0, accent);
+          gradient.addColorStop(0.5, trackAccentsMid[activeTrack]);
+          gradient.addColorStop(1, accent);
           ctx.fillStyle = gradient;
         } else {
-          // Unplayed portion — muted
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
         }
 
-        // Draw mirrored bars (top + bottom from center)
         ctx.beginPath();
         ctx.roundRect(x, centerY - barH, barWidth, barH * 2, barWidth / 2);
         ctx.fill();
       }
 
-      // Progress cursor line
+      // Progress cursor
       if (progress > 0 && progress < 1) {
         const cursorX = progressIdx * (barWidth + barGap) + barWidth / 2;
         ctx.beginPath();
-        ctx.strokeStyle = '#e8a84a';
+        ctx.strokeStyle = accent;
         ctx.lineWidth = 2;
-        ctx.shadowColor = 'rgba(212, 146, 42, 0.6)';
-        ctx.shadowBlur = 8;
+        ctx.shadowColor = trackAccentsMid[activeTrack];
+        ctx.shadowBlur = 10;
         ctx.moveTo(cursorX, 4);
         ctx.lineTo(cursorX, h - 4);
         ctx.stroke();
         ctx.shadowBlur = 0;
 
-        // Cursor dot
         ctx.beginPath();
-        ctx.fillStyle = '#e8a84a';
-        ctx.arc(cursorX, centerY, 4, 0, Math.PI * 2);
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowColor = accent;
+        ctx.shadowBlur = 12;
+        ctx.arc(cursorX, centerY, 5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.beginPath();
+        ctx.fillStyle = accent;
+        ctx.arc(cursorX, centerY, 3, 0, Math.PI * 2);
         ctx.fill();
       }
     };
@@ -685,6 +699,18 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
     }
   };
 
+  const playNext = () => {
+    const next = (activeTrack + 1) % tracks.length;
+    setCurrentTime(0);
+    playTrack(next);
+  };
+
+  const playPrev = () => {
+    const prev = (activeTrack - 1 + tracks.length) % tracks.length;
+    setCurrentTime(0);
+    playTrack(prev);
+  };
+
   const handleTimeUpdate = () => {
     if (!isDragging.current && audioRef.current) {
       setCurrentTime(audioRef.current.currentTime);
@@ -700,11 +726,14 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
   const handleEnded = () => {
     setPlaying(false);
     setCurrentTime(0);
+    playNext();
   };
 
   const seekToPosition = (e: React.MouseEvent<HTMLDivElement> | MouseEvent) => {
-    if (!audioRef.current || !duration || !waveformContainerRef.current) return;
-    const rect = waveformContainerRef.current.getBoundingClientRect();
+    if (!audioRef.current || !duration) return;
+    const ref = dragTarget.current === 'progress' ? progressRef.current : waveformContainerRef.current;
+    if (!ref) return;
+    const rect = ref.getBoundingClientRect();
     const x = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
     const pct = x / rect.width;
     audioRef.current.currentTime = pct * duration;
@@ -713,6 +742,7 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
 
   const handleWaveformMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     isDragging.current = true;
+    dragTarget.current = 'waveform';
     seekToPosition(e);
   };
 
@@ -748,12 +778,13 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
   };
 
   const currentTrack = tracks[activeTrack];
+  const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
     <section id="soundlib" className="py-16 sm:py-24 lg:py-28 px-4 sm:px-6 lg:px-8" ref={ref}>
       <audio ref={audioRef} onTimeUpdate={handleTimeUpdate} onLoadedMetadata={handleLoadedMetadata} onEnded={handleEnded} preload="metadata" />
 
-      <div className="max-w-3xl mx-auto">
+      <div className="max-w-4xl mx-auto">
         {/* Section Header */}
         <div className="text-center mb-10 sm:mb-14 fade-in-up">
           <div className="flex items-center justify-center gap-3 mb-4">
@@ -762,144 +793,240 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
             <div className="w-8 h-[2px] bg-primary" />
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4">{t('sl.title')}</h2>
-          <p className="text-muted-foreground mb-6 text-sm sm:text-base">{t('sl.subtitle')}</p>
-          <Badge className="px-4 py-1.5 bg-white/[0.04] border-white/[0.08] text-muted-foreground text-xs backdrop-blur-sm">
-            {t('sl.badge')}
-          </Badge>
+          <p className="text-muted-foreground mb-6 text-sm sm:text-base max-w-md mx-auto">{t('sl.subtitle')}</p>
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.04] border border-white/[0.08] backdrop-blur-sm">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
+            </span>
+            <span className="text-xs text-muted-foreground font-medium">{t('sl.badge')}</span>
+          </div>
         </div>
 
-        {/* Player Container */}
-        <div className="fade-in-up relative bg-card/80 border border-[#2a2a2a]/80 rounded-3xl overflow-hidden backdrop-blur-sm" style={{ transitionDelay: '100ms' }}>
-          {/* Ambient glow behind player */}
-          <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-[500px] h-[200px] bg-[radial-gradient(ellipse,rgba(212,146,42,0.06)_0%,transparent_70%)] pointer-events-none" />
-
-          {/* Track Selector Buttons */}
-          <div className="relative p-4 sm:p-6 pb-0">
-            <div className="flex flex-wrap gap-2">
+        <div className="fade-in-up lg:flex gap-6" style={{ transitionDelay: '100ms' }}>
+          {/* Track List */}
+          <div className="lg:w-[280px] xl:w-[300px] flex-shrink-0 mb-6 lg:mb-0">
+            <div className="bg-card/60 border border-[#2a2a2a]/60 rounded-2xl overflow-hidden backdrop-blur-sm">
               {tracks.map((track, i) => (
                 <button
                   key={i}
                   onClick={() => { if (i !== activeTrack) { setActiveTrack(i); setPlaying(false); setCurrentTime(0); } else { playTrack(i); } }}
-                  className={`waveform-track-btn px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl border text-[11px] sm:text-xs font-bold tracking-wider uppercase ${
-                    activeTrack === i
-                      ? 'active border-primary/50 bg-primary/10 text-primary'
-                      : 'border-[#2a2a2a] bg-white/[0.02] text-muted-foreground hover:text-foreground hover:border-[#3a3a3a]'
-                  }`}
+                  className="w-full flex items-center gap-3 px-4 py-3.5 text-left transition-all duration-300 hover:bg-white/[0.03] group"
+                  style={{
+                    background: activeTrack === i ? trackAccentsFaded[i] : undefined,
+                    borderBottom: i < tracks.length - 1 ? '1px solid rgba(255,255,255,0.04)' : undefined,
+                  }}
                 >
-                  {track.tag}
+                  {/* Track Number / Playing Indicator */}
+                  <div className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold transition-all duration-300"
+                    style={{
+                      background: activeTrack === i ? trackAccents[i] : 'rgba(255,255,255,0.04)',
+                      color: activeTrack === i ? '#0a0a0a' : 'rgba(138,133,128,0.7)',
+                    }}
+                  >
+                    {playing && activeTrack === i ? (
+                      <div className="flex items-end gap-[2px] h-3">
+                        <span className="w-[2px] rounded-full bg-current audio-bar" style={{ animationDelay: '0s' }} />
+                        <span className="w-[2px] rounded-full bg-current audio-bar" style={{ animationDelay: '0.2s' }} />
+                        <span className="w-[2px] rounded-full bg-current audio-bar" style={{ animationDelay: '0.1s' }} />
+                      </div>
+                    ) : (
+                      <span className="font-mono">{String(i + 1).padStart(2, '0')}</span>
+                    )}
+                  </div>
+
+                  {/* Track Info */}
+                  <div className="flex-1 min-w-0">
+                    <p className={`text-sm font-semibold truncate transition-colors duration-300 ${activeTrack === i ? 'text-foreground' : 'text-muted-foreground group-hover:text-foreground/80'}`}>
+                      {track.tag}
+                    </p>
+                    <p className="text-[11px] text-muted-foreground/50 truncate mt-0.5">
+                      {track.name}
+                    </p>
+                  </div>
+
+                  {/* Duration */}
+                  {waveforms[i] && (
+                    <span className="text-[11px] font-mono text-muted-foreground/40 flex-shrink-0 tabular-nums">
+                      {formatTime(waveforms[i].duration)}
+                    </span>
+                  )}
                 </button>
               ))}
             </div>
           </div>
 
-          {/* Track Info */}
-          <div className="relative px-4 sm:px-6 pt-5 sm:pt-6">
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex-1 min-w-0">
-                <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground truncate">
-                  {currentTrack.name}
-                </h3>
-                <p className="text-xs sm:text-sm text-muted-foreground mt-1 truncate">
-                  {currentTrack.gear}
-                </p>
-              </div>
-              {/* EQ Visualizer (playing state) */}
-              {playing && (
-                <div className="flex items-end gap-[3px] h-6 sm:h-8 flex-shrink-0 mt-1">
-                  <div className="w-[3px] rounded-full bg-primary eq-bar-1" />
-                  <div className="w-[3px] rounded-full bg-primary eq-bar-2" />
-                  <div className="w-[3px] rounded-full bg-primary eq-bar-3" />
-                  <div className="w-[3px] rounded-full bg-primary eq-bar-4" />
-                  <div className="w-[3px] rounded-full bg-primary eq-bar-5" />
-                </div>
-              )}
-            </div>
-          </div>
+          {/* Main Player */}
+          <div className="flex-1 min-w-0">
+            <div className="relative bg-card/80 border border-[#2a2a2a]/80 rounded-2xl overflow-hidden backdrop-blur-sm">
+              {/* Accent glow behind player */}
+              <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-[400px] h-[160px] pointer-events-none transition-colors duration-700"
+                style={{ background: `radial-gradient(ellipse, ${trackAccentsFaded[activeTrack]} 0%, transparent 70%)` }}
+              />
 
-          {/* Waveform Display */}
-          <div className="relative px-4 sm:px-6 pt-4 sm:pt-5">
-            <div
-              ref={waveformContainerRef}
-              className={`relative w-full h-24 sm:h-28 lg:h-32 rounded-2xl bg-white/[0.02] border border-white/[0.04] cursor-pointer overflow-hidden ${playing ? 'waveform-playing' : ''}`}
-              onMouseDown={handleWaveformMouseDown}
-              onTouchStart={(e) => { isDragging.current = true; if (e.touches[0]) seekToPosition(e.touches[0] as unknown as MouseEvent); }}
-            >
-              <canvas ref={waveformRef} className="absolute inset-0 w-full h-full" />
-              {!loaded && (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="flex gap-1">
-                    {[...Array(20)].map((_, i) => (
-                      <div key={i} className="w-1 bg-primary/30 rounded-full animate-pulse" style={{ height: `${8 + Math.random() * 40}px`, animationDelay: `${i * 0.05}s` }} />
-                    ))}
+              {/* Now Playing Header */}
+              <div className="relative px-5 sm:px-6 pt-5 sm:pt-6 pb-4">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2.5 mb-2">
+                      <span className="inline-block w-2 h-2 rounded-full transition-colors duration-500" style={{ background: trackAccents[activeTrack] }} />
+                      <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.15em] text-muted-foreground/60">{currentTrack.tag}</span>
+                    </div>
+                    <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground truncate leading-tight">
+                      {currentTrack.name}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground/70 mt-1.5 truncate">
+                      {currentTrack.gear}
+                    </p>
                   </div>
+                  {/* EQ Visualizer */}
+                  {playing && (
+                    <div className="flex items-end gap-[3px] h-8 sm:h-10 flex-shrink-0 mt-1 px-2">
+                      {[0,1,2,3,4].map((b) => (
+                        <div key={b} className="w-[3px] rounded-full transition-colors duration-500"
+                          style={{ background: trackAccents[activeTrack], animation: `eqBar${b + 1} ${1.2 - b * 0.08}s ease-in-out infinite ${b * 0.1}s` }}
+                        />
+                      ))}
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
+              </div>
 
-            {/* Time Display */}
-            <div className="flex items-center justify-between mt-2.5 px-1">
-              <span className="text-[11px] sm:text-xs font-mono text-muted-foreground/60 tabular-nums">
-                {formatTime(currentTime)}
-              </span>
-              <span className="text-[11px] sm:text-xs font-mono text-muted-foreground/60 tabular-nums">
-                {formatTime(duration)}
-              </span>
-            </div>
-          </div>
+              {/* Waveform Display */}
+              <div className="relative px-5 sm:px-6">
+                <div
+                  ref={waveformContainerRef}
+                  className={`relative w-full h-24 sm:h-28 lg:h-32 rounded-xl bg-white/[0.02] border border-white/[0.05] cursor-pointer overflow-hidden transition-all duration-300 ${playing ? 'border-white/[0.08]' : ''}`}
+                  onMouseDown={handleWaveformMouseDown}
+                  onTouchStart={(e) => { isDragging.current = true; if (e.touches[0]) seekToPosition(e.touches[0] as unknown as MouseEvent); }}
+                >
+                  <canvas ref={waveformRef} className="absolute inset-0 w-full h-full" />
+                  {!loaded && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="flex gap-1">
+                        {[24, 38, 16, 42, 12, 34, 28, 44, 18, 36, 20, 40, 14, 30, 26, 10, 32, 22, 46, 20].map((h, i) => (
+                          <div key={i} className="w-1 bg-primary/30 rounded-full animate-pulse" style={{ height: `${h}px`, animationDelay: `${i * 0.05}s` }} />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
 
-          {/* Controls Row */}
-          <div className="relative px-4 sm:px-6 pt-3 pb-4 sm:pb-6">
-            <div className="flex items-center gap-4">
-              {/* Large Play Button */}
-              <button
-                onClick={togglePlay}
-                className={`flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-105 ${
-                  playing
-                    ? 'bg-primary text-primary-foreground play-btn-pulse shadow-lg shadow-primary/30'
-                    : 'bg-primary text-primary-foreground hover:shadow-lg hover:shadow-primary/20'
-                }`}
-                aria-label={playing ? 'Pause' : 'Play'}
-              >
-                {playing ? (
-                  <svg className="size-5 sm:size-6" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
-                  </svg>
-                ) : (
-                  <svg className="size-5 sm:size-6 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M8 5v14l11-7z" />
-                  </svg>
-                )}
-              </button>
+                {/* Time Display */}
+                <div className="flex items-center justify-between mt-2.5 px-0.5">
+                  <span className="text-[11px] sm:text-xs font-mono text-muted-foreground/50 tabular-nums">
+                    {formatTime(currentTime)}
+                  </span>
+                  <span className="text-[11px] sm:text-xs font-mono text-muted-foreground/50 tabular-nums">
+                    {formatTime(duration)}
+                  </span>
+                </div>
+              </div>
 
-              {/* Track Settings + Description */}
-              <div className="flex-1 min-w-0">
-                <p className="text-[10px] sm:text-[11px] font-mono text-muted-foreground/50 uppercase tracking-wider truncate">
-                  {currentTrack.settings}
-                </p>
-                <p className="text-xs sm:text-sm text-muted-foreground mt-1 leading-relaxed line-clamp-2">
-                  {currentTrack.desc}
-                </p>
+              {/* Controls */}
+              <div className="relative px-5 sm:px-6 pt-4 pb-5 sm:pb-6">
+                {/* Progress Bar */}
+                <div
+                  ref={progressRef}
+                  className="relative w-full h-1 bg-white/[0.06] rounded-full mb-5 cursor-pointer group"
+                  onMouseDown={(e) => {
+                    dragTarget.current = 'progress';
+                    isDragging.current = true;
+                    seekToPosition(e);
+                  }}
+                >
+                  <div className="absolute inset-0 h-full rounded-full transition-all duration-150"
+                    style={{ width: `${progress}%`, background: trackAccents[activeTrack] }}
+                  />
+                  <div className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 shadow-lg"
+                    style={{ left: `calc(${progress}% - 6px)`, background: trackAccents[activeTrack], boxShadow: `0 0 8px ${trackAccentsMid[activeTrack]}` }}
+                  />
+                </div>
+
+                <div className="flex items-center gap-3 sm:gap-4">
+                  {/* Volume */}
+                  <div className="hidden sm:flex items-center gap-2 flex-shrink-0">
+                    <svg className="w-4 h-4 text-muted-foreground/50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.536 8.464a5 5 0 010 7.072M17.95 6.05a8 8 0 010 11.9M6.5 8H4a1 1 0 00-1 1v6a1 1 0 001 1h2.5l4.5 4V4l-4.5 4z" />
+                    </svg>
+                    <input
+                      type="range"
+                      min="0"
+                      max="1"
+                      step="0.01"
+                      value={volume}
+                      onChange={(e) => setVolume(parseFloat(e.target.value))}
+                      className="w-20 h-1 accent-[#d4922a] cursor-pointer"
+                      aria-label="Volume"
+                    />
+                  </div>
+
+                  {/* Prev / Play / Next */}
+                  <div className="flex items-center gap-2 sm:gap-3 mx-auto">
+                    <button
+                      onClick={playPrev}
+                      className="w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center text-muted-foreground/60 hover:text-foreground hover:bg-white/[0.05] transition-all duration-200"
+                      aria-label="Previous track"
+                    >
+                      <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z" />
+                      </svg>
+                    </button>
+
+                    <button
+                      onClick={togglePlay}
+                      className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-105 ${
+                        playing
+                          ? 'text-primary-foreground play-btn-pulse shadow-lg'
+                          : 'text-primary-foreground hover:shadow-lg'
+                      }`}
+                      style={{
+                        background: trackAccents[activeTrack],
+                        boxShadow: playing ? `0 0 24px ${trackAccentsMid[activeTrack]}` : undefined,
+                      }}
+                      aria-label={playing ? 'Pause' : 'Play'}
+                    >
+                      {playing ? (
+                        <svg className="size-5 sm:size-6" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
+                        </svg>
+                      ) : (
+                        <svg className="size-5 sm:size-6 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M8 5v14l11-7z" />
+                        </svg>
+                      )}
+                    </button>
+
+                    <button
+                      onClick={playNext}
+                      className="w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center text-muted-foreground/60 hover:text-foreground hover:bg-white/[0.05] transition-all duration-200"
+                      aria-label="Next track"
+                    >
+                      <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" />
+                      </svg>
+                    </button>
+                  </div>
+
+                  {/* Spacer for balance */}
+                  <div className="hidden sm:block w-[120px] flex-shrink-0" />
+                </div>
+              </div>
+
+              {/* Track Description */}
+              <div className="relative px-5 sm:px-6 pb-5 sm:pb-6">
+                <div className="rounded-xl bg-white/[0.02] border border-white/[0.04] px-4 py-3">
+                  <p className="text-[10px] sm:text-[11px] font-mono uppercase tracking-wider mb-1.5" style={{ color: trackAccentsMid[activeTrack] }}>
+                    {currentTrack.settings}
+                  </p>
+                  <p className="text-xs sm:text-sm text-muted-foreground/70 leading-relaxed">
+                    {currentTrack.desc}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
         </div>
-
-        {/* Now Playing Pill */}
-        {playing && (
-          <div className="mt-6 flex justify-center">
-            <div className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-white/[0.03] border border-white/[0.06]">
-              <div className="flex items-end gap-[2px] h-3.5">
-                <span className="w-[2px] rounded-full bg-primary/60 audio-bar" style={{ animationDelay: '0s' }} />
-                <span className="w-[2px] rounded-full bg-primary/60 audio-bar" style={{ animationDelay: '0.2s' }} />
-                <span className="w-[2px] rounded-full bg-primary/60 audio-bar" style={{ animationDelay: '0.1s' }} />
-                <span className="w-[2px] rounded-full bg-primary/60 audio-bar" style={{ animationDelay: '0.3s' }} />
-              </div>
-              <span className="text-xs text-muted-foreground font-medium">
-                {t('sl.nowplaying')}: {currentTrack.name}
-              </span>
-            </div>
-          </div>
-        )}
       </div>
     </section>
   );
