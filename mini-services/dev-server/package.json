@@ -1,0 +1,1 @@
+{"name":"aluplex-dev","scripts":{"dev":"next dev -p 3000"},"dependencies":{"next":"^16.1.3","react":"^19.1.0","react-dom":"^19.1.0"}}
