@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Heart, Target, Shield, Music, ThermometerSun, Weight, Magnet, ShieldCheck,
   Zap, Power, Mic2, Volume2, Headphones, Settings, ChevronDown, ChevronUp,
-  ChevronLeft, ChevronRight, Menu, X, Play, Pause, Wrench, ExternalLink,
+  ChevronLeft, ChevronRight, Menu, X, Play, Pause, Wrench,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -199,57 +199,75 @@ function HeroSection({ t }: { t: (k: string) => string }) {
   };
 
   return (
-    <section 
-      className="relative min-h-screen flex items-center justify-center overflow-hidden"
-      style={{ backgroundImage: 'url(/aluplex/aluplex-1.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }}
-    >
-      {/* Dark overlay for text readability */}
-      <div className="absolute inset-0 bg-[#0a0a0a]/70" />
-      {/* Ambient glow */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-[radial-gradient(ellipse,rgba(212,146,42,0.08)_0%,transparent_70%)] pointer-events-none" />
-      <div className="absolute bottom-1/4 left-1/4 w-[300px] h-[200px] bg-[radial-gradient(ellipse,rgba(212,146,42,0.04)_0%,transparent_70%)] pointer-events-none" />
+    <section className="relative min-h-screen flex items-center overflow-hidden bg-[#0a0a0a]">
+      {/* Ambient glow behind content */}
+      <div className="absolute top-0 right-0 w-2/3 h-full bg-[radial-gradient(ellipse_at_70%_40%,rgba(212,146,42,0.06)_0%,transparent_60%)] pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-1/2 h-1/2 bg-[radial-gradient(ellipse,rgba(212,146,42,0.03)_0%,transparent_60%)] pointer-events-none" />
 
-      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 text-center pt-20">
-        <Badge className="mb-6 px-4 py-1.5 text-sm bg-primary/10 text-primary border-primary/20 hover:bg-primary/15">
-          {t('hero.badge')}
-        </Badge>
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32">
+        <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+          {/* Left — Text content */}
+          <div className="order-2 lg:order-1">
+            <Badge className="mb-6 px-4 py-1.5 text-sm bg-primary/10 text-primary border-primary/20 hover:bg-primary/15">
+              {t('hero.badge')}
+            </Badge>
 
-        <h1 className="text-5xl sm:text-7xl md:text-8xl font-bold tracking-tighter mb-4 text-gradient-amber-shimmer">
-          {t('hero.title')}
-        </h1>
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tighter mb-5 text-gradient-amber-shimmer leading-[1.1]">
+              {t('hero.title')}
+            </h1>
 
-        <p className="text-lg sm:text-xl md:text-2xl font-light text-muted-foreground mb-6 tracking-wide">
-          {t('hero.subtitle')}
-        </p>
+            <p className="text-base sm:text-lg md:text-xl font-light text-muted-foreground mb-4 tracking-wide">
+              {t('hero.subtitle')}
+            </p>
 
-        <p className="text-sm sm:text-base text-muted-foreground/80 max-w-2xl mx-auto mb-10 leading-relaxed">
-          {t('hero.description')}
-        </p>
+            <p className="text-sm sm:text-base text-muted-foreground/80 max-w-lg mb-10 leading-relaxed">
+              {t('hero.description')}
+            </p>
 
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <Button
-            size="lg"
-            onClick={() => scrollTo('soundlib')}
-            className="bg-primary text-primary-foreground hover:bg-primary/90 px-8 py-6 text-base font-semibold rounded-lg shadow-lg shadow-primary/20"
-          >
-            {t('hero.cta.listen')}
-            <ChevronDown className="size-4 ml-1" />
-          </Button>
-          <Button
-            variant="outline"
-            size="lg"
-            onClick={() => scrollTo('config')}
-            className="border-[#2a2a2a] text-foreground hover:bg-white/5 hover:text-foreground px-8 py-6 text-base rounded-lg"
-          >
-            {t('hero.cta.configure')}
-            <Settings className="size-4 ml-1" />
-          </Button>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+              <Button
+                size="lg"
+                onClick={() => scrollTo('soundlib')}
+                className="bg-primary text-primary-foreground hover:bg-primary/90 px-8 py-6 text-base font-semibold rounded-lg shadow-lg shadow-primary/20"
+              >
+                {t('hero.cta.listen')}
+                <ChevronDown className="size-4 ml-1" />
+              </Button>
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={() => scrollTo('config')}
+                className="border-[#2a2a2a] text-foreground hover:bg-white/5 hover:text-foreground px-8 py-6 text-base rounded-lg"
+              >
+                {t('hero.cta.configure')}
+                <Settings className="size-4 ml-1" />
+              </Button>
+            </div>
+          </div>
+
+          {/* Right — Product image */}
+          <div className="order-1 lg:order-2 relative">
+            <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-black/50 border border-[#2a2a2a]/50">
+              <img
+                src="/aluplex/aluplex-56.jpg"
+                alt="ALUPLEXamp — British Roar Edition"
+                className="w-full h-auto object-cover"
+              />
+              {/* Subtle vignette overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a]/30 via-transparent to-[#0a0a0a]/10" />
+              {/* Bottom amber glow line */}
+              <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+            </div>
+            {/* Decorative floating accent */}
+            <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute -top-4 -left-4 w-24 h-24 bg-primary/5 rounded-full blur-2xl pointer-events-none" />
+          </div>
         </div>
       </div>
 
       {/* Bouncing scroll indicator */}
-      <div className="absolute bottom-8 left-1/2 bounce-chevron">
-        <ChevronDown className="size-6 text-muted-foreground/50" />
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 bounce-chevron">
+        <ChevronDown className="size-6 text-muted-foreground/40" />
       </div>
     </section>
   );
@@ -602,59 +620,7 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
   );
 }
 
-// ========== VIDEO SECTION ==========
 
-function VideoSection({ t }: { t: (k: string) => string }) {
-  const ref = useScrollAnimation();
-  const [showEmbed, setShowEmbed] = useState(false);
-
-  return (
-    <section className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8" ref={ref}>
-      <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-8 fade-in-up">
-          <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">{t('video.title')}</h2>
-          <p className="text-muted-foreground">{t('video.subtitle')}</p>
-        </div>
-
-        <div className="fade-in-up relative aspect-video rounded-2xl overflow-hidden border border-[#2a2a2a]" style={{ transitionDelay: '100ms' }}>
-          {showEmbed ? (
-            <iframe
-              src="https://www.youtube.com/embed/zp_MugLZ8X4?autoplay=1"
-              title="ALUPLEXamp Sound Test"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              className="absolute inset-0 w-full h-full"
-            />
-          ) : (
-            <button
-              onClick={() => setShowEmbed(true)}
-              className="absolute inset-0 w-full h-full cursor-pointer group"
-              aria-label="Play video"
-            >
-              {/* Background image */}
-              <img src="/aluplex/aluplex-109.jpg" alt="ALUPLEXamp Video" className="absolute inset-0 w-full h-full object-cover" />
-              {/* Dark overlay */}
-              <div className="absolute inset-0 bg-[#0a0a0a]/50" />
-
-              {/* Play button */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center group-hover:bg-primary/30 group-hover:scale-110 transition-all duration-300">
-                  <Play className="size-6 sm:size-8 text-primary ml-1" />
-                </div>
-              </div>
-
-              {/* Label */}
-              <div className="absolute bottom-4 left-4 flex items-center gap-2 text-muted-foreground text-xs">
-                <ExternalLink className="size-3" />
-                <span>YouTube</span>
-              </div>
-            </button>
-          )}
-        </div>
-      </div>
-    </section>
-  );
-}
 
 // ========== CONFIGURATOR ==========
 
@@ -1059,8 +1025,6 @@ export default function Home() {
         <SoundArchitecture t={t} />
         <SectionDivider />
         <SoundLibrary t={t} />
-        <SectionDivider />
-        <VideoSection t={t} />
         <SectionDivider />
         <ConfiguratorSection t={t} />
         <SectionDivider />
