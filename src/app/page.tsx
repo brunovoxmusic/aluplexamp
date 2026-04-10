@@ -221,10 +221,9 @@ function HeroSection({ t }: { t: (k: string) => string }) {
           </div>
         ))}
 
-        {/* Dramatic multi-layer overlay — darker for contrast */}
-        <div className="absolute inset-0 bg-[#050505]/55" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/40 to-[#050505]/70" />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#050505]/60 via-transparent to-[#050505]/30" />
+        {/* Layered overlay — ensures text readability over slideshow */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/50 to-[#050505]/60" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#050505]/50 via-transparent to-[#050505]/40" />
 
         {/* Vignette effect for cinematic depth */}
         <div className="absolute inset-0 hero-vignette" />
