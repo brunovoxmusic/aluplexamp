@@ -190,7 +190,15 @@ function Navigation({ lang, setLang, t }: { lang: Language; setLang: (l: Languag
   );
 }
 
-// ========== HERO SECTION (Complete Redesign) ==========
+// ========== HERO SECTION (Slideshow Redesign) ==========
+
+const HERO_SLIDES = [
+  '/aluplex/aluplex-1.jpg',
+  '/aluplex/aluplex-56.jpg',
+  '/aluplex/DSC6821.jpg',
+  '/aluplex/aluplex-138.jpg',
+  '/aluplex/DSC6775.jpg',
+];
 
 function HeroSection({ t }: { t: (k: string) => string }) {
   const scrollTo = (id: string) => {
@@ -199,57 +207,65 @@ function HeroSection({ t }: { t: (k: string) => string }) {
   };
 
   return (
-    <section className="relative min-h-screen flex items-end sm:items-center overflow-hidden bg-[#0a0a0a]">
-      {/* Background Image - full bleed */}
-      <div className="absolute inset-0 z-0">
-        <img
-          src="/aluplex/aluplex-1.jpg"
-          alt="ALUPLEXamp"
-          className="w-full h-full object-cover hero-img-zoom"
-        />
-        {/* Multi-layer gradient overlay for text readability */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a] via-[#0a0a0a]/80 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/40 to-[#0a0a0a]/60" />
+    <section className="relative min-h-screen flex items-center overflow-hidden bg-[#0a0a0a]">
+      {/* Slideshow Background — 5 images with CSS fade cycle */}
+      <div className="absolute inset-0 z-0" aria-hidden="true">
+        {HERO_SLIDES.map((src, i) => (
+          <div key={i} className="hero-slide">
+            <img
+              src={src}
+              alt=""
+              className="w-full h-full object-cover"
+            />
+          </div>
+        ))}
+
+        {/* Multi-layer overlay for text readability */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a] via-[#0a0a0a]/75 to-[#0a0a0a]/30" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/30 to-[#0a0a0a]/50" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0a]/40 via-transparent to-transparent" />
+
         {/* Amber glow accent */}
-        <div className="absolute top-1/3 right-1/4 w-[600px] h-[400px] bg-[radial-gradient(ellipse,rgba(212,146,42,0.08)_0%,transparent_70%)] pointer-events-none" />
+        <div className="absolute top-1/3 right-1/4 w-[600px] h-[400px] bg-[radial-gradient(ellipse,rgba(212,146,42,0.06)_0%,transparent_70%)] pointer-events-none" />
       </div>
 
       {/* Decorative grid pattern */}
       <div className="absolute inset-0 hero-grid-pattern pointer-events-none opacity-[0.03]" />
 
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20 sm:pb-16 pt-32 sm:pt-0">
+      {/* Content — left aligned with generous top spacing */}
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 sm:py-36 lg:py-40">
         <div className="max-w-2xl">
           {/* Badge */}
-          <div className="hero-fade-item" style={{ animationDelay: '0.2s' }}>
-            <Badge className="mb-6 sm:mb-8 px-4 py-2 text-xs sm:text-sm bg-primary/10 text-primary border-primary/20 hover:bg-primary/15 backdrop-blur-sm">
+          <div className="hero-fade-item" style={{ animationDelay: '0.3s' }}>
+            <Badge className="mb-8 sm:mb-10 px-4 py-2 text-xs sm:text-sm bg-primary/10 text-primary border-primary/20 hover:bg-primary/15 backdrop-blur-sm">
               <Sparkles className="size-3.5 mr-2" />
               {t('hero.badge')}
             </Badge>
           </div>
 
           {/* Title */}
-          <div className="hero-fade-item" style={{ animationDelay: '0.4s' }}>
+          <div className="hero-fade-item" style={{ animationDelay: '0.5s' }}>
             <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tighter mb-4 sm:mb-6 text-gradient-amber-shimmer leading-[1.05] break-words">
               {t('hero.title')}
             </h1>
           </div>
 
           {/* Subtitle */}
-          <div className="hero-fade-item" style={{ animationDelay: '0.6s' }}>
+          <div className="hero-fade-item" style={{ animationDelay: '0.7s' }}>
             <p className="text-lg sm:text-xl md:text-2xl font-light text-foreground/90 mb-3 sm:mb-4 tracking-wide">
               {t('hero.subtitle')}
             </p>
           </div>
 
           {/* Description */}
-          <div className="hero-fade-item" style={{ animationDelay: '0.7s' }}>
+          <div className="hero-fade-item" style={{ animationDelay: '0.8s' }}>
             <p className="text-sm sm:text-base text-muted-foreground max-w-lg mb-8 sm:mb-12 leading-relaxed">
               {t('hero.description')}
             </p>
           </div>
 
           {/* Key specs strip */}
-          <div className="hero-fade-item flex flex-wrap items-center gap-3 sm:gap-4 mb-8 sm:mb-12" style={{ animationDelay: '0.8s' }}>
+          <div className="hero-fade-item flex flex-wrap items-center gap-3 sm:gap-4 mb-8 sm:mb-12" style={{ animationDelay: '0.9s' }}>
             <div className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-white/[0.05] border border-white/[0.08] backdrop-blur-sm">
               <Zap className="size-3.5 sm:size-4 text-primary" />
               <span className="text-xs sm:text-sm font-semibold text-foreground/80">30W</span>
@@ -269,7 +285,7 @@ function HeroSection({ t }: { t: (k: string) => string }) {
           </div>
 
           {/* CTA Buttons */}
-          <div className="hero-fade-item flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4" style={{ animationDelay: '0.9s' }}>
+          <div className="hero-fade-item flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4" style={{ animationDelay: '1.0s' }}>
             <Button
               size="lg"
               onClick={() => scrollTo('specs')}

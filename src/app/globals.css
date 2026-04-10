@@ -171,6 +171,14 @@
   to { transform: scale(1); }
 }
 
+@keyframes heroSlideFadeIn {
+  0% { opacity: 0; transform: scale(1.06); }
+  8% { opacity: 1; transform: scale(1); }
+  30% { opacity: 1; transform: scale(1); }
+  38% { opacity: 0; transform: scale(1.02); }
+  100% { opacity: 0; transform: scale(1.02); }
+}
+
 @keyframes shimmer {
   0% { background-position: -200% center; }
   100% { background-position: 200% center; }
@@ -213,6 +221,19 @@
     linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
   background-size: 60px 60px;
 }
+
+/* ========== Hero Slideshow ========== */
+.hero-slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  animation: heroSlideFadeIn 25s ease-in-out infinite;
+}
+.hero-slide:nth-child(1) { animation-delay: 0s; }
+.hero-slide:nth-child(2) { animation-delay: 5s; }
+.hero-slide:nth-child(3) { animation-delay: 10s; }
+.hero-slide:nth-child(4) { animation-delay: 15s; }
+.hero-slide:nth-child(5) { animation-delay: 20s; }
 
 /* ========== Gradient Text ========== */
 
