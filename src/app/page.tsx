@@ -249,7 +249,7 @@ function HeroSection({ t }: { t: (k: string) => string }) {
 
         {/* Title — larger, more dramatic */}
         <div className="hero-fade-item" style={{ animationDelay: '0.4s' }}>
-          <h1 className="max-w-3xl text-5xl sm:text-7xl md:text-8xl lg:text-[7rem] xl:text-[8.5rem] font-bold tracking-[-0.04em] mb-6 sm:mb-8 text-gradient-amber-shimmer leading-[0.9]">
+          <h1 className="max-w-none text-5xl sm:text-7xl md:text-8xl lg:text-[7rem] xl:text-[8.5rem] font-bold tracking-[-0.04em] mb-6 sm:mb-8 text-gradient-amber-shimmer leading-[0.9]">
             {t('hero.title')}
           </h1>
         </div>
