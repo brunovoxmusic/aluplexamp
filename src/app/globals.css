@@ -661,3 +661,24 @@ img {
 html {
   scrollbar-gutter: stable;
 }
+
+/* ========== Scroll Progress Bar ========== */
+
+.scroll-progress-fill {
+  background: linear-gradient(90deg, #CC9200, #FFB800, #FFC933);
+  box-shadow: 0 0 8px rgba(255, 184, 0, 0.4), 0 0 20px rgba(255, 184, 0, 0.15);
+  transition: width 80ms linear;
+  will-change: width;
+}
+
+/* Nav inline progress bar (at bottom of nav) */
+.nav-progress-fill {
+  background: linear-gradient(90deg, #CC9200 0%, #FFB800 50%, #FFC933 100%);
+  box-shadow: 0 0 6px rgba(255, 184, 0, 0.3);
+  will-change: width;
+}
+
+/* Active nav link text glow */
+.nav-link-active {
+  text-shadow: 0 0 20px rgba(255, 184, 0, 0.15);
+}

@@ -71,11 +71,64 @@ function useShowScrollTop(threshold = 500) {
   return show;
 }
 
+/** Returns 0–1 scroll progress of the whole document */
+function useScrollProgress() {
+  const [progress, setProgress] = useState(0);
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      setProgress(docHeight > 0 ? Math.min(scrollTop / docHeight, 1) : 0);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+  return progress;
+}
+
+/** Tracks which section id is currently in the viewport */
+function useActiveSection(sectionIds: string[]) {
+  const [active, setActive] = useState('');
+  useEffect(() => {
+    const observers: IntersectionObserver[] = [];
+    sectionIds.forEach((id) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) setActive(id);
+        },
+        { threshold: 0.15, rootMargin: '-80px 0px -40% 0px' }
+      );
+      observer.observe(el);
+      observers.push(observer);
+    });
+    return () => observers.forEach((o) => o.disconnect());
+  }, []);
+  return active;
+}
+
+// ========== SCROLL PROGRESS BAR ==========
+
+function ScrollProgressBar() {
+  const progress = useScrollProgress();
+  return (
+    <div className="fixed top-0 left-0 right-0 z-[60] h-[2px] bg-transparent pointer-events-none">
+      <div
+        className="h-full scroll-progress-fill"
+        style={{ width: `${progress * 100}%` }}
+      />
+    </div>
+  );
+}
+
 // ========== NAVIGATION ==========
 
 function Navigation({ lang, setLang, t }: { lang: Language; setLang: (l: Language) => void; t: (k: string) => string }) {
   const scrolled = useScrolled(50);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const progress = useScrollProgress();
 
   const navLinks = [
     { id: 'soundlib', label: t('nav.soundlib') },
@@ -85,6 +138,9 @@ function Navigation({ lang, setLang, t }: { lang: Language; setLang: (l: Languag
     { id: 'faq', label: t('nav.faq') },
     { id: 'contact', label: t('nav.contact') },
   ];
+
+  const sectionIds = navLinks.map((l) => l.id);
+  const activeSection = useActiveSection(sectionIds);
 
   const scrollTo = (id: string) => {
     setMobileOpen(false);
@@ -96,6 +152,14 @@ function Navigation({ lang, setLang, t }: { lang: Language; setLang: (l: Languag
 
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? 'glass-active shadow-lg shadow-black/20' : 'bg-transparent'}`}>
+      {/* Inline scroll progress — sits at bottom of nav bar */}
+      <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-white/[0.04]">
+        <div
+          className="h-full nav-progress-fill transition-[width] duration-100 ease-out"
+          style={{ width: `${progress * 100}%` }}
+        />
+      </div>
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-20">
           {/* Logo */}
@@ -108,16 +172,32 @@ function Navigation({ lang, setLang, t }: { lang: Language; setLang: (l: Languag
           </button>
 
           {/* Desktop Nav */}
-          <div className="hidden lg:flex items-center gap-1">
-            {navLinks.map((link) => (
-              <button
-                key={link.id}
-                onClick={() => scrollTo(link.id)}
-                className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors duration-200 rounded-lg hover:bg-white/5"
-              >
-                {link.label}
-              </button>
-            ))}
+          <div className="hidden lg:flex items-center gap-0.5">
+            {navLinks.map((link) => {
+              const isActive = activeSection === link.id;
+              return (
+                <button
+                  key={link.id}
+                  onClick={() => scrollTo(link.id)}
+                  className={`relative px-3.5 xl:px-4 py-2 text-sm rounded-lg transition-all duration-300 group ${
+                    isActive
+                      ? 'text-primary font-medium'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                  aria-current={isActive ? 'true' : undefined}
+                >
+                  {/* Active indicator dot */}
+                  <span className={`absolute bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary transition-all duration-300 ${
+                    isActive ? 'opacity-100 scale-100' : 'opacity-0 scale-0'
+                  }`} />
+                  {/* Active underline glow */}
+                  <span className={`absolute bottom-0 left-2 right-2 h-[2px] rounded-full transition-all duration-300 ${
+                    isActive ? 'bg-primary/40 shadow-[0_0_8px_rgba(255,184,0,0.3)]' : 'bg-transparent'
+                  }`} />
+                  <span className={isActive ? 'nav-link-active' : ''}>{link.label}</span>
+                </button>
+              );
+            })}
           </div>
 
           {/* Right side: Language + Mobile toggle */}
@@ -168,17 +248,32 @@ function Navigation({ lang, setLang, t }: { lang: Language; setLang: (l: Languag
                     </button>
                   ))}
                 </div>
-                {/* Mobile Nav Links */}
-                <div className="flex flex-col gap-1">
-                  {navLinks.map((link) => (
-                    <button
-                      key={link.id}
-                      onClick={() => scrollTo(link.id)}
-                      className="text-left px-4 py-3.5 text-sm text-muted-foreground hover:text-foreground hover:bg-white/5 rounded-xl transition-all duration-200"
-                    >
-                      {link.label}
-                    </button>
-                  ))}
+                {/* Mobile Nav Links — with active indicator + mini progress per section */}
+                <div className="flex flex-col gap-0.5">
+                  {navLinks.map((link, i) => {
+                    const isActive = activeSection === link.id;
+                    return (
+                      <button
+                        key={link.id}
+                        onClick={() => scrollTo(link.id)}
+                        className={`relative text-left pl-4 pr-4 py-3 text-sm rounded-xl transition-all duration-300 ${
+                          isActive
+                            ? 'bg-primary/[0.08] text-primary font-medium'
+                            : 'text-muted-foreground hover:text-foreground hover:bg-white/5'
+                        }`}
+                      >
+                        {/* Active left accent bar */}
+                        <span className={`absolute left-0 top-2 bottom-2 w-[3px] rounded-full transition-all duration-300 ${
+                          isActive ? 'bg-primary shadow-[0_0_8px_rgba(255,184,0,0.4)]' : 'bg-transparent'
+                        }`} />
+                        {/* Section number */}
+                        <span className={`inline-block w-5 mr-3 text-xs font-mono transition-colors duration-300 ${
+                          isActive ? 'text-primary/60' : 'text-muted-foreground/30'
+                        }`}>{String(i + 1).padStart(2, '0')}</span>
+                        {link.label}
+                      </button>
+                    );
+                  })}
                 </div>
                 <SheetClose className="absolute top-4 right-4 text-muted-foreground hover:text-foreground">
                   <X className="size-5" />
@@ -1948,6 +2043,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground grain-overlay">
+      <ScrollProgressBar />
       <Navigation lang={lang} setLang={setLang} t={t} />
       <main className="flex-1">
         <HeroSection t={t} />
