@@ -150,6 +150,25 @@ export const translations: Record<string, Record<string, string>> = {
     'cta.contact': 'Napíšte nám',
     'cta.order': 'Objednajte teraz',
 
+    // Contact Form
+    'form.title': 'Napíšte nám správu',
+    'form.subtitle': 'Máte otázku, záujem o objednávku alebo len chcete porozprávať o tóne? Napíšte nám — odpovieme čo najskôr.',
+    'form.name': 'Meno',
+    'form.name.placeholder': 'Vaše meno',
+    'form.email': 'E-mail',
+    'form.email.placeholder': 'vas@email.com',
+    'form.subject': 'Predmet',
+    'form.subject.placeholder': 'Čo vás zaujíma?',
+    'form.message': 'Správa',
+    'form.message.placeholder': 'Napíšte nám svoju otázku, požiadavku alebo len pozdrav...',
+    'form.submit': 'Odoslať správu',
+    'form.sending': 'Odosielam...',
+    'form.success': 'Ďakujeme! Vaša správa bola úspešne odoslaná. Ozveme sa vám čo najskôr.',
+    'form.error': 'Nepodarilo sa odoslať správu. Skúste to prosím znova alebo nám napíšte priamo na info@aluplexamp.com.',
+    'form.required': 'Toto pole je povinné',
+    'form.email.invalid': 'Zadajte platnú e-mailovú adresu',
+    'form.privacy': 'Odoslaním formulára súhlasíte so spracovaním osobných údajov za účelom odpovede na vašu správu.',
+
     // Footer
     'footer.brand.desc': 'Prémiový ručne vyrábaný lampový gitarový zosilňovač s hliníkovým podvozkom. Postavený pre gitaristov, ktorí poznajú rozdiel.',
     'footer.product': 'Produkt',
@@ -321,6 +340,25 @@ export const translations: Record<string, Record<string, string>> = {
     'cta.contact': 'Write to Us',
     'cta.order': 'Order Now',
 
+    // Contact Form
+    'form.title': 'Send Us a Message',
+    'form.subtitle': 'Have a question, interested in ordering, or just want to talk about tone? Drop us a line — we\'ll get back to you as soon as possible.',
+    'form.name': 'Name',
+    'form.name.placeholder': 'Your name',
+    'form.email': 'Email',
+    'form.email.placeholder': 'your@email.com',
+    'form.subject': 'Subject',
+    'form.subject.placeholder': 'What are you interested in?',
+    'form.message': 'Message',
+    'form.message.placeholder': 'Tell us your question, request, or just say hello...',
+    'form.submit': 'Send Message',
+    'form.sending': 'Sending...',
+    'form.success': 'Thank you! Your message has been sent successfully. We\'ll get back to you as soon as possible.',
+    'form.error': 'Failed to send the message. Please try again or email us directly at info@aluplexamp.com.',
+    'form.required': 'This field is required',
+    'form.email.invalid': 'Please enter a valid email address',
+    'form.privacy': 'By submitting this form, you agree to the processing of your personal data for the purpose of responding to your message.',
+
     // Footer
     'footer.brand.desc': 'A premium hand-wired tube guitar amplifier with aluminium chassis. Built for guitarists who know the difference.',
     'footer.product': 'Product',
@@ -491,6 +529,25 @@ export const translations: Record<string, Record<string, string>> = {
     'cta.subtitle': 'Jeder Gitarrist trägt einen Klang in sich, den noch niemand gehört hat — einen Ton, der auf den richtigen Moment, das richtige Instrument, die richtigen Hände wartet. ALUPLEXamp ist die Brücke zwischen dem, was Sie fühlen, und dem, was die Welt hört. Wir bauen ihn für Sie. Gemeinsam werden wir ihn zum Leben erwecken.',
     'cta.contact': 'Schreiben Sie uns',
     'cta.order': 'Jetzt bestellen',
+
+    // Contact Form
+    'form.title': 'Schreiben Sie uns',
+    'form.subtitle': 'Haben Sie eine Frage, Interesse an einer Bestellung oder möchten einfach über den Ton sprechen? Schreiben Sie uns — wir antworten so schnell wie möglich.',
+    'form.name': 'Name',
+    'form.name.placeholder': 'Ihr Name',
+    'form.email': 'E-Mail',
+    'form.email.placeholder': 'ihre@email.com',
+    'form.subject': 'Betreff',
+    'form.subject.placeholder': 'Was interessiert Sie?',
+    'form.message': 'Nachricht',
+    'form.message.placeholder': 'Erzählen Sie uns Ihre Frage, Anfrage oder sagen Sie einfach Hallo...',
+    'form.submit': 'Nachricht senden',
+    'form.sending': 'Wird gesendet...',
+    'form.success': 'Vielen Dank! Ihre Nachricht wurde erfolgreich gesendet. Wir melden uns so schnell wie möglich bei Ihnen.',
+    'form.error': 'Nachricht konnte nicht gesendet werden. Bitte versuchen Sie es erneut oder schreiben Sie uns direkt an info@aluplexamp.com.',
+    'form.required': 'Dieses Feld ist erforderlich',
+    'form.email.invalid': 'Bitte geben Sie eine gültige E-Mail-Adresse ein',
+    'form.privacy': 'Mit dem Absenden dieses Formulars stimmen Sie der Verarbeitung Ihrer personenbezogenen Daten zum Zweck der Beantwortung Ihrer Nachricht zu.',
 
     // Footer
     'footer.brand.desc': 'Ein Premium-Röhren-Gitarrenverstärker mit Aluminium-Chassis. Handgefertigt für Gitarristen, die den Unterschied kennen.',
