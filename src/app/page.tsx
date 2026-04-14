@@ -5,7 +5,7 @@ import {
   Heart, Target, Shield, Music, ThermometerSun, Weight, Magnet, ShieldCheck,
   Zap, Power, Mic2, Volume2, Headphones, Settings, ChevronDown, ChevronUp,
   ChevronLeft, ChevronRight, Menu, X, Wrench, ArrowRight, Sparkles, Flame, CircleDot,
-  MapPin, Mail, Globe, ArrowUp, ExternalLink, Ruler,
+  MapPin, Mail, Globe, ArrowUp, ExternalLink, Ruler, Maximize2,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -151,7 +151,7 @@ function Navigation({ lang, setLang, t }: { lang: Language; setLang: (l: Languag
   const langOptions: Language[] = ['sk', 'en', 'de'];
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? 'glass-active shadow-lg shadow-black/20' : 'bg-transparent'}`}>
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? 'glass-active shadow-lg shadow-black/20' : 'bg-[#0a0a0a]/60 backdrop-blur-xl'}`}>
       {/* Inline scroll progress — sits at bottom of nav bar */}
       <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-white/[0.04]">
         <div
@@ -579,6 +579,7 @@ function SoundArchitecture({ t }: { t: (k: string) => string }) {
     { icon: Volume2, label: t('sa.poweramp') },
     { icon: Headphones, label: t('sa.fxloop') },
     { icon: Settings, label: t('sa.impedance') },
+    { icon: Weight, label: t('sa.weight.spec') },
     { icon: Ruler, label: t('sa.dimensions') },
   ];
 
@@ -1476,7 +1477,7 @@ function GallerySection({ t }: { t: (k: string) => string }) {
               </div>
               {/* Expand icon */}
               <div className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 scale-75 group-hover:scale-100">
-                <X className="size-3 text-white rotate-45" />
+                <Maximize2 className="size-3 text-white" />
               </div>
             </button>
           ))}
@@ -1579,6 +1580,60 @@ function FAQSection({ t }: { t: (k: string) => string }) {
 
 // ========== CTA SECTION ==========
 
+function CTASection({ t }: { t: (k: string) => string }) {
+  const ref = useScrollAnimation();
+  const scrollTo = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  return (
+    <section className="py-20 sm:py-28 lg:py-32 px-4 sm:px-6 lg:px-8 relative overflow-hidden" ref={ref}>
+      {/* Background ambience */}
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/[0.03] to-transparent pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-[radial-gradient(ellipse,rgba(255,184,0,0.06)_0%,transparent_70%)] pointer-events-none" />
+
+      <div className="relative z-10 max-w-3xl mx-auto text-center">
+        <div className="fade-in-up">
+          {/* Decorative line */}
+          <div className="flex items-center justify-center gap-3 mb-8">
+            <div className="w-12 h-[1px] bg-gradient-to-r from-transparent to-primary/40" />
+            <Flame className="size-4 text-primary/60" />
+            <div className="w-12 h-[1px] bg-gradient-to-l from-transparent to-primary/40" />
+          </div>
+
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-6 leading-tight">
+            {t('cta.title')}
+          </h2>
+          <p className="text-sm sm:text-base text-muted-foreground max-w-xl mx-auto mb-10 leading-relaxed">
+            {t('cta.subtitle')}
+          </p>
+        </div>
+
+        <div className="fade-in-up flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6" style={{ transitionDelay: '150ms' }}>
+          <Button
+            size="lg"
+            onClick={() => scrollTo('contact')}
+            className="bg-primary text-primary-foreground hover:bg-primary/90 px-8 sm:px-10 py-5 text-base font-semibold rounded-xl shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-primary/40 hover:scale-[1.03] active:scale-[0.98] group"
+          >
+            {t('cta.contact')}
+            <ArrowRight className="size-4 ml-2 transition-transform duration-300 group-hover:translate-x-1" />
+          </Button>
+          <a
+            href="mailto:order@aluplexamp.com"
+            className="inline-flex items-center gap-2 px-8 sm:px-10 py-5 text-base font-semibold rounded-xl border border-white/[0.08] text-foreground/80 hover:bg-white/[0.06] hover:text-foreground hover:border-white/15 backdrop-blur-md transition-all duration-300 hover:scale-[1.03] active:scale-[0.98]"
+          >
+            <Mail className="size-4" />
+            {t('cta.order')}
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ========== CONTACT FORM ==========
+
 function ContactSection({ lang, t }: { lang: Language; t: (k: string) => string }) {
   const ref = useScrollAnimation();
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
@@ -1678,6 +1733,7 @@ function ContactSection({ lang, t }: { lang: Language; t: (k: string) => string 
                     </label>
                     <input
                       id="cf-name"
+                      name="name"
                       type="text"
                       value={formData.name}
                       onChange={(e) => handleChange('name', e.target.value)}
@@ -1696,6 +1752,7 @@ function ContactSection({ lang, t }: { lang: Language; t: (k: string) => string 
                     </label>
                     <input
                       id="cf-email"
+                      name="email"
                       type="email"
                       value={formData.email}
                       onChange={(e) => handleChange('email', e.target.value)}
@@ -1715,6 +1772,7 @@ function ContactSection({ lang, t }: { lang: Language; t: (k: string) => string 
                   </label>
                   <input
                     id="cf-subject"
+                    name="subject"
                     type="text"
                     value={formData.subject}
                     onChange={(e) => handleChange('subject', e.target.value)}
@@ -1730,6 +1788,7 @@ function ContactSection({ lang, t }: { lang: Language; t: (k: string) => string 
                   </label>
                   <textarea
                     id="cf-message"
+                    name="message"
                     rows={5}
                     value={formData.message}
                     onChange={(e) => handleChange('message', e.target.value)}
@@ -2062,6 +2121,8 @@ export default function Home() {
         <GallerySection t={t} />
         <SectionDivider />
         <FAQSection t={t} />
+        <SectionDivider />
+        <CTASection t={t} />
         <SectionDivider />
         <ContactSection lang={lang} t={t} />
       </main>
