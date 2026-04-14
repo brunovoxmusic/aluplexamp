@@ -1550,7 +1550,7 @@ function Footer({ lang, setLang, t }: { lang: Language; setLang: (l: Language) =
         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-[radial-gradient(ellipse,rgba(255,184,0,0.03)_0%,transparent_70%)] pointer-events-none" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 sm:pt-16 pb-8 sm:pb-10">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-10 lg:gap-8">
 
             {/* Column 1 — Brand */}
             <div>
@@ -1612,75 +1612,78 @@ function Footer({ lang, setLang, t }: { lang: Language; setLang: (l: Language) =
               </ul>
             </div>
 
-            {/* Column 3 — Support */}
-            <div>
-              <h4 className="text-[11px] font-bold text-primary/80 uppercase tracking-[0.2em] mb-5 flex items-center gap-2">
-                <span className="w-4 h-[1px] bg-primary/30" />
-                {t('footer.support')}
-              </h4>
-              <ul className="space-y-3">
-                {[
-                  { id: 'faq', label: t('footer.support.faq') },
-                  { id: 'contact', label: t('footer.support.contact') },
-                ].map((link) => (
-                  <li key={link.id}>
-                    <button
-                      onClick={() => scrollTo(link.id)}
+            {/* Column 3 — Support & Contact (merged) */}
+            <div className="space-y-8">
+              {/* Support sub-section */}
+              <div>
+                <h4 className="text-[11px] font-bold text-primary/80 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+                  <span className="w-4 h-[1px] bg-primary/30" />
+                  {t('footer.support')}
+                </h4>
+                <ul className="space-y-2.5">
+                  {[
+                    { id: 'faq', label: t('footer.support.faq') },
+                    { id: 'contact', label: t('footer.support.contact') },
+                  ].map((link) => (
+                    <li key={link.id}>
+                      <button
+                        onClick={() => scrollTo(link.id)}
+                        className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200 flex items-center gap-1.5 group"
+                      >
+                        <span className="w-0 group-hover:w-3 h-[1px] bg-primary/40 transition-all duration-300" />
+                        {link.label}
+                      </button>
+                    </li>
+                  ))}
+                  <li>
+                    <a
+                      href="mailto:order@aluplexamp.com"
                       className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200 flex items-center gap-1.5 group"
                     >
                       <span className="w-0 group-hover:w-3 h-[1px] bg-primary/40 transition-all duration-300" />
-                      {link.label}
-                    </button>
+                      {t('footer.support.order')}
+                    </a>
                   </li>
-                ))}
-                <li>
-                  <a
-                    href="mailto:order@aluplexamp.com"
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200 flex items-center gap-1.5 group"
-                  >
-                    <span className="w-0 group-hover:w-3 h-[1px] bg-primary/40 transition-all duration-300" />
-                    {t('footer.support.order')}
-                  </a>
-                </li>
-              </ul>
-            </div>
+                </ul>
+              </div>
 
-            {/* Column 4 — Contact */}
-            <div>
-              <h4 className="text-[11px] font-bold text-primary/80 uppercase tracking-[0.2em] mb-5 flex items-center gap-2">
-                <span className="w-4 h-[1px] bg-primary/30" />
-                {t('footer.contact.title')}
-              </h4>
-              <ul className="space-y-3">
-                <li>
-                  <a
-                    href="mailto:info@aluplexamp.com"
-                    className="flex items-start gap-2.5 text-sm text-muted-foreground hover:text-foreground transition-colors duration-200 group"
-                  >
-                    <Mail className="size-3.5 text-primary/40 group-hover:text-primary/60 transition-colors mt-0.5 flex-shrink-0" />
-                    <div>
-                      <span className="block text-foreground/60 text-xs mb-0.5">{t('footer.contact.info')}</span>
-                      info@aluplexamp.com
-                    </div>
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="mailto:order@aluplexamp.com"
-                    className="flex items-start gap-2.5 text-sm text-muted-foreground hover:text-foreground transition-colors duration-200 group"
-                  >
-                    <Mail className="size-3.5 text-primary/40 group-hover:text-primary/60 transition-colors mt-0.5 flex-shrink-0" />
-                    <div>
-                      <span className="block text-foreground/60 text-xs mb-0.5">{t('footer.contact.order')}</span>
-                      order@aluplexamp.com
-                    </div>
-                  </a>
-                </li>
-                <li className="flex items-start gap-2.5 text-sm text-muted-foreground">
-                  <MapPin className="size-3.5 text-primary/40 mt-0.5 flex-shrink-0" />
-                  <span>{t('footer.location')}</span>
-                </li>
-              </ul>
+              {/* Contact sub-section */}
+              <div>
+                <h4 className="text-[11px] font-bold text-primary/80 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+                  <span className="w-4 h-[1px] bg-primary/30" />
+                  {t('footer.contact.title')}
+                </h4>
+                <ul className="space-y-2.5">
+                  <li>
+                    <a
+                      href="mailto:info@aluplexamp.com"
+                      className="flex items-start gap-2.5 text-sm text-muted-foreground hover:text-foreground transition-colors duration-200 group"
+                    >
+                      <Mail className="size-3.5 text-primary/40 group-hover:text-primary/60 transition-colors mt-0.5 flex-shrink-0" />
+                      <div>
+                        <span className="block text-foreground/60 text-xs mb-0.5">{t('footer.contact.info')}</span>
+                        info@aluplexamp.com
+                      </div>
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="mailto:order@aluplexamp.com"
+                      className="flex items-start gap-2.5 text-sm text-muted-foreground hover:text-foreground transition-colors duration-200 group"
+                    >
+                      <Mail className="size-3.5 text-primary/40 group-hover:text-primary/60 transition-colors mt-0.5 flex-shrink-0" />
+                      <div>
+                        <span className="block text-foreground/60 text-xs mb-0.5">{t('footer.contact.order')}</span>
+                        order@aluplexamp.com
+                      </div>
+                    </a>
+                  </li>
+                  <li className="flex items-start gap-2.5 text-sm text-muted-foreground">
+                    <MapPin className="size-3.5 text-primary/40 mt-0.5 flex-shrink-0" />
+                    <span>{t('footer.location')}</span>
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
         </div>
