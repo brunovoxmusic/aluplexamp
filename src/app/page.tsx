@@ -5,6 +5,7 @@ import {
   Heart, Target, Shield, Music, ThermometerSun, Weight, Magnet, ShieldCheck,
   Zap, Power, Mic2, Volume2, Headphones, Settings, ChevronDown, ChevronUp,
   ChevronLeft, ChevronRight, Menu, X, Wrench, ArrowRight, Sparkles, Flame, CircleDot,
+  MapPin, Mail, Globe, ArrowUp, ExternalLink,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -1499,73 +1500,206 @@ function CTASection({ t }: { t: (k: string) => string }) {
 
 // ========== FOOTER ==========
 
-function Footer({ t }: { t: (k: string) => string }) {
+function Footer({ lang, setLang, t }: { lang: Language; setLang: (l: Language) => void; t: (k: string) => string }) {
   const scrollTo = (id: string) => {
     const el = document.getElementById(id);
     if (el) el.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const navLinks = [
-    { id: 'soundlib', label: t('nav.soundlib') },
-    { id: 'specs', label: t('nav.specs') },
-    { id: 'config', label: t('nav.config') },
-    { id: 'gallery', label: t('nav.gallery') },
-    { id: 'faq', label: t('nav.faq') },
+  const langOptions: Language[] = ['sk', 'en', 'de'];
+
+  const socialLinks = [
+    { href: 'https://instagram.com/aluplexamp', label: 'Instagram', svg: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="size-4"><rect x="2" y="2" width="20" height="20" rx="5" /><circle cx="12" cy="12" r="5" /><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" /></svg> },
+    { href: 'https://youtube.com/@aluplexamp', label: 'YouTube', svg: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="size-4"><path d="M22.5 6.4a2.8 2.8 0 00-2-2C18.9 4 12 4 12 4s-6.9 0-8.5.4a2.8 2.8 0 00-2 2A29 29 0 001 11.8a29 29 0 00.5 5.4 2.8 2.8 0 002 2c1.6.4 8.5.4 8.5.4s6.9 0 8.5-.4a2.8 2.8 0 002-2 29 29 0 00.5-5.4 29 29 0 00-.5-5.4z" /><path d="M9.75 15.02l5.75-3.27-5.75-3.27v6.54z" fill="currentColor" stroke="none" /></svg> },
+    { href: 'https://facebook.com/aluplexamp', label: 'Facebook', svg: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="size-4"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" /></svg> },
   ];
 
   return (
-    <footer className="border-t border-[#2a2a2a]/50 py-10 sm:py-14 px-4 sm:px-6 lg:px-8 safe-bottom mt-auto">
-      <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
-          {/* Brand Column */}
-          <div className="sm:col-span-2 lg:col-span-1">
-            <div className="flex items-center mb-4">
-              <img src="/aluplex/logo.png" alt="ALUPLEXamp" className="h-7 w-auto" />
-            </div>
-            <p className="text-sm text-muted-foreground mb-3">{t('footer.tagline')}</p>
-            <div className="flex items-center gap-2 text-muted-foreground/50 text-xs">
-              <Wrench className="size-3" />
-              <span>{t('footer.handwired')}</span>
-            </div>
-          </div>
+    <footer className="mt-auto safe-bottom">
+      {/* Top accent divider */}
+      <div className="footer-divider" />
 
-          {/* Navigation Column */}
-          <div>
-            <h4 className="text-xs font-semibold text-foreground uppercase tracking-[0.15em] mb-4">{t('footer.nav')}</h4>
-            <ul className="space-y-2.5">
-              {navLinks.map((link) => (
-                <li key={link.id}>
-                  <button
-                    onClick={() => scrollTo(link.id)}
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200"
+      {/* Main footer content */}
+      <div className="relative overflow-hidden">
+        {/* Subtle ambient glow */}
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-[radial-gradient(ellipse,rgba(255,184,0,0.03)_0%,transparent_70%)] pointer-events-none" />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 sm:pt-16 pb-8 sm:pb-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8">
+
+            {/* Brand column */}
+            <div className="sm:col-span-2 lg:col-span-5">
+              <div className="flex items-center gap-3 mb-5">
+                <img src="/aluplex/logo.png" alt="ALUPLEXamp" className="h-8 w-auto" />
+                <div className="w-8 h-[1px] bg-primary/30" />
+              </div>
+              <p className="text-sm text-muted-foreground leading-relaxed mb-5 max-w-sm">
+                {t('footer.brand.desc')}
+              </p>
+
+              {/* Social links */}
+              <div className="flex items-center gap-2.5 mb-6">
+                {socialLinks.map((social) => (
+                  <a
+                    key={social.label}
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={social.label}
+                    className="w-9 h-9 rounded-xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center text-muted-foreground/50 hover:text-primary hover:bg-primary/10 hover:border-primary/20 transition-all duration-300 group"
                   >
-                    {link.label}
-                  </button>
+                    {social.svg}
+                  </a>
+                ))}
+              </div>
+
+              {/* Made in Slovakia badge */}
+              <div className="inline-flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-white/[0.03] border border-white/[0.05]">
+                <div className="w-5 h-5 rounded-full overflow-hidden flex-shrink-0 border border-white/10">
+                  <div className="w-full h-full flex items-center justify-center text-[9px] font-bold leading-none pt-[1px]">
+                    <svg viewBox="0 0 36 36" className="w-full h-full"><path d="M36 27a4 4 0 01-4 4H4a4 4 0 01-4-4V9a4 4 0 014-4h28a4 4 0 014 4z" fill="#0B4EA2"/><path d="M36 27a4 4 0 01-4 4H4a4 4 0 01-4-4V9a4 4 0 014-4h28a4 4 0 014 4z" fill="#0B4EA2"/><path d="M18 5v13" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M13 10h10" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/><path d="M18 22c6 0 9 3 9 9H9c0-6 3-9 9-9z" fill="#fff" opacity="0.9"/><path d="M18 5h12v22c0 2.2-1.8 4-4 4H10a4 4 0 01-4-4V5h12z" fill="none"/><path d="M4 13h28v-4H4z" fill="#EE1C25"/><path d="M4 17h28v-4H4z" fill="#0B4EA2"/><path d="M4 21h28v-4H4z" fill="#fff"/><path d="M4 13h28v-4H4z" fill="#EE1C25"/><path d="M4 17h28v-4H4z" fill="#0B4EA2"/><path d="M4 21h28v-4H4z" fill="#fff"/></svg>
+                  </div>
+                </div>
+                <span className="text-[11px] text-muted-foreground/50 font-medium tracking-wide">{t('footer.made')}</span>
+              </div>
+            </div>
+
+            {/* Product column */}
+            <div className="lg:col-span-2 lg:col-start-7">
+              <h4 className="text-[11px] font-bold text-primary/80 uppercase tracking-[0.2em] mb-5 flex items-center gap-2">
+                <span className="w-4 h-[1px] bg-primary/30" />
+                {t('footer.product')}
+              </h4>
+              <ul className="space-y-3">
+                {[
+                  { id: 'soundlib', label: t('footer.product.sound') },
+                  { id: 'specs', label: t('footer.product.specs') },
+                  { id: 'config', label: t('footer.product.config') },
+                  { id: 'gallery', label: t('footer.product.gallery') },
+                ].map((link) => (
+                  <li key={link.id}>
+                    <button
+                      onClick={() => scrollTo(link.id)}
+                      className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200 flex items-center gap-1.5 group"
+                    >
+                      <span className="w-0 group-hover:w-3 h-[1px] bg-primary/40 transition-all duration-300" />
+                      {link.label}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Support column */}
+            <div className="lg:col-span-2">
+              <h4 className="text-[11px] font-bold text-primary/80 uppercase tracking-[0.2em] mb-5 flex items-center gap-2">
+                <span className="w-4 h-[1px] bg-primary/30" />
+                {t('footer.support')}
+              </h4>
+              <ul className="space-y-3">
+                {[
+                  { id: 'faq', label: t('footer.support.faq') },
+                  { id: 'contact', label: t('footer.support.contact') },
+                ].map((link) => (
+                  <li key={link.id}>
+                    <button
+                      onClick={() => scrollTo(link.id)}
+                      className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200 flex items-center gap-1.5 group"
+                    >
+                      <span className="w-0 group-hover:w-3 h-[1px] bg-primary/40 transition-all duration-300" />
+                      {link.label}
+                    </button>
+                  </li>
+                ))}
+                <li>
+                  <a
+                    href="mailto:order@aluplexamp.com"
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200 flex items-center gap-1.5 group"
+                  >
+                    <span className="w-0 group-hover:w-3 h-[1px] bg-primary/40 transition-all duration-300" />
+                    {t('footer.support.order')}
+                  </a>
                 </li>
+              </ul>
+            </div>
+
+            {/* Contact column */}
+            <div className="lg:col-span-3">
+              <h4 className="text-[11px] font-bold text-primary/80 uppercase tracking-[0.2em] mb-5 flex items-center gap-2">
+                <span className="w-4 h-[1px] bg-primary/30" />
+                {t('footer.contact.title')}
+              </h4>
+              <ul className="space-y-3">
+                <li>
+                  <a
+                    href="mailto:info@aluplexamp.com"
+                    className="flex items-start gap-2.5 text-sm text-muted-foreground hover:text-foreground transition-colors duration-200 group"
+                  >
+                    <Mail className="size-3.5 text-primary/40 group-hover:text-primary/60 transition-colors mt-0.5 flex-shrink-0" />
+                    <div>
+                      <span className="block text-foreground/60 text-xs mb-0.5">{t('footer.contact.info')}</span>
+                      info@aluplexamp.com
+                    </div>
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="mailto:order@aluplexamp.com"
+                    className="flex items-start gap-2.5 text-sm text-muted-foreground hover:text-foreground transition-colors duration-200 group"
+                  >
+                    <Mail className="size-3.5 text-primary/40 group-hover:text-primary/60 transition-colors mt-0.5 flex-shrink-0" />
+                    <div>
+                      <span className="block text-foreground/60 text-xs mb-0.5">{t('footer.contact.order')}</span>
+                      order@aluplexamp.com
+                    </div>
+                  </a>
+                </li>
+                <li className="flex items-start gap-2.5 text-sm text-muted-foreground">
+                  <MapPin className="size-3.5 text-primary/40 mt-0.5 flex-shrink-0" />
+                  <span>{t('footer.location')}</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom bar */}
+      <div className="border-t border-white/[0.04]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-6">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            {/* Left: Copyright */}
+            <p className="text-[11px] text-muted-foreground/30">
+              {t('footer.copyright')}
+            </p>
+
+            {/* Center: Language switcher */}
+            <div className="flex items-center gap-0.5 bg-white/[0.03] rounded-lg p-0.5 border border-white/[0.04]">
+              <Globe className="size-3 text-muted-foreground/30 ml-1.5 mr-1" />
+              {langOptions.map((l) => (
+                <button
+                  key={l}
+                  onClick={() => setLang(l)}
+                  className={`px-2.5 py-1 text-[10px] font-semibold rounded-md transition-all duration-200 ${
+                    lang === l
+                      ? 'bg-white/[0.06] text-foreground/70'
+                      : 'text-muted-foreground/30 hover:text-muted-foreground/50'
+                  }`}
+                >
+                  {l.toUpperCase()}
+                </button>
               ))}
-            </ul>
-          </div>
+            </div>
 
-          {/* Contact Column */}
-          <div>
-            <h4 className="text-xs font-semibold text-foreground uppercase tracking-[0.15em] mb-4">{t('footer.contact')}</h4>
-            <ul className="space-y-2.5">
-              <li>
-                <a href="mailto:info@aluplexamp.com" className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">
-                  {t('footer.email.info')}
-                </a>
-              </li>
-              <li>
-                <a href="mailto:order@aluplexamp.com" className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200">
-                  {t('footer.email.order')}
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          {/* Legal Column */}
-          <div>
-            <p className="text-xs text-muted-foreground/30">{t('footer.copyright')}</p>
+            {/* Right: Back to top */}
+            <button
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              className="flex items-center gap-1.5 text-[11px] text-muted-foreground/30 hover:text-primary/60 transition-colors duration-300 group"
+              aria-label="Back to top"
+            >
+              <span>{t('footer.back.top')}</span>
+              <ArrowUp className="size-3 transition-transform duration-300 group-hover:-translate-y-0.5" />
+            </button>
           </div>
         </div>
       </div>
@@ -1624,7 +1758,7 @@ export default function Home() {
         <SectionDivider />
         <CTASection t={t} />
       </main>
-      <Footer t={t} />
+      <Footer lang={lang} setLang={setLang} t={t} />
       <ScrollToTop />
     </div>
   );
