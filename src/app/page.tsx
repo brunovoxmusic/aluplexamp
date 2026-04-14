@@ -543,50 +543,56 @@ interface WaveformData {
 }
 
 function generateWaveform(audioSrc: string): Promise<WaveformData> {
+  const numBars = 120;
+  const fallbackWaveform = (dur: number): WaveformData => {
+    const fallbackPeaks: number[] = [];
+    for (let i = 0; i < numBars; i++) {
+      const base = 0.3 + 0.5 * Math.sin(i * 0.15) * Math.sin(i * 0.07);
+      fallbackPeaks.push(Math.max(0.08, Math.min(1, base + (Math.random() - 0.5) * 0.3)));
+    }
+    return { peaks: fallbackPeaks, duration: dur };
+  };
+
   return new Promise((resolve) => {
-    const audio = new Audio();
-    audio.crossOrigin = 'anonymous';
-    const peaks: number[] = [];
-    const numBars = 120;
-    audio.src = audioSrc;
-    audio.addEventListener('loadedmetadata', () => {
-      const dur = audio.duration;
-      const audioCtx = new AudioContext();
-      fetch(audioSrc)
-        .then(r => r.arrayBuffer())
-        .then(buf => audioCtx.decodeAudioData(buf))
-        .then(audioBuffer => {
-          const channelData = audioBuffer.getChannelData(0);
-          const samplesPerBar = Math.floor(channelData.length / numBars);
-          for (let i = 0; i < numBars; i++) {
-            let max = 0;
-            const start = i * samplesPerBar;
-            for (let j = start; j < start + samplesPerBar && j < channelData.length; j++) {
-              const abs = Math.abs(channelData[j]);
-              if (abs > max) max = abs;
-            }
-            peaks.push(max);
+    const audioCtx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+    fetch(audioSrc)
+      .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.arrayBuffer(); })
+      .then(buf => audioCtx.decodeAudioData(buf))
+      .then(audioBuffer => {
+        const dur = audioBuffer.duration;
+        const channelData = audioBuffer.getChannelData(0);
+        const peaks: number[] = [];
+        const samplesPerBar = Math.floor(channelData.length / numBars);
+        for (let i = 0; i < numBars; i++) {
+          let max = 0;
+          const start = i * samplesPerBar;
+          for (let j = start; j < start + samplesPerBar && j < channelData.length; j++) {
+            const abs = Math.abs(channelData[j]);
+            if (abs > max) max = abs;
           }
-          audioCtx.close();
-          resolve({ peaks, duration: dur });
-        })
-        .catch(() => {
-          // Fallback: generate pseudo-random waveform
-          const fallbackPeaks: number[] = [];
-          for (let i = 0; i < numBars; i++) {
-            const base = 0.3 + 0.5 * Math.sin(i * 0.15) * Math.sin(i * 0.07);
-            fallbackPeaks.push(Math.max(0.08, Math.min(1, base + (Math.random() - 0.5) * 0.3)));
-          }
-          resolve({ peaks: fallbackPeaks, duration: dur });
-        });
-    });
-    audio.addEventListener('error', () => {
-      const fallbackPeaks: number[] = [];
-      for (let i = 0; i < numBars; i++) {
-        fallbackPeaks.push(0.2 + Math.random() * 0.6);
-      }
-      resolve({ peaks: fallbackPeaks, duration: 10 });
-    });
+          peaks.push(max);
+        }
+        audioCtx.close();
+        resolve({ peaks, duration: dur });
+      })
+      .catch(() => {
+        // Fallback: use a regular Audio element to get duration, generate visual waveform
+        const fallback = new Audio();
+        fallback.preload = 'metadata';
+        fallback.src = audioSrc;
+        const onMeta = () => {
+          fallback.removeEventListener('loadedmetadata', onMeta);
+          resolve(fallbackWaveform(fallback.duration || 10));
+        };
+        const onErr = () => {
+          fallback.removeEventListener('error', onErr);
+          resolve(fallbackWaveform(10));
+        };
+        fallback.addEventListener('loadedmetadata', onMeta);
+        fallback.addEventListener('error', onErr);
+        // Timeout fallback
+        setTimeout(() => resolve(fallbackWaveform(10)), 5000);
+      });
   });
 }
 
@@ -616,8 +622,14 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
     { name: t('sl.track3.name'), gear: t('sl.track3.gear'), settings: t('sl.track3.settings'), desc: t('sl.track3.desc'), src: '/audio/track3-session.mp3', tag: t('sl.track3.tag') },
   ];
 
-  // Load all waveforms on mount
+  // Load all waveforms on mount + set initial audio source
   useEffect(() => {
+    // Set initial audio source so play button works on first click
+    if (audioRef.current && tracks[0]) {
+      audioRef.current.preload = 'auto';
+      audioRef.current.src = tracks[0].src;
+      audioRef.current.load();
+    }
     Promise.all(tracks.map(tr => generateWaveform(tr.src))).then(data => {
       setWaveforms(data);
       setLoaded(true);
@@ -729,10 +741,18 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
 
     audio.src = tracks[index].src;
     audio.load();
-    audio.play().then(() => {
-      setActiveTrack(index);
-      setPlaying(true);
-    }).catch(() => {});
+    const onCanPlay = () => {
+      audio.removeEventListener('canplaythrough', onCanPlay);
+      audio.play().then(() => {
+        setActiveTrack(index);
+        setPlaying(true);
+      }).catch((err) => {
+        console.warn('Audio play failed:', err);
+        // Autoplay might be blocked - try once user interacts
+        setActiveTrack(index);
+      });
+    };
+    audio.addEventListener('canplaythrough', onCanPlay);
   };
 
   const togglePlay = () => {
@@ -743,7 +763,14 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
       audio.pause();
       setPlaying(false);
     } else {
-      audio.play().then(() => setPlaying(true)).catch(() => {});
+      // If no source is loaded yet, load the current track first
+      if (!audio.src || audio.src === window.location.href) {
+        audio.src = tracks[activeTrack].src;
+        audio.load();
+      }
+      audio.play().then(() => setPlaying(true)).catch(() => {
+        // Autoplay blocked - not much we can do, user needs to interact
+      });
     }
   };
 
