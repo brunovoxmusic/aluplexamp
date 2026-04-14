@@ -1483,39 +1483,227 @@ function FAQSection({ t }: { t: (k: string) => string }) {
 
 // ========== CTA SECTION ==========
 
-function CTASection({ t }: { t: (k: string) => string }) {
+function ContactSection({ lang, t }: { lang: Language; t: (k: string) => string }) {
   const ref = useScrollAnimation();
+  const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  const validate = () => {
+    const errs: Record<string, string> = {};
+    if (!formData.name.trim()) errs.name = t('form.required');
+    if (!formData.email.trim()) errs.email = t('form.required');
+    else if (!emailRegex.test(formData.email)) errs.email = t('form.email.invalid');
+    if (!formData.message.trim()) errs.message = t('form.required');
+    setErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validate()) return;
+
+    setStatus('sending');
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...formData, lang }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setStatus('success');
+        setFormData({ name: '', email: '', subject: '', message: '' });
+      } else {
+        setStatus('error');
+      }
+    } catch {
+      setStatus('error');
+    }
+  };
+
+  const handleChange = (field: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors((prev) => {
+        const next = { ...prev };
+        delete next[field];
+        return next;
+      });
+    }
+  };
 
   return (
     <section id="contact" className="py-16 sm:py-24 lg:py-28 px-4 sm:px-6 lg:px-8" ref={ref}>
-      <div className="max-w-3xl mx-auto">
-        <div className="section-bg-photo fade-in-up relative rounded-3xl overflow-hidden border border-primary/15 text-center" style={{ backgroundImage: 'url(/aluplex/DSC6827.jpg)' }}>
-          {/* Background effects */}
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.04] via-primary/[0.08] to-primary/[0.04]" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(212,146,42,0.06)_0%,transparent_60%)]" />
-          <div className="absolute -top-20 -right-20 w-40 h-40 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-10 sm:mb-14 fade-in-up">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <div className="w-8 h-[2px] bg-primary" />
+            <span className="text-xs font-semibold text-primary uppercase tracking-[0.2em]">{t('nav.contact')}</span>
+            <div className="w-8 h-[2px] bg-primary" />
+          </div>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4">{t('form.title')}</h2>
+          <p className="text-muted-foreground max-w-xl mx-auto text-sm sm:text-base leading-relaxed">{t('form.subtitle')}</p>
+        </div>
 
-          <div className="relative z-10">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 mb-6 sm:mb-8">
-              <Music className="size-7 text-primary" />
-            </div>
-            <div className="w-12 h-[2px] bg-primary mx-auto mb-6" />
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4 sm:mb-6">{t('cta.title')}</h2>
-            <p className="text-muted-foreground mb-8 sm:mb-10 max-w-xl mx-auto text-sm sm:text-base leading-relaxed">{t('cta.subtitle')}</p>
+        {/* Form Card */}
+        <div className="fade-in-up relative" style={{ transitionDelay: '100ms' }}>
+          {/* Ambient glow */}
+          <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-[500px] h-[200px] bg-[radial-gradient(ellipse,rgba(212,146,42,0.04)_0%,transparent_70%)] pointer-events-none" />
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
-              <a href="mailto:info@aluplexamp.com">
-                <Button className="bg-primary text-primary-foreground hover:bg-primary/90 px-8 py-5 sm:py-6 text-base font-semibold rounded-xl shadow-xl shadow-primary/20 transition-all duration-300 hover:shadow-primary/30 hover:scale-[1.02] w-full sm:w-auto">
-                  {t('cta.contact')}
+          <div className="relative bg-card/60 border border-[#2a2a2a]/80 rounded-3xl p-6 sm:p-8 lg:p-10 backdrop-blur-sm">
+            {/* Success state */}
+            {status === 'success' ? (
+              <div className="text-center py-8 sm:py-12">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-emerald-500/10 mb-6">
+                  <svg className="w-7 h-7 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <p className="text-foreground font-medium text-base sm:text-lg mb-4">{t('form.success')}</p>
+                <button
+                  onClick={() => setStatus('idle')}
+                  className="text-sm text-primary hover:text-primary/80 transition-colors duration-200 underline underline-offset-4 decoration-primary/30"
+                >
+                  {t('form.submit')}
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} noValidate className="space-y-5 sm:space-y-6">
+                {/* Name + Email row */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  {/* Name */}
+                  <div>
+                    <label htmlFor="cf-name" className="block text-[11px] font-bold text-foreground/60 uppercase tracking-[0.15em] mb-2">
+                      {t('form.name')} *
+                    </label>
+                    <input
+                      id="cf-name"
+                      type="text"
+                      value={formData.name}
+                      onChange={(e) => handleChange('name', e.target.value)}
+                      placeholder={t('form.name.placeholder')}
+                      className={`w-full px-4 py-3 rounded-xl bg-white/[0.03] border text-sm text-foreground placeholder:text-muted-foreground/30 outline-none transition-all duration-200 focus:ring-2 focus:ring-primary/20 ${
+                        errors.name ? 'border-red-500/50 focus:border-red-500/70' : 'border-white/[0.07] focus:border-primary/40'
+                      }`}
+                    />
+                    {errors.name && <p className="text-[11px] text-red-400/80 mt-1.5">{errors.name}</p>}
+                  </div>
+
+                  {/* Email */}
+                  <div>
+                    <label htmlFor="cf-email" className="block text-[11px] font-bold text-foreground/60 uppercase tracking-[0.15em] mb-2">
+                      {t('form.email')} *
+                    </label>
+                    <input
+                      id="cf-email"
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => handleChange('email', e.target.value)}
+                      placeholder={t('form.email.placeholder')}
+                      className={`w-full px-4 py-3 rounded-xl bg-white/[0.03] border text-sm text-foreground placeholder:text-muted-foreground/30 outline-none transition-all duration-200 focus:ring-2 focus:ring-primary/20 ${
+                        errors.email ? 'border-red-500/50 focus:border-red-500/70' : 'border-white/[0.07] focus:border-primary/40'
+                      }`}
+                    />
+                    {errors.email && <p className="text-[11px] text-red-400/80 mt-1.5">{errors.email}</p>}
+                  </div>
+                </div>
+
+                {/* Subject */}
+                <div>
+                  <label htmlFor="cf-subject" className="block text-[11px] font-bold text-foreground/60 uppercase tracking-[0.15em] mb-2">
+                    {t('form.subject')}
+                  </label>
+                  <input
+                    id="cf-subject"
+                    type="text"
+                    value={formData.subject}
+                    onChange={(e) => handleChange('subject', e.target.value)}
+                    placeholder={t('form.subject.placeholder')}
+                    className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/[0.07] text-sm text-foreground placeholder:text-muted-foreground/30 outline-none transition-all duration-200 focus:ring-2 focus:ring-primary/20 focus:border-primary/40"
+                  />
+                </div>
+
+                {/* Message */}
+                <div>
+                  <label htmlFor="cf-message" className="block text-[11px] font-bold text-foreground/60 uppercase tracking-[0.15em] mb-2">
+                    {t('form.message')} *
+                  </label>
+                  <textarea
+                    id="cf-message"
+                    rows={5}
+                    value={formData.message}
+                    onChange={(e) => handleChange('message', e.target.value)}
+                    placeholder={t('form.message.placeholder')}
+                    className={`w-full px-4 py-3 rounded-xl bg-white/[0.03] border text-sm text-foreground placeholder:text-muted-foreground/30 outline-none transition-all duration-200 resize-none focus:ring-2 focus:ring-primary/20 ${
+                      errors.message ? 'border-red-500/50 focus:border-red-500/70' : 'border-white/[0.07] focus:border-primary/40'
+                    }`}
+                  />
+                  {errors.message && <p className="text-[11px] text-red-400/80 mt-1.5">{errors.message}</p>}
+                </div>
+
+                {/* Error message */}
+                {status === 'error' && (
+                  <div className="flex items-start gap-3 p-4 rounded-xl bg-red-500/[0.06] border border-red-500/15">
+                    <svg className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                    </svg>
+                    <p className="text-sm text-red-400/90">{t('form.error')}</p>
+                  </div>
+                )}
+
+                {/* Privacy note */}
+                <p className="text-[10px] sm:text-[11px] text-muted-foreground/30 leading-relaxed">
+                  {t('form.privacy')}
+                </p>
+
+                {/* Submit */}
+                <Button
+                  type="submit"
+                  disabled={status === 'sending'}
+                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90 px-8 py-4 sm:py-5 text-base font-semibold rounded-xl shadow-lg shadow-primary/20 transition-all duration-300 hover:shadow-primary/30 hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                >
+                  {status === 'sending' ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <svg className="animate-spin size-4" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                      </svg>
+                      {t('form.sending')}
+                    </span>
+                  ) : (
+                    <span className="flex items-center justify-center gap-2">
+                      {t('form.submit')}
+                      <ArrowRight className="size-4" />
+                    </span>
+                  )}
                 </Button>
-              </a>
-              <a href="mailto:order@aluplexamp.com">
-                <Button variant="outline" className="border-white/10 text-foreground hover:bg-white/5 hover:text-foreground hover:border-white/20 px-8 py-5 sm:py-6 text-base rounded-xl backdrop-blur-sm transition-all duration-300 w-full sm:w-auto">
-                  {t('cta.order')}
-                </Button>
-              </a>
-            </div>
+              </form>
+            )}
+          </div>
+        </div>
+
+        {/* Alternative contact methods */}
+        <div className="fade-in-up mt-8 text-center" style={{ transitionDelay: '200ms' }}>
+          <p className="text-xs text-muted-foreground/40 mb-4">{t('footer.contact.title')}</p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6">
+            <a
+              href="mailto:info@aluplexamp.com"
+              className="flex items-center gap-2 text-sm text-muted-foreground/60 hover:text-primary transition-colors duration-200"
+            >
+              <Mail className="size-3.5" />
+              info@aluplexamp.com
+            </a>
+            <a
+              href="mailto:order@aluplexamp.com"
+              className="flex items-center gap-2 text-sm text-muted-foreground/60 hover:text-primary transition-colors duration-200"
+            >
+              <Mail className="size-3.5" />
+              order@aluplexamp.com
+            </a>
           </div>
         </div>
       </div>
@@ -1778,7 +1966,7 @@ export default function Home() {
         <SectionDivider />
         <FAQSection t={t} />
         <SectionDivider />
-        <CTASection t={t} />
+        <ContactSection lang={lang} t={t} />
       </main>
       <Footer lang={lang} setLang={setLang} t={t} />
       <ScrollToTop />
