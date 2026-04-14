@@ -1550,20 +1550,19 @@ function Footer({ lang, setLang, t }: { lang: Language; setLang: (l: Language) =
         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-[radial-gradient(ellipse,rgba(255,184,0,0.03)_0%,transparent_70%)] pointer-events-none" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 sm:pt-16 pb-8 sm:pb-10">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8">
 
-            {/* Brand column */}
-            <div className="sm:col-span-2 lg:col-span-5">
+            {/* Column 1 — Brand */}
+            <div className="sm:col-span-2 lg:col-span-1">
               <div className="flex items-center gap-3 mb-5">
                 <img src="/aluplex/logo.png" alt="ALUPLEXamp" className="h-8 w-auto" />
-                <div className="w-8 h-[1px] bg-primary/30" />
               </div>
-              <p className="text-sm text-muted-foreground leading-relaxed mb-5 max-w-sm">
+              <p className="text-sm text-muted-foreground leading-relaxed mb-5">
                 {t('footer.brand.desc')}
               </p>
 
               {/* Social links */}
-              <div className="flex items-center gap-2.5 mb-6">
+              <div className="flex items-center gap-2.5 mb-5">
                 {socialLinks.map((social) => (
                   <a
                     key={social.label}
@@ -1571,7 +1570,7 @@ function Footer({ lang, setLang, t }: { lang: Language; setLang: (l: Language) =
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={social.label}
-                    className="w-9 h-9 rounded-xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center text-muted-foreground/50 hover:text-primary hover:bg-primary/10 hover:border-primary/20 transition-all duration-300 group"
+                    className="w-9 h-9 rounded-xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center text-muted-foreground/50 hover:text-primary hover:bg-primary/10 hover:border-primary/20 transition-all duration-300"
                   >
                     {social.svg}
                   </a>
@@ -1581,16 +1580,14 @@ function Footer({ lang, setLang, t }: { lang: Language; setLang: (l: Language) =
               {/* Made in Slovakia badge */}
               <div className="inline-flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-white/[0.03] border border-white/[0.05]">
                 <div className="w-5 h-5 rounded-full overflow-hidden flex-shrink-0 border border-white/10">
-                  <div className="w-full h-full flex items-center justify-center text-[9px] font-bold leading-none pt-[1px]">
-                    <svg viewBox="0 0 36 36" className="w-full h-full"><path d="M36 27a4 4 0 01-4 4H4a4 4 0 01-4-4V9a4 4 0 014-4h28a4 4 0 014 4z" fill="#0B4EA2"/><path d="M36 27a4 4 0 01-4 4H4a4 4 0 01-4-4V9a4 4 0 014-4h28a4 4 0 014 4z" fill="#0B4EA2"/><path d="M18 5v13" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M13 10h10" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/><path d="M18 22c6 0 9 3 9 9H9c0-6 3-9 9-9z" fill="#fff" opacity="0.9"/><path d="M18 5h12v22c0 2.2-1.8 4-4 4H10a4 4 0 01-4-4V5h12z" fill="none"/><path d="M4 13h28v-4H4z" fill="#EE1C25"/><path d="M4 17h28v-4H4z" fill="#0B4EA2"/><path d="M4 21h28v-4H4z" fill="#fff"/><path d="M4 13h28v-4H4z" fill="#EE1C25"/><path d="M4 17h28v-4H4z" fill="#0B4EA2"/><path d="M4 21h28v-4H4z" fill="#fff"/></svg>
-                  </div>
+                  <svg viewBox="0 0 36 36" className="w-full h-full"><path d="M36 27a4 4 0 01-4 4H4a4 4 0 01-4-4V9a4 4 0 014-4h28a4 4 0 014 4z" fill="#0B4EA2"/><path d="M18 5v13" stroke="#fff" strokeWidth="3" strokeLinecap="round"/><path d="M13 10h10" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"/><path d="M18 22c6 0 9 3 9 9H9c0-6 3-9 9-9z" fill="#fff" opacity="0.9"/><path d="M4 13h28v-4H4z" fill="#EE1C25"/><path d="M4 17h28v-4H4z" fill="#0B4EA2"/><path d="M4 21h28v-4H4z" fill="#fff"/></svg>
                 </div>
                 <span className="text-[11px] text-muted-foreground/50 font-medium tracking-wide">{t('footer.made')}</span>
               </div>
             </div>
 
-            {/* Product column */}
-            <div className="lg:col-span-2 lg:col-start-7">
+            {/* Column 2 — Product */}
+            <div>
               <h4 className="text-[11px] font-bold text-primary/80 uppercase tracking-[0.2em] mb-5 flex items-center gap-2">
                 <span className="w-4 h-[1px] bg-primary/30" />
                 {t('footer.product')}
@@ -1615,8 +1612,8 @@ function Footer({ lang, setLang, t }: { lang: Language; setLang: (l: Language) =
               </ul>
             </div>
 
-            {/* Support column */}
-            <div className="lg:col-span-2">
+            {/* Column 3 — Support */}
+            <div>
               <h4 className="text-[11px] font-bold text-primary/80 uppercase tracking-[0.2em] mb-5 flex items-center gap-2">
                 <span className="w-4 h-[1px] bg-primary/30" />
                 {t('footer.support')}
@@ -1648,8 +1645,8 @@ function Footer({ lang, setLang, t }: { lang: Language; setLang: (l: Language) =
               </ul>
             </div>
 
-            {/* Contact column */}
-            <div className="lg:col-span-3">
+            {/* Column 4 — Contact */}
+            <div>
               <h4 className="text-[11px] font-bold text-primary/80 uppercase tracking-[0.2em] mb-5 flex items-center gap-2">
                 <span className="w-4 h-[1px] bg-primary/30" />
                 {t('footer.contact.title')}
