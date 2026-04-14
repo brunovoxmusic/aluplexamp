@@ -76,3 +76,34 @@ Stage Summary:
 - New tracks: Untitled (13.8s), Cranked To Ten (60s), Studio Session (60s)
 - All translations updated in SK/EN/DE
 - Server rebuilt and running, all resources accessible
+
+---
+Task ID: 4
+Agent: Main Agent
+Task: Fix non-functional audio player
+
+Work Log:
+- Diagnosed audio player issues:
+  1. **No initial audio source**: `<audio>` element starts with no `src` attribute. Big play button calls `togglePlay()` which tries `audio.play()` on empty source → rejected promise silently swallowed by `.catch(() => {})`
+  2. **CORS issue in waveform generation**: `generateWaveform()` sets `audio.crossOrigin = 'anonymous'` causing CORS failures behind Caddy proxy. Web Audio API `decodeAudioData` fails, falls through to fallback waveform.
+  3. **Silent error swallowing**: All `.catch(() => {})` blocks hide errors, making debugging impossible.
+- Fixed `generateWaveform()`:
+  - Removed `crossOrigin = 'anonymous'` (same-origin files don't need it)
+  - Direct `fetch()` → `decodeAudioData()` approach (no intermediate Audio element)
+  - Better fallback: tries to get real duration from Audio element before generating visual waveform
+  - Added timeout fallback (5s)
+- Fixed `playTrack()`:
+  - Now waits for `canplaythrough` event before calling `play()` for reliable playback
+  - Added console.warn for play failures
+- Fixed `togglePlay()`:
+  - Detects if no source is loaded and loads current track before playing
+- Fixed initial mount:
+  - Added `useEffect` to pre-set first track source on mount (`preload='auto'`)
+  - Ensures play button works on first click
+- Rebuilt production, copied static/public to standalone, restarted via daemonize
+- Verified: server HTTP 200, all 3 audio files HTTP 200, logo HTTP 200
+
+Stage Summary:
+- Audio player should now be fully functional
+- Key fixes: initial source loading, CORS removal, canplaythrough wait, play button guard
+- Server running: HTTP 200, all resources accessible
