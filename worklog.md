@@ -51,3 +51,28 @@ Stage Summary:
 - Only bug found: `video.subtitle` leading space in SK/EN/DE — FIXED
 - Server running: HTTP 200, all resources accessible
 - Lint: clean (no errors in source files)
+
+---
+Task ID: 3
+Agent: Main Agent
+Task: Replace audio demo tracks with new uploaded files
+
+Work Log:
+- Analyzed 3 uploaded MP3 files with ffprobe:
+  - Untitled-4.mp3: 13.8s, 48kHz stereo, Suno AI
+  - Cranked To Ten.mp3: 60s, 48kHz stereo, Suno AI, [Instrumental]
+  - Untitled-4 - kópia.mp3: 60s, 48kHz stereo, Suno AI (different track)
+- Copied files to public/audio/ as track1-intro.mp3, track2-cranked-to-ten.mp3, track3-session.mp3
+- Removed 5 old WAV files (track1-5)
+- Updated page.tsx: reduced from 5 tracks to 3, updated track accents (amber, red, green)
+- Updated all translations (SK/EN/DE) with new track names, descriptions, gear info
+- Track tags: INTRO, HIGH GAIN, TONE (translated in all languages)
+- All descriptions match actual file content and metadata
+- Verified: all 3 audio files return HTTP 200, homepage HTTP 200
+- Translation keys: 144 per language, all balanced, no missing keys
+
+Stage Summary:
+- Old 5 WAV tracks replaced with 3 MP3 tracks
+- New tracks: Untitled (13.8s), Cranked To Ten (60s), Studio Session (60s)
+- All translations updated in SK/EN/DE
+- Server rebuilt and running, all resources accessible

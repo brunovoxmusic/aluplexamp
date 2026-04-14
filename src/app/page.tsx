@@ -606,16 +606,14 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
   const isDragging = useRef(false);
   const dragTarget = useRef<'waveform' | 'progress'>('waveform');
 
-  const trackAccents = ['rgba(58,154,92,1)', 'rgba(212,146,42,1)', 'rgba(198,40,40,1)', 'rgba(124,58,237,1)', 'rgba(8,145,178,1)'];
-  const trackAccentsFaded = ['rgba(58,154,92,0.15)', 'rgba(212,146,42,0.15)', 'rgba(198,40,40,0.15)', 'rgba(124,58,237,0.15)', 'rgba(8,145,178,0.15)'];
-  const trackAccentsMid = ['rgba(58,154,92,0.5)', 'rgba(212,146,42,0.5)', 'rgba(198,40,40,0.5)', 'rgba(124,58,237,0.5)', 'rgba(8,145,178,0.5)'];
+  const trackAccents = ['rgba(212,146,42,1)', 'rgba(198,40,40,1)', 'rgba(58,154,92,1)'];
+  const trackAccentsFaded = ['rgba(212,146,42,0.15)', 'rgba(198,40,40,0.15)', 'rgba(58,154,92,0.15)'];
+  const trackAccentsMid = ['rgba(212,146,42,0.5)', 'rgba(198,40,40,0.5)', 'rgba(58,154,92,0.5)'];
 
   const tracks = [
-    { name: t('sl.track1.name'), gear: t('sl.track1.gear'), settings: t('sl.track1.settings'), desc: t('sl.track1.desc'), src: '/audio/track1-woody-clean.wav', tag: 'CLEAN' },
-    { name: t('sl.track2.name'), gear: t('sl.track2.gear'), settings: t('sl.track2.settings'), desc: t('sl.track2.desc'), src: '/audio/track2-british-crunch.wav', tag: 'CRUNCH' },
-    { name: t('sl.track3.name'), gear: t('sl.track3.gear'), settings: t('sl.track3.settings'), desc: t('sl.track3.desc'), src: '/audio/track3-brown-sound.wav', tag: 'HIGH GAIN' },
-    { name: t('sl.track4.name'), gear: t('sl.track4.gear'), settings: t('sl.track4.settings'), desc: t('sl.track4.desc'), src: '/audio/track4-dynamic-breakup.wav', tag: 'DYNAMIC' },
-    { name: t('sl.track5.name'), gear: t('sl.track5.gear'), settings: t('sl.track5.settings'), desc: t('sl.track5.desc'), src: '/audio/track5-volume-rolloff.wav', tag: 'ROLL-OFF' },
+    { name: t('sl.track1.name'), gear: t('sl.track1.gear'), settings: t('sl.track1.settings'), desc: t('sl.track1.desc'), src: '/audio/track1-intro.mp3', tag: t('sl.track1.tag') },
+    { name: t('sl.track2.name'), gear: t('sl.track2.gear'), settings: t('sl.track2.settings'), desc: t('sl.track2.desc'), src: '/audio/track2-cranked-to-ten.mp3', tag: t('sl.track2.tag') },
+    { name: t('sl.track3.name'), gear: t('sl.track3.gear'), settings: t('sl.track3.settings'), desc: t('sl.track3.desc'), src: '/audio/track3-session.mp3', tag: t('sl.track3.tag') },
   ];
 
   // Load all waveforms on mount
