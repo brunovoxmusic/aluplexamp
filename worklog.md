@@ -137,3 +137,25 @@ Stage Summary:
 - Active section tracking uses IntersectionObserver with -80px top offset and -40% bottom for accurate center-of-viewport detection
 - All new hooks: `useScrollProgress()`, `useActiveSection()`
 - Files modified: `src/app/page.tsx` (hooks + Navigation + ScrollProgressBar), `src/app/globals.css` (progress bar styles)
+---
+Task ID: 2
+Agent: Main
+Task: Rebuild production build and verify scroll progress bar + active nav highlighting
+
+Work Log:
+- Previous production server (PID 5829) was serving stale build without navigation changes
+- Killed old server, ran `NODE_OPTIONS="--max-old-space-size=4096" npx next build` — compiled in 5.9s
+- Copied static/public to .next/standalone
+- Started new server via daemonize (PID 7484)
+- Verified `scroll-progress-fill` and `nav-progress-fill` classes present in HTML output
+- VLM screenshot verification confirmed ALL features working:
+  - Top progress bar: 2px amber gradient at z-60, grows 0%→100% with scroll
+  - Nav bottom progress bar: 2px amber at nav bottom edge, synchronized with top bar
+  - Active nav highlighting: each section correctly highlights its nav button with amber color + font-weight 500
+  - All 6 nav buttons track correctly: Špecifikácie, Ukážky zvuku, Konfigurátor, Galéria, FAQ, Kontakt
+
+Stage Summary:
+- Production rebuild successful — all navigation improvements now live
+- Dual scroll progress bars verified working at 0%/50%/95% scroll positions
+- Active section highlighting verified across all 6 navigable sections
+- Server running: PID 7484, HTTP 200
