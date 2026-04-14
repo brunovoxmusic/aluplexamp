@@ -5,7 +5,7 @@ import {
   Heart, Target, Shield, Music, ThermometerSun, Weight, Magnet, ShieldCheck,
   Zap, Power, Mic2, Volume2, Headphones, Settings, ChevronDown, ChevronUp,
   ChevronLeft, ChevronRight, Menu, X, Wrench, ArrowRight, Sparkles, Flame, CircleDot,
-  MapPin, Mail, Globe, ArrowUp, ExternalLink,
+  MapPin, Mail, Globe, ArrowUp, ExternalLink, Ruler,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -579,6 +579,7 @@ function SoundArchitecture({ t }: { t: (k: string) => string }) {
     { icon: Volume2, label: t('sa.poweramp') },
     { icon: Headphones, label: t('sa.fxloop') },
     { icon: Settings, label: t('sa.impedance') },
+    { icon: Ruler, label: t('sa.dimensions') },
   ];
 
   return (
@@ -596,7 +597,7 @@ function SoundArchitecture({ t }: { t: (k: string) => string }) {
         </div>
 
         {/* Spec Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 mb-10 sm:mb-14">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mb-10 sm:mb-14">
           {specs.map((spec, i) => (
             <div
               key={i}

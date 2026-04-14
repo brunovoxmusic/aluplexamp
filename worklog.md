@@ -159,3 +159,34 @@ Stage Summary:
 - Dual scroll progress bars verified working at 0%/50%/95% scroll positions
 - Active section highlighting verified across all 6 navigable sections
 - Server running: PID 7484, HTTP 200
+---
+Task ID: 3
+Agent: Main
+Task: Update technical specifications to match user's provided specs
+
+Work Log:
+- Compared current page specs vs user's official specs, identified 5 differences:
+  1. ECC83: 3x → **4x** + brand "JJ Electronics"
+  2. Voltage: 120V → **115V**
+  3. FX Loop: "Sériový efektový loop" → **"Elektrónková, vypínateľná"** (tube, switchable)
+  4. Dimensions: missing → **500 × 280 × 200 mm** (new spec)
+  5. EL34 desc: "Tri tiché sochári" → **"Štyri"** + JJ Electronics mention
+- Added `Ruler` icon import from lucide-react for dimensions spec card
+- Added `sa.dimensions` translation key in SK/EN/DE
+- Changed SoundArchitecture spec grid from `md:grid-cols-3` to `md:grid-cols-4` (7 cards: 4+3)
+- Updated `sa.preamp` in all 3 languages: "4× ECC83 / ... JJ Electronics"
+- Updated `sa.poweramp` in all 3 languages: "2× EL34 / ... JJ Electronics"
+- Updated `sa.fxloop` in all 3 languages: tube-driven + switchable
+- Updated `sa.impedance` formatting
+- Updated `eng.voltage` in all 3 languages: 115V
+- Updated `sa.el34.desc` in all 3 languages: "Four/Vier/Štyri" + JJ Electronics
+- Rebuilt production, verified all new specs in live HTML output
+
+Stage Summary:
+- All technical specs now match user's official specification exactly
+- New dimension card added with Ruler icon
+- JJ Electronics branding added to all tube references
+- Voltage corrected from 120V to 115V
+- FX Loop described as tube-driven and switchable
+- Files modified: src/lib/translations.ts, src/app/page.tsx
+- Server running: HTTP 200, all specs verified in output
