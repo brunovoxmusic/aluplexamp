@@ -5,7 +5,7 @@ import {
   Heart, Target, Shield, Music, ThermometerSun, Weight, Magnet, ShieldCheck,
   Zap, Power, Mic2, Volume2, Headphones, Settings, ChevronDown, ChevronUp,
   ChevronLeft, ChevronRight, Menu, X, Wrench, ArrowRight, Sparkles, Flame, CircleDot,
-  MapPin, Mail, Globe, ArrowUp, ExternalLink, Ruler, Maximize2,
+  MapPin, Mail, Globe, ArrowUp, Ruler, Maximize2,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -203,7 +203,7 @@ function Navigation({ lang, setLang, t }: { lang: Language; setLang: (l: Languag
           {/* Right side: Language + Mobile toggle */}
           <div className="flex items-center gap-2 sm:gap-3">
             {/* Language Switcher */}
-            <div className="hidden sm:flex items-center gap-0.5 bg-white/[0.04] rounded-xl p-1 border border-white/[0.06]">
+            <div className="hidden sm:flex items-center gap-0.5 bg-white/[0.04] rounded-xl p-1 border border-white/[0.06]" role="radiogroup" aria-label="Language">
               {langOptions.map((l) => (
                 <button
                   key={l}
@@ -233,7 +233,7 @@ function Navigation({ lang, setLang, t }: { lang: Language; setLang: (l: Languag
                   </SheetTitle>
                 </SheetHeader>
                 {/* Mobile Language Switcher */}
-                <div className="flex items-center gap-0.5 bg-white/[0.04] rounded-xl p-1 mb-8 w-fit border border-white/[0.06]">
+                <div className="flex items-center gap-0.5 bg-white/[0.04] rounded-xl p-1 mb-8 w-fit border border-white/[0.06]" role="radiogroup" aria-label="Language">
                   {langOptions.map((l) => (
                     <button
                       key={l}
@@ -375,7 +375,7 @@ function HeroSection({ t }: { t: (k: string) => string }) {
             { icon: Zap, label: '30W' },
             { icon: Flame, label: 'EL34' },
             { icon: CircleDot, label: '12.5 kg' },
-            { icon: Wrench, label: 'Handwired' },
+            { icon: Wrench, label: t('hero.handwired') },
           ].map((spec, i) => (
             <div
               key={i}
@@ -588,11 +588,6 @@ function SoundArchitecture({ t }: { t: (k: string) => string }) {
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
         <div className="text-center mb-12 sm:mb-16 fade-in-up">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="w-8 h-[2px] bg-primary" />
-            <span className="text-xs font-semibold text-primary uppercase tracking-[0.2em]">{t('sa.title')}</span>
-            <div className="w-8 h-[2px] bg-primary" />
-          </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4">{t('sa.title')}</h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-sm sm:text-base">{t('sa.subtitle')}</p>
         </div>
@@ -959,11 +954,6 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
       <div className="max-w-4xl mx-auto">
         {/* Section Header */}
         <div className="text-center mb-10 sm:mb-14 fade-in-up">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="w-8 h-[2px] bg-primary" />
-            <span className="text-xs font-semibold text-primary uppercase tracking-[0.2em]">{t('sl.title')}</span>
-            <div className="w-8 h-[2px] bg-primary" />
-          </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4">{t('sl.title')}</h2>
           <p className="text-muted-foreground mb-6 text-sm sm:text-base max-w-md mx-auto">{t('sl.subtitle')}</p>
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.04] border border-white/[0.08] backdrop-blur-sm">
@@ -1269,11 +1259,6 @@ function ConfiguratorSection({ t }: { t: (k: string) => string }) {
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
         <div className="text-center mb-12 sm:mb-16 fade-in-up">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="w-8 h-[2px] bg-primary" />
-            <span className="text-xs font-semibold text-primary uppercase tracking-[0.2em]">{t('cfg.title')}</span>
-            <div className="w-8 h-[2px] bg-primary" />
-          </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4">{t('cfg.title')}</h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-sm sm:text-base">{t('cfg.subtitle')}</p>
         </div>
@@ -1357,7 +1342,11 @@ function ConfiguratorSection({ t }: { t: (k: string) => string }) {
               {/* Visual center */}
               <div className="flex items-center justify-center px-4 sm:px-8 pb-4 sm:pb-6">
                 <div className="text-center w-full">
-                  <img src="/aluplex/aluplex-red-front.jpg" alt="ALUPLEXamp" className="w-full max-w-sm mx-auto rounded-2xl opacity-90 object-cover aspect-[3/2] shadow-2xl shadow-black/30" />
+                  <img
+                    src={color === 'red' ? '/aluplex/aluplex-red-front.jpg' : color === 'black' ? '/aluplex/aluplex-1.jpg' : color === 'cream' ? '/aluplex/aluplex-138.jpg' : '/aluplex/aluplex-56.jpg'}
+                    alt={`ALUPLEXamp — ${colors.find(c => c.id === color)?.label}`}
+                    className="w-full max-w-sm mx-auto rounded-2xl opacity-90 object-cover aspect-[3/2] shadow-2xl shadow-black/30 transition-opacity duration-300"
+                  />
                 </div>
               </div>
 
@@ -1445,11 +1434,6 @@ function GallerySection({ t }: { t: (k: string) => string }) {
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
         <div className="text-center mb-12 sm:mb-16 fade-in-up">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="w-8 h-[2px] bg-primary" />
-            <span className="text-xs font-semibold text-primary uppercase tracking-[0.2em]">{t('gal.title')}</span>
-            <div className="w-8 h-[2px] bg-primary" />
-          </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4">{t('gal.title')}</h2>
           <p className="text-muted-foreground text-sm sm:text-base">{t('gal.subtitle')}</p>
         </div>
@@ -1541,11 +1525,6 @@ function FAQSection({ t }: { t: (k: string) => string }) {
       <div className="max-w-3xl mx-auto">
         {/* Section Header */}
         <div className="text-center mb-12 sm:mb-16 fade-in-up">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="w-8 h-[2px] bg-primary" />
-            <span className="text-xs font-semibold text-primary uppercase tracking-[0.2em]">{t('faq.title')}</span>
-            <div className="w-8 h-[2px] bg-primary" />
-          </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4">{t('faq.title')}</h2>
           <p className="text-muted-foreground text-sm sm:text-base">{t('faq.subtitle')}</p>
         </div>
@@ -1655,6 +1634,11 @@ function ContactSection({ lang, t }: { lang: Language; t: (k: string) => string 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
+    // Honeypot check
+    if ((e.target as HTMLFormElement).website?.value) {
+      setStatus('success');
+      return;
+    }
 
     setStatus('sending');
     try {
@@ -1724,6 +1708,11 @@ function ContactSection({ lang, t }: { lang: Language; t: (k: string) => string 
               </div>
             ) : (
               <form onSubmit={handleSubmit} noValidate className="space-y-5 sm:space-y-6">
+                {/* Honeypot — hidden from real users */}
+                <div className="absolute -left-[9999px]" aria-hidden="true">
+                  <label htmlFor="cf-website">Website</label>
+                  <input id="cf-website" name="website" type="text" tabIndex={-1} autoComplete="off" />
+                </div>
                 {/* Name + Email row */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   {/* Name */}
@@ -1802,7 +1791,7 @@ function ContactSection({ lang, t }: { lang: Language; t: (k: string) => string 
 
                 {/* Error message */}
                 {status === 'error' && (
-                  <div className="flex items-start gap-3 p-4 rounded-xl bg-red-500/[0.06] border border-red-500/15">
+                  <div className="flex items-start gap-3 p-4 rounded-xl bg-red-500/[0.06] border border-red-500/15" role="alert">
                     <svg className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
                     </svg>
@@ -2096,6 +2085,39 @@ function SectionDivider() {
   return <div className="section-divider" />;
 }
 
+// ========== COOKIE CONSENT ==========
+
+function CookieConsent() {
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const consent = localStorage.getItem('aluplex-cookies');
+    if (!consent) {
+      const timer = setTimeout(() => setVisible(true), 1500);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+  const accept = () => {
+    localStorage.setItem('aluplex-cookies', 'accepted');
+    setVisible(false);
+  };
+  if (!visible) return null;
+  return (
+    <div className="fixed bottom-0 left-0 right-0 z-[55] p-3 sm:p-4 animate-in slide-in-from-bottom" role="dialog" aria-label="Cookie consent">
+      <div className="max-w-3xl mx-auto bg-[#111]/95 backdrop-blur-xl border border-white/[0.08] rounded-2xl px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 shadow-2xl shadow-black/40">
+        <p className="text-xs sm:text-sm text-muted-foreground/70 leading-relaxed flex-1">
+          <Shield className="size-4 text-primary/50 inline-block mr-2 -mt-0.5" />
+          Táto stránka používa cookies na zlepšenie vášho zážitku. Pokračovaním v prehliadaní súhlasíte s ich používaním.
+        </p>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <button onClick={accept} className="px-4 py-2 text-xs font-semibold rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-200 shadow-md shadow-primary/20">
+            Súhlasím
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ========== MAIN PAGE ==========
 
 export default function Home() {
@@ -2104,8 +2126,11 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground grain-overlay">
       <ScrollProgressBar />
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[70] focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-lg focus:text-sm focus:font-semibold focus:shadow-lg">
+        Skip to content
+      </a>
       <Navigation lang={lang} setLang={setLang} t={t} />
-      <main className="flex-1">
+      <main id="main-content" className="flex-1">
         <HeroSection t={t} />
         <SectionDivider />
         <ValueProps t={t} />
@@ -2127,6 +2152,7 @@ export default function Home() {
         <ContactSection lang={lang} t={t} />
       </main>
       <Footer lang={lang} setLang={setLang} t={t} />
+      <CookieConsent />
       <ScrollToTop />
     </div>
   );

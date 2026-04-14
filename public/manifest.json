@@ -1,0 +1,25 @@
+{
+  "name": "ALUPLEXamp",
+  "short_name": "ALUPLEXamp",
+  "description": "Premium handcrafted tube guitar amplifier with aluminium chassis. Class AB, 30W, EL34 + ECC83.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#FFB800",
+  "icons": [
+    {
+      "src": "/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "apple touch icon"
+    }
+  ],
+  "lang": "sk",
+  "categories": ["music", "entertainment"]
+}
