@@ -1550,10 +1550,10 @@ function Footer({ lang, setLang, t }: { lang: Language; setLang: (l: Language) =
         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-[radial-gradient(ellipse,rgba(255,184,0,0.03)_0%,transparent_70%)] pointer-events-none" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 sm:pt-16 pb-8 sm:pb-10">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 lg:gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 sm:gap-6 lg:gap-8">
 
             {/* Column 1 — Brand */}
-            <div className="col-span-2 sm:col-span-4 lg:col-span-1">
+            <div className="col-span-2 sm:col-span-1">
               <div className="flex items-center gap-3 mb-5">
                 <img src="/aluplex/logo.png" alt="ALUPLEXamp" className="h-8 w-auto" />
               </div>
