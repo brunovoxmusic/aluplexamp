@@ -190,3 +190,27 @@ Stage Summary:
 - FX Loop described as tube-driven and switchable
 - Files modified: src/lib/translations.ts, src/app/page.tsx
 - Server running: HTTP 200, all specs verified in output
+---
+Task ID: 4
+Agent: Main
+Task: Continue improvements — CTA section, nav readability, spec grid, form attributes, gallery icon
+
+Work Log:
+- Ran comprehensive page audit via headless browser screenshots (10 sections, desktop + mobile)
+- Identified 6 improvement areas from audit findings
+- **Navigation readability**: Changed hero nav from fully transparent to `bg-[#0a0a0a]/60 backdrop-blur-xl` — nav text now readable over slideshow images at all times
+- **CTA Section**: Created new `CTASection` component between FAQ and Contact — uses existing translation keys (cta.title, cta.subtitle, cta.contact, cta.order), decorative Flame icon divider, two CTAs: scroll-to-contact + mailto order link, subtle amber ambient glow background
+- **Sound Architecture grid**: Added 8th spec card "Váha: 12,5 kg" with Weight icon — grid now perfectly balanced 4×2 in `md:grid-cols-4` layout (was 7 items = 4+3 imbalance)
+- **Contact form accessibility**: Added `name` attribute to all 4 form fields (name, email, subject, message) for proper form submission
+- **Gallery expand icon**: Replaced hacky `<X rotated 45deg>` with proper `<Maximize2>` icon from lucide-react
+- **Translations**: Added `sa.weight.spec` key in SK/EN/DE ("Váha: 12,5 kg" / "Weight: 12.5 kg" / "Gewicht: 12,5 kg")
+- Rebuilt production, all features verified in live HTML output
+
+Stage Summary:
+- 5 distinct improvements implemented in single build cycle
+- CTA section adds emotional call-to-action before contact form
+- Nav now readable at all scroll positions (no more transparent-on-hero issue)
+- Sound Architecture spec grid perfectly balanced (8 cards = 4×2)
+- Form fields now have proper name attributes for accessibility/submission
+- Gallery uses proper Maximize2 icon instead of rotated X
+- Server running: HTTP 200, all new features verified
