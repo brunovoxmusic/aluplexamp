@@ -407,6 +407,23 @@
   color: #e8e6e1;
 }
 
+/* ========== Focus Visible ========== */
+
+:focus-visible {
+  outline: 2px solid #FFB800;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid rgba(255, 184, 0, 0.6);
+  outline-offset: 2px;
+}
+
 /* ========== iOS Safe Area ========== */
 
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
@@ -570,6 +587,23 @@
     radial-gradient(ellipse at 20% 80%, rgba(255, 184, 0, 0.03) 0%, transparent 40%),
     radial-gradient(ellipse at 80% 20%, rgba(255, 184, 0, 0.03) 0%, transparent 40%),
     linear-gradient(180deg, #0a0a0a 0%, #0f0d08 50%, #0a0a0a 100%);
+}
+
+/* ========== Cookie Consent Animation ========== */
+
+.slide-in-from-bottom {
+  animation: slideInFromBottom 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes slideInFromBottom {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ========== Color Swatches ========== */
