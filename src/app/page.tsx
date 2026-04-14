@@ -1553,7 +1553,7 @@ function Footer({ lang, setLang, t }: { lang: Language; setLang: (l: Language) =
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8">
 
             {/* Column 1 — Brand */}
-            <div className="sm:col-span-2 lg:col-span-1">
+            <div>
               <div className="flex items-center gap-3 mb-5">
                 <img src="/aluplex/logo.png" alt="ALUPLEXamp" className="h-8 w-auto" />
               </div>
