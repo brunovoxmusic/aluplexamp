@@ -89,7 +89,7 @@ export const translations: Record<string, Record<string, string>> = {
 
     // Video
     'video.title': 'Pozrite si test zvuku',
-    'video.subtitle': ' Pozrite si ALUPLEXamp v akcii — od čistých tónov po high gain.',
+    'video.subtitle': 'Pozrite si ALUPLEXamp v akcii — od čistých tónov po high gain.',
 
     // Configurator
     'cfg.title': 'Vytvorte si svoj ALUPLEXamp',
@@ -265,7 +265,7 @@ export const translations: Record<string, Record<string, string>> = {
 
     // Video
     'video.title': 'Watch the Sound Test',
-    'video.subtitle': ' See the ALUPLEXamp in action — from clean tones to high gain.',
+    'video.subtitle': 'See the ALUPLEXamp in action — from clean tones to high gain.',
 
     // Configurator
     'cfg.title': 'Build Your ALUPLEXamp',
@@ -441,7 +441,7 @@ export const translations: Record<string, Record<string, string>> = {
 
     // Video
     'video.title': 'Soundtest ansehen',
-    'video.subtitle': ' Sehen Sie den ALUPLEXamp in Aktion — von sauberen Tönen bis High Gain.',
+    'video.subtitle': 'Sehen Sie den ALUPLEXamp in Aktion — von sauberen Tönen bis High Gain.',
 
     // Configurator
     'cfg.title': 'Konfigurieren Sie Ihren ALUPLEXamp',
