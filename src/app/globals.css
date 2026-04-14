@@ -353,6 +353,14 @@
   margin: 0 auto;
 }
 
+/* ========== Footer Divider ========== */
+
+.footer-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,184,0,0.2) 20%, rgba(255,184,0,0.35) 50%, rgba(255,184,0,0.2) 80%, transparent 100%);
+  max-width: 100%;
+}
+
 /* ========== Custom Scrollbar ========== */
 
 .custom-scrollbar::-webkit-scrollbar {
