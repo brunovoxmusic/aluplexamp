@@ -51,12 +51,38 @@ function useScrollAnimation() {
   return ref;
 }
 
+/** Shared scroll state — single listener for all scroll-derived values */
+let scrollListeners: Array<(data: { y: number; progress: number }) => void> = [];
+let rafId: number | null = null;
+let lastScrollData = { y: 0, progress: 0 };
+
+function onGlobalScroll(callback: (data: { y: number; progress: number }) => void) {
+  scrollListeners.push(callback);
+  // Immediately call with last known data
+  if (lastScrollData.y > 0) callback(lastScrollData);
+  return () => {
+    scrollListeners = scrollListeners.filter(l => l !== callback);
+  };
+}
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('scroll', () => {
+    if (rafId !== null) return;
+    rafId = requestAnimationFrame(() => {
+      const y = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = docHeight > 0 ? Math.min(y / docHeight, 1) : 0;
+      lastScrollData = { y, progress };
+      scrollListeners.forEach(cb => cb(lastScrollData));
+      rafId = null;
+    });
+  }, { passive: true });
+}
+
 function useScrolled(threshold = 100) {
   const [scrolled, setScrolled] = useState(false);
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > threshold);
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    return onGlobalScroll(({ y }) => setScrolled(y > threshold));
   }, [threshold]);
   return scrolled;
 }
@@ -64,9 +90,7 @@ function useScrolled(threshold = 100) {
 function useShowScrollTop(threshold = 500) {
   const [show, setShow] = useState(false);
   useEffect(() => {
-    const handleScroll = () => setShow(window.scrollY > threshold);
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    return onGlobalScroll(({ y }) => setShow(y > threshold));
   }, [threshold]);
   return show;
 }
@@ -75,14 +99,7 @@ function useShowScrollTop(threshold = 500) {
 function useScrollProgress() {
   const [progress, setProgress] = useState(0);
   useEffect(() => {
-    const handleScroll = () => {
-      const scrollTop = window.scrollY;
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-      setProgress(docHeight > 0 ? Math.min(scrollTop / docHeight, 1) : 0);
-    };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener('scroll', handleScroll);
+    return onGlobalScroll(({ progress: p }) => setProgress(p));
   }, []);
   return progress;
 }
@@ -312,6 +329,7 @@ function HeroSection({ t }: { t: (k: string) => string }) {
             <img
               src={src}
               alt=""
+              loading={i === 0 ? 'eager' : 'lazy'}
               className="w-full h-full object-cover scale-105 hero-ken-burns"
             />
           </div>
@@ -414,9 +432,9 @@ function HeroSection({ t }: { t: (k: string) => string }) {
         <button
           onClick={() => scrollTo('soundlib')}
           className="flex flex-col items-center gap-2 group cursor-pointer"
-          aria-label="Scroll down"
+          aria-label={t('hero.scroll')}
         >
-          <span className="text-[10px] text-muted-foreground/30 uppercase tracking-[0.25em] group-hover:text-muted-foreground/50 transition-colors duration-300">Scroll</span>
+          <span className="text-[10px] text-muted-foreground/30 uppercase tracking-[0.25em] group-hover:text-muted-foreground/50 transition-colors duration-300">{t('hero.scroll')}</span>
           <ChevronDown className="size-4 text-muted-foreground/25 bounce-chevron" />
         </button>
       </div>
@@ -714,8 +732,29 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
     { name: t('sl.track3.name'), gear: t('sl.track3.gear'), settings: t('sl.track3.settings'), desc: t('sl.track3.desc'), src: '/audio/track3-session.mp3', tag: t('sl.track3.tag') },
   ];
 
-  // Load all waveforms on mount + set initial audio source
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const [waveformsInitialized, setWaveformsInitialized] = useState(false);
+
+  // Lazy load all waveforms when SoundLibrary section enters viewport
   useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !waveformsInitialized) {
+          setWaveformsInitialized(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [waveformsInitialized]);
+
+  // Load all waveforms when section becomes visible + set initial audio source
+  useEffect(() => {
+    if (!waveformsInitialized) return;
     // Set initial audio source so play button works on first click
     if (audioRef.current && tracks[0]) {
       audioRef.current.preload = 'auto';
@@ -726,7 +765,7 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
       setWaveforms(data);
       setLoaded(true);
     });
-  }, []);
+  }, [waveformsInitialized]);
 
   // Set volume
   useEffect(() => {
@@ -948,6 +987,7 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
+    <div ref={sectionRef}>
     <section id="soundlib" className="py-16 sm:py-24 lg:py-28 px-4 sm:px-6 lg:px-8" ref={ref}>
       <audio ref={audioRef} onTimeUpdate={handleTimeUpdate} onLoadedMetadata={handleLoadedMetadata} onEnded={handleEnded} preload="metadata" />
 
@@ -1229,6 +1269,7 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
         </div>
       </div>
     </section>
+    </div>
   );
 }
 
@@ -1731,7 +1772,7 @@ function ContactSection({ lang, t }: { lang: Language; t: (k: string) => string 
                         errors.name ? 'border-red-500/50 focus:border-red-500/70' : 'border-white/[0.07] focus:border-primary/40'
                       }`}
                     />
-                    {errors.name && <p className="text-[11px] text-red-400/80 mt-1.5">{errors.name}</p>}
+                    {errors.name && <p className="text-[11px] text-red-400/80 mt-1.5" role="alert">{errors.name}</p>}
                   </div>
 
                   {/* Email */}
@@ -1750,7 +1791,7 @@ function ContactSection({ lang, t }: { lang: Language; t: (k: string) => string 
                         errors.email ? 'border-red-500/50 focus:border-red-500/70' : 'border-white/[0.07] focus:border-primary/40'
                       }`}
                     />
-                    {errors.email && <p className="text-[11px] text-red-400/80 mt-1.5">{errors.email}</p>}
+                    {errors.email && <p className="text-[11px] text-red-400/80 mt-1.5" role="alert">{errors.email}</p>}
                   </div>
                 </div>
 
@@ -1786,7 +1827,7 @@ function ContactSection({ lang, t }: { lang: Language; t: (k: string) => string 
                       errors.message ? 'border-red-500/50 focus:border-red-500/70' : 'border-white/[0.07] focus:border-primary/40'
                     }`}
                   />
-                  {errors.message && <p className="text-[11px] text-red-400/80 mt-1.5">{errors.message}</p>}
+                  {errors.message && <p className="text-[11px] text-red-400/80 mt-1.5" role="alert">{errors.message}</p>}
                 </div>
 
                 {/* Error message */}
@@ -2087,7 +2128,7 @@ function SectionDivider() {
 
 // ========== COOKIE CONSENT ==========
 
-function CookieConsent() {
+function CookieConsent({ t }: { t: (k: string) => string }) {
   const [visible, setVisible] = useState(false);
   useEffect(() => {
     const consent = localStorage.getItem('aluplex-cookies');
@@ -2106,11 +2147,11 @@ function CookieConsent() {
       <div className="max-w-3xl mx-auto bg-[#111]/95 backdrop-blur-xl border border-white/[0.08] rounded-2xl px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 shadow-2xl shadow-black/40">
         <p className="text-xs sm:text-sm text-muted-foreground/70 leading-relaxed flex-1">
           <Shield className="size-4 text-primary/50 inline-block mr-2 -mt-0.5" />
-          Táto stránka používa cookies na zlepšenie vášho zážitku. Pokračovaním v prehliadaní súhlasíte s ich používaním.
+          {t('cookie.text')}
         </p>
         <div className="flex items-center gap-2 flex-shrink-0">
           <button onClick={accept} className="px-4 py-2 text-xs font-semibold rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-200 shadow-md shadow-primary/20">
-            Súhlasím
+            {t('cookie.accept')}
           </button>
         </div>
       </div>
@@ -2127,7 +2168,7 @@ export default function Home() {
     <div className="min-h-screen flex flex-col bg-background text-foreground grain-overlay">
       <ScrollProgressBar />
       <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[70] focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-lg focus:text-sm focus:font-semibold focus:shadow-lg">
-        Skip to content
+        {t('accessibility.skip')}
       </a>
       <Navigation lang={lang} setLang={setLang} t={t} />
       <main id="main-content" className="flex-1">
@@ -2152,7 +2193,7 @@ export default function Home() {
         <ContactSection lang={lang} t={t} />
       </main>
       <Footer lang={lang} setLang={setLang} t={t} />
-      <CookieConsent />
+      <CookieConsent t={t} />
       <ScrollToTop />
     </div>
   );

@@ -192,6 +192,12 @@ export const translations: Record<string, Record<string, string>> = {
     'footer.tagline': 'Architektúra zvuku. Postavená ručne.',
     'footer.handwired': 'Ručne zapojené s vášňou na Slovensku',
     'footer.copyright': '© 2025 ALUPLEXamp. Všetky práva vyhradené.',
+
+    // UI
+    'hero.scroll': 'Posúvajte',
+    'cookie.text': 'Táto stránka používa cookies na zlepšenie vášho zážitku. Pokračovaním v prehliadaní súhlasíte s ich používaním.',
+    'cookie.accept': 'Súhlasím',
+    'accessibility.skip': 'Preskočiť na obsah',
   },
 
   // ========== ENGLISH ==========
@@ -385,6 +391,12 @@ export const translations: Record<string, Record<string, string>> = {
     'footer.tagline': 'The Architecture of Sound. Built by Hand.',
     'footer.handwired': 'Handwired with soul in Slovakia',
     'footer.copyright': '© 2025 ALUPLEXamp. All rights reserved.',
+
+    // UI
+    'hero.scroll': 'Scroll',
+    'cookie.text': 'This website uses cookies to improve your experience. By continuing to browse, you agree to their use.',
+    'cookie.accept': 'Accept',
+    'accessibility.skip': 'Skip to content',
   },
 
   // ========== GERMAN ==========
@@ -578,5 +590,11 @@ export const translations: Record<string, Record<string, string>> = {
     'footer.tagline': 'Die Architektur des Klangs. Von Hand gebaut.',
     'footer.handwired': 'Mit Seele handverdrahtet in der Slowakei',
     'footer.copyright': '© 2025 ALUPLEXamp. Alle Rechte vorbehalten.',
+
+    // UI
+    'hero.scroll': 'Scrollen',
+    'cookie.text': 'Diese Website verwendet Cookies, um Ihr Erlebnis zu verbessern. Durch die Fortsetzung des Browsens stimmen Sie der Verwendung zu.',
+    'cookie.accept': 'Akzeptieren',
+    'accessibility.skip': 'Zum Inhalt springen',
   },
 };
