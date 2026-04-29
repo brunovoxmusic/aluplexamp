@@ -26,6 +26,10 @@ function useTranslation() {
     (key: string): string => translations[lang]?.[key] ?? key,
     [lang]
   );
+  // Update <html lang> attribute dynamically for accessibility and SEO
+  useEffect(() => {
+    document.documentElement.lang = lang;
+  }, [lang]);
   return { lang, setLang, t };
 }
 
@@ -2132,13 +2136,16 @@ function CookieConsent({ t }: { t: (k: string) => string }) {
   const [visible, setVisible] = useState(false);
   useEffect(() => {
     const consent = localStorage.getItem('aluplex-cookies');
-    if (!consent) {
-      const timer = setTimeout(() => setVisible(true), 1500);
+    if (!consent) {      const timer = setTimeout(() => setVisible(true), 1500);
       return () => clearTimeout(timer);
     }
   }, []);
   const accept = () => {
     localStorage.setItem('aluplex-cookies', 'accepted');
+    setVisible(false);
+  };
+  const reject = () => {
+    localStorage.setItem('aluplex-cookies', 'rejected');
     setVisible(false);
   };
   if (!visible) return null;
@@ -2150,6 +2157,9 @@ function CookieConsent({ t }: { t: (k: string) => string }) {
           {t('cookie.text')}
         </p>
         <div className="flex items-center gap-2 flex-shrink-0">
+          <button onClick={reject} className="px-4 py-2 text-xs font-semibold rounded-lg border border-white/10 text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all duration-200">
+            {t('cookie.reject')}
+          </button>
           <button onClick={accept} className="px-4 py-2 text-xs font-semibold rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-200 shadow-md shadow-primary/20">
             {t('cookie.accept')}
           </button>

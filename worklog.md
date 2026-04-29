@@ -91,3 +91,25 @@ Stage Summary:
 - All code passes lint
 - Dev server running successfully
 - All translations rendering correctly
+
+---
+Task ID: 7
+Agent: Main Agent
+Task: Fix grain overlay z-index + dynamic lang + GDPR consent + remaining audit items
+
+Work Log:
+- Fixed grain overlay z-index from 9999 to 40 in globals.css (was blocking high-z elements unnecessarily)
+- Added useEffect in useTranslation hook to dynamically update document.documentElement.lang when user switches language
+- Added cookie.reject translation keys for all 3 languages (SK: "Odmietnuť", EN: "Decline", DE: "Ablehnen")
+- Updated CookieConsent component with reject button and reject handler (stores "rejected" in localStorage)
+- Verified honeypot spam protection was already implemented (hidden field + server-side check)
+- Verified all imports are used (ArrowUp, MapPin, Globe, Maximize2, ChevronUp all in use)
+- Verified configurator image switching works (conditional image per color)
+- Ran ESLint: 0 errors, 0 warnings
+- Verified dev server: all GETs return HTTP 200
+
+Stage Summary:
+- All 32 audit items now completed
+- Application running cleanly on port 3000 via Caddy proxy
+- Trilingual support with dynamic lang attribute
+- GDPR-compliant cookie consent with accept/reject

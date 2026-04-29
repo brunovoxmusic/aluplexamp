@@ -197,6 +197,7 @@ export const translations: Record<string, Record<string, string>> = {
     'hero.scroll': 'Posúvajte',
     'cookie.text': 'Táto stránka používa cookies na zlepšenie vášho zážitku. Pokračovaním v prehliadaní súhlasíte s ich používaním.',
     'cookie.accept': 'Súhlasím',
+    'cookie.reject': 'Odmietnuť',
     'accessibility.skip': 'Preskočiť na obsah',
   },
 
@@ -396,6 +397,7 @@ export const translations: Record<string, Record<string, string>> = {
     'hero.scroll': 'Scroll',
     'cookie.text': 'This website uses cookies to improve your experience. By continuing to browse, you agree to their use.',
     'cookie.accept': 'Accept',
+    'cookie.reject': 'Decline',
     'accessibility.skip': 'Skip to content',
   },
 
@@ -595,6 +597,7 @@ export const translations: Record<string, Record<string, string>> = {
     'hero.scroll': 'Scrollen',
     'cookie.text': 'Diese Website verwendet Cookies, um Ihr Erlebnis zu verbessern. Durch die Fortsetzung des Browsens stimmen Sie der Verwendung zu.',
     'cookie.accept': 'Akzeptieren',
+    'cookie.reject': 'Ablehnen',
     'accessibility.skip': 'Zum Inhalt springen',
   },
 };
