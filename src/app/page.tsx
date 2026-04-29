@@ -394,7 +394,7 @@ function HeroSection({ t }: { t: (k: string) => string }) {
         {/* Key specs strip — centered, refined glass pills */}
         <div className="hero-fade-item flex flex-wrap items-center gap-2.5 sm:gap-3 mb-10 sm:mb-14" style={{ animationDelay: '0.95s' }}>
           {[
-            { icon: Zap, label: '30W' },
+            { icon: Zap, label: '30 W' },
             { icon: Flame, label: 'EL34' },
             { icon: CircleDot, label: '12.5 kg' },
             { icon: Wrench, label: t('hero.handwired') },
@@ -1644,7 +1644,7 @@ function CTASection({ t }: { t: (k: string) => string }) {
             <ArrowRight className="size-4 ml-2 transition-transform duration-300 group-hover:translate-x-1" />
           </Button>
           <a
-            href="mailto:order@aluplexamp.com"
+            href="mailto:objednavky@aluplex.sk"
             className="inline-flex items-center gap-2 px-8 sm:px-10 py-5 text-base font-semibold rounded-xl border border-white/[0.08] text-foreground/80 hover:bg-white/[0.06] hover:text-foreground hover:border-white/15 backdrop-blur-md transition-all duration-300 hover:scale-[1.03] active:scale-[0.98]"
           >
             <Mail className="size-4" />
@@ -1880,18 +1880,18 @@ function ContactSection({ lang, t }: { lang: Language; t: (k: string) => string 
           <p className="text-xs text-muted-foreground/40 mb-4">{t('footer.contact.title')}</p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6">
             <a
-              href="mailto:info@aluplexamp.com"
+              href="mailto:info@aluplex.sk"
               className="flex items-center gap-2 text-sm text-muted-foreground/60 hover:text-primary transition-colors duration-200"
             >
               <Mail className="size-3.5" />
-              info@aluplexamp.com
+              info@aluplex.sk
             </a>
             <a
-              href="mailto:order@aluplexamp.com"
+              href="mailto:objednavky@aluplex.sk"
               className="flex items-center gap-2 text-sm text-muted-foreground/60 hover:text-primary transition-colors duration-200"
             >
               <Mail className="size-3.5" />
-              order@aluplexamp.com
+              objednavky@aluplex.sk
             </a>
           </div>
         </div>
@@ -2012,7 +2012,7 @@ function Footer({ lang, setLang, t }: { lang: Language; setLang: (l: Language) =
                 ))}
                 <li>
                   <a
-                    href="mailto:order@aluplexamp.com"
+                    href="mailto:objednavky@aluplex.sk"
                     className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200 flex items-center gap-1.5 group"
                   >
                     <span className="w-0 group-hover:w-3 h-[1px] bg-primary/40 transition-all duration-300" />
@@ -2031,25 +2031,25 @@ function Footer({ lang, setLang, t }: { lang: Language; setLang: (l: Language) =
               <ul className="space-y-3">
                 <li>
                   <a
-                    href="mailto:info@aluplexamp.com"
+                    href="mailto:info@aluplex.sk"
                     className="flex items-start gap-2.5 text-sm text-muted-foreground hover:text-foreground transition-colors duration-200 group"
                   >
                     <Mail className="size-3.5 text-primary/40 group-hover:text-primary/60 transition-colors mt-0.5 flex-shrink-0" />
                     <div>
                       <span className="block text-foreground/60 text-xs mb-0.5">{t('footer.contact.info')}</span>
-                      info@aluplexamp.com
+                      info@aluplex.sk
                     </div>
                   </a>
                 </li>
                 <li>
                   <a
-                    href="mailto:order@aluplexamp.com"
+                    href="mailto:objednavky@aluplex.sk"
                     className="flex items-start gap-2.5 text-sm text-muted-foreground hover:text-foreground transition-colors duration-200 group"
                   >
                     <Mail className="size-3.5 text-primary/40 group-hover:text-primary/60 transition-colors mt-0.5 flex-shrink-0" />
                     <div>
                       <span className="block text-foreground/60 text-xs mb-0.5">{t('footer.contact.order')}</span>
-                      order@aluplexamp.com
+                      objednavky@aluplex.sk
                     </div>
                   </a>
                 </li>

@@ -113,3 +113,32 @@ Stage Summary:
 - Application running cleanly on port 3000 via Caddy proxy
 - Trilingual support with dynamic lang attribute
 - GDPR-compliant cookie consent with accept/reject
+
+---
+Task ID: 1
+Agent: main
+Task: Rebrand and fix content for ALUPLEXamp website per Slovak copywriter brief
+
+Work Log:
+- Analyzed all source files: translations.ts (SK/EN/DE), page.tsx, layout.tsx
+- Fixed SK navigation: `nav.faq` changed from "FAQ" to "Časté otázky"
+- Fixed SK technical param: `sa.weight.spec` changed from "Váha: 12,5 kg" to "Hmotnosť: 12,5 kg"
+- Fixed all "30W" instances to "30 W" (space before unit) across SK/EN/DE translations, page.tsx hero spec strip, layout.tsx metadata (description, keywords, OG, Twitter, JSON-LD)
+- Fixed SK `faq.a2`: "30 wattov" → "30 W" (both instances in answer)
+- Fixed EN `faq.a2`: "30 Watts" → "30 W" and "30W through" → "30 W through"
+- Fixed DE `faq.a2`: "30 Watt in" → "30 W in" and "30W durch" → "30 W durch"
+- Updated SK `footer.made`: "Navrhnuté a vyrobené na Slovensku" → "Ručne vyrobené na Slovensku"
+- Updated email addresses: info@aluplexamp.com → info@aluplex.sk, order@aluplexamp.com → objednavky@aluplex.sk (in translations.ts, page.tsx, layout.tsx)
+- Fixed Slovak diacritics: `nehrýze` → `nehryzie` in faq.a5 (correct verb form of "hryzieť")
+- Verified: No placeholders (Miami, New York, 123 Fifth Avenue, Quick Links, Follow us) exist in current codebase
+- Verified: No remaining "30W", "Váha:", or "30 wattov" instances
+- Verified: All lint checks pass on source files
+- Verified: Dev server running and serving 200 responses
+
+Stage Summary:
+- Content rebranding complete across all 3 languages (SK/EN/DE)
+- All unit formatting now consistent with spaces before units (W, kg)
+- Email addresses updated to @aluplex.sk domain
+- Slovak diacritics corrected (nehryzie)
+- Footer now shows "Ručne vyrobené na Slovensku"
+- Navigation FAQ label now properly Slovak: "Časté otázky"

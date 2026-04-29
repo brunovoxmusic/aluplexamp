@@ -18,7 +18,7 @@ const SITE_URL = "https://aluplexamp.com";
 export const metadata: Metadata = {
   title: "ALUPLEXamp — Modern British Tone Machine",
   description:
-    "Handcrafted tube guitar amplifier with aluminium chassis. Class AB, 30W, ECC83 + EL34 tubes by JJ Electronics. Built for musicians who demand perfect British tone.",
+    "Handcrafted tube guitar amplifier with aluminium chassis. Class AB, 30 W, ECC83 + EL34 tubes by JJ Electronics. Built for musicians who demand perfect British tone.",
   keywords: [
     "tube amplifier",
     "guitar amplifier",
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     "turret board",
     "hand-wired",
     "Class AB",
-    "30W amplifier",
+    "30 W amplifier",
     "lampový zosilňovač",
     "gitarový zosilňovač",
     "ručne vyrábaný",
@@ -55,7 +55,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "ALUPLEXamp — Modern British Tone Machine",
     description:
-      "A premium handcrafted tube guitar amplifier with aluminium chassis. 30W of pure British tone — EL34 + ECC83 by JJ Electronics.",
+      "A premium handcrafted tube guitar amplifier with aluminium chassis. 30 W of pure British tone — EL34 + ECC83 by JJ Electronics.",
     siteName: "ALUPLEXamp",
     type: "website",
     locale: "sk_SK",
@@ -75,7 +75,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "ALUPLEXamp — Modern British Tone Machine",
     description:
-      "Handcrafted tube guitar amplifier. Class AB, 30W, EL34 + ECC83. Pure British tone.",
+      "Handcrafted tube guitar amplifier. Class AB, 30 W, EL34 + ECC83. Pure British tone.",
     images: ["/og-image.jpg"],
   },
   robots: {
@@ -118,7 +118,7 @@ export default function RootLayout({
           url: `${SITE_URL}/logo.svg`,
         },
         description: "Premium handcrafted tube guitar amplifier with aluminium chassis.",
-        email: ["info@aluplexamp.com", "order@aluplexamp.com"],
+        email: ["info@aluplex.sk", "objednavky@aluplex.sk"],
         address: {
           "@type": "PostalAddress",
           addressCountry: "SK",
@@ -141,7 +141,7 @@ export default function RootLayout({
       {
         "@type": "Product",
         name: "ALUPLEXamp",
-        description: "Handcrafted tube guitar amplifier with aluminium chassis. Class AB, 30W, 4× ECC83 + 2× EL34 tubes by JJ Electronics.",
+        description: "Handcrafted tube guitar amplifier with aluminium chassis. Class AB, 30 W, 4× ECC83 + 2× EL34 tubes by JJ Electronics.",
         brand: {
           "@type": "Brand",
           name: "ALUPLEXamp",
@@ -162,7 +162,7 @@ export default function RootLayout({
           },
         },
         additionalProperty: [
-          { "@type": "PropertyValue", name: "Power Output", value: "30W" },
+          { "@type": "PropertyValue", name: "Power Output", value: "30 W" },
           { "@type": "PropertyValue", name: "Class", value: "AB" },
           { "@type": "PropertyValue", name: "Preamp Tubes", value: "4× ECC83 JJ Electronics" },
           { "@type": "PropertyValue", name: "Power Tubes", value: "2× EL34 JJ Electronics" },
@@ -188,7 +188,7 @@ export default function RootLayout({
             name: "What is the power output?",
             acceptedAnswer: {
               "@type": "Answer",
-              text: "30 Watts in Class AB push-pull configuration — the legendary sweet spot for stage and studio use.",
+              text: "30 W in Class AB push-pull configuration — the legendary sweet spot for stage and studio use.",
             },
           },
           {
