@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
+import { siteSettings } from "@/lib/site";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -13,33 +14,15 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const SITE_URL = "https://aluplexamp.com";
+const SITE_URL = siteSettings.siteUrl;
 
 export const metadata: Metadata = {
-  title: "ALUPLEXamp — Modern British Tone Machine",
-  description:
-    "Handcrafted tube guitar amplifier with aluminium chassis. Class AB, 30 W, ECC83 + EL34 tubes by JJ Electronics. Built for musicians who demand perfect British tone.",
-  keywords: [
-    "tube amplifier",
-    "guitar amplifier",
-    "ALUPLEXamp",
-    "handcrafted amp",
-    "EL34",
-    "ECC83",
-    "JJ Electronics",
-    "British tone",
-    "aluminium chassis",
-    "turret board",
-    "hand-wired",
-    "Class AB",
-    "30 W amplifier",
-    "lampový zosilňovač",
-    "gitarový zosilňovač",
-    "ručne vyrábaný",
-  ],
-  authors: [{ name: "ALUPLEXamp", url: SITE_URL }],
-  creator: "ALUPLEXamp",
-  publisher: "ALUPLEXamp",
+  title: siteSettings.title,
+  description: siteSettings.description,
+  keywords: siteSettings.keywords,
+  authors: [{ name: siteSettings.brandName, url: SITE_URL }],
+  creator: siteSettings.brandName,
+  publisher: siteSettings.brandName,
   metadataBase: new URL(SITE_URL),
   icons: {
     icon: [
@@ -53,30 +36,28 @@ export const metadata: Metadata = {
   },
   manifest: "/manifest.json",
   openGraph: {
-    title: "ALUPLEXamp — Modern British Tone Machine",
-    description:
-      "A premium handcrafted tube guitar amplifier with aluminium chassis. 30 W of pure British tone — EL34 + ECC83 by JJ Electronics.",
-    siteName: "ALUPLEXamp",
+    title: siteSettings.ogTitle,
+    description: siteSettings.ogDescription,
+    siteName: siteSettings.brandName,
     type: "website",
     locale: "sk_SK",
     alternateLocale: ["en_US", "de_DE"],
     url: SITE_URL,
     images: [
       {
-        url: "/og-image.jpg",
+        url: siteSettings.ogImage,
         width: 1344,
         height: 768,
-        alt: "ALUPLEXamp — Modern British Tone Machine",
+        alt: siteSettings.ogTitle,
         type: "image/jpeg",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "ALUPLEXamp — Modern British Tone Machine",
-    description:
-      "Handcrafted tube guitar amplifier. Class AB, 30 W, EL34 + ECC83. Pure British tone.",
-    images: ["/og-image.jpg"],
+    title: siteSettings.twitterTitle,
+    description: siteSettings.twitterDescription,
+    images: [siteSettings.ogImage],
   },
   robots: {
     index: true,

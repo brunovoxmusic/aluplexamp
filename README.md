@@ -13,7 +13,12 @@ npm run dev
 
 The admin editor is available at `/admin`.
 
-Content is stored in `src/content/translations.json`. In local development the admin API writes directly to that file. In production it commits changes back to GitHub, so Vercel can deploy the updated content without a database.
+Content is stored in:
+
+- `src/content/translations.json` for page text, CTA labels, FAQ and form copy
+- `src/content/site.json` for SEO metadata
+
+In local development the admin API writes directly to these files. In production it commits changes back to GitHub, so Vercel can deploy the updated content without a database.
 
 Required production environment variables:
 
@@ -25,6 +30,16 @@ GITHUB_BRANCH="main"
 ```
 
 The GitHub token needs repository access to `brunovoxmusic/aluplexamp` with `Contents: Read and write`.
+
+## Vercel setup
+
+1. Open the Vercel project.
+2. Go to `Settings` -> `Environment Variables`.
+3. Add the variables listed above for Production, Preview and Development as needed.
+4. Use a fine-grained GitHub token scoped only to `brunovoxmusic/aluplexamp`.
+5. Redeploy the latest `main` branch after adding the variables.
+
+When `/admin` saves content in production, it creates GitHub commits. If the Vercel project is connected to the repository, those commits trigger a new deployment automatically.
 
 ## Checks
 

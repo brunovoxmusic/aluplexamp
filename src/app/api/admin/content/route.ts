@@ -1,25 +1,35 @@
+import { timingSafeEqual } from "node:crypto";
 import { promises as fs } from "node:fs";
 import path from "node:path";
-import { timingSafeEqual } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 
+import type { SiteSettings } from "@/lib/site";
 import type { Language, Translations } from "@/lib/translations";
 
 export const runtime = "nodejs";
 
-const CONTENT_PATH = "src/content/translations.json";
-const CONTENT_FILE = path.join(
+const TRANSLATIONS_PATH = "src/content/translations.json";
+const SITE_PATH = "src/content/site.json";
+const TRANSLATIONS_FILE = path.join(
   process.cwd(),
   "src",
   "content",
   "translations.json"
 );
+const SITE_FILE = path.join(process.cwd(), "src", "content", "site.json");
 const REPO = process.env.GITHUB_REPO || "brunovoxmusic/aluplexamp";
 const BRANCH = process.env.GITHUB_BRANCH || "main";
+
+type ContentBundle = {
+  translations: Translations;
+  site: SiteSettings;
+};
 
 type SavePayload = {
   password?: string;
   content?: unknown;
+  translations?: unknown;
+  site?: unknown;
 };
 
 function jsonResponse(body: unknown, status = 200) {
@@ -63,16 +73,58 @@ function validateTranslations(content: unknown): content is Translations {
   });
 }
 
-async function readLocalContent() {
-  const file = await fs.readFile(CONTENT_FILE, "utf8");
-  return JSON.parse(file) as Translations;
+function validateSiteSettings(content: unknown): content is SiteSettings {
+  if (!content || typeof content !== "object" || Array.isArray(content)) {
+    return false;
+  }
+
+  const value = content as Record<string, unknown>;
+  const requiredStrings = [
+    "siteUrl",
+    "brandName",
+    "title",
+    "description",
+    "ogTitle",
+    "ogDescription",
+    "twitterTitle",
+    "twitterDescription",
+    "ogImage",
+  ];
+
+  return (
+    requiredStrings.every((key) => typeof value[key] === "string") &&
+    Array.isArray(value.keywords) &&
+    value.keywords.every((keyword) => typeof keyword === "string")
+  );
 }
 
-async function writeLocalContent(content: Translations) {
-  await fs.writeFile(CONTENT_FILE, `${JSON.stringify(content, null, 2)}\n`);
+async function readLocalBundle(): Promise<ContentBundle> {
+  const [translationsFile, siteFile] = await Promise.all([
+    fs.readFile(TRANSLATIONS_FILE, "utf8"),
+    fs.readFile(SITE_FILE, "utf8"),
+  ]);
+
+  return {
+    translations: JSON.parse(translationsFile) as Translations,
+    site: JSON.parse(siteFile) as SiteSettings,
+  };
 }
 
-async function saveToGitHub(content: Translations) {
+async function writeLocalBundle(bundle: ContentBundle) {
+  await Promise.all([
+    fs.writeFile(
+      TRANSLATIONS_FILE,
+      `${JSON.stringify(bundle.translations, null, 2)}\n`
+    ),
+    fs.writeFile(SITE_FILE, `${JSON.stringify(bundle.site, null, 2)}\n`),
+  ]);
+}
+
+async function saveFileToGitHub(
+  repoPath: string,
+  content: unknown,
+  message: string
+) {
   const token = process.env.GITHUB_CONTENT_TOKEN;
 
   if (!token) {
@@ -84,19 +136,17 @@ async function saveToGitHub(content: Translations) {
     Authorization: `Bearer ${token}`,
     "X-GitHub-Api-Version": "2022-11-28",
   };
-
-  const encodedPath = CONTENT_PATH.split("/").map(encodeURIComponent).join("/");
+  const encodedPath = repoPath.split("/").map(encodeURIComponent).join("/");
   const currentFileResponse = await fetch(
     `https://api.github.com/repos/${REPO}/contents/${encodedPath}?ref=${encodeURIComponent(BRANCH)}`,
     { headers }
   );
 
   if (!currentFileResponse.ok) {
-    throw new Error(`github_read_failed_${currentFileResponse.status}`);
+    throw new Error(`github_read_failed_${repoPath}_${currentFileResponse.status}`);
   }
 
   const currentFile = (await currentFileResponse.json()) as { sha?: string };
-
   const saveResponse = await fetch(
     `https://api.github.com/repos/${REPO}/contents/${encodedPath}`,
     {
@@ -105,7 +155,7 @@ async function saveToGitHub(content: Translations) {
       body: JSON.stringify({
         branch: BRANCH,
         sha: currentFile.sha,
-        message: "Update ALUPLEXamp CMS content",
+        message,
         content: Buffer.from(`${JSON.stringify(content, null, 2)}\n`).toString(
           "base64"
         ),
@@ -114,15 +164,43 @@ async function saveToGitHub(content: Translations) {
   );
 
   if (!saveResponse.ok) {
-    throw new Error(`github_write_failed_${saveResponse.status}`);
+    throw new Error(`github_write_failed_${repoPath}_${saveResponse.status}`);
+  }
+}
+
+async function saveBundleToGitHub(bundle: ContentBundle) {
+  await saveFileToGitHub(
+    TRANSLATIONS_PATH,
+    bundle.translations,
+    "Update ALUPLEXamp CMS text content"
+  );
+  await saveFileToGitHub(
+    SITE_PATH,
+    bundle.site,
+    "Update ALUPLEXamp CMS SEO settings"
+  );
+}
+
+function normalizePayload(body: SavePayload): ContentBundle | null {
+  const translations = body.translations ?? body.content;
+  const site = body.site;
+
+  if (!validateTranslations(translations) || !validateSiteSettings(site)) {
+    return null;
   }
 
-  return saveResponse.json();
+  return { translations, site };
 }
 
 export async function GET() {
   try {
-    return jsonResponse({ content: await readLocalContent() });
+    const bundle = await readLocalBundle();
+
+    return jsonResponse({
+      content: bundle.translations,
+      translations: bundle.translations,
+      site: bundle.site,
+    });
   } catch {
     return jsonResponse({ error: "content_read_failed" }, 500);
   }
@@ -136,14 +214,16 @@ export async function POST(request: NextRequest) {
       return jsonResponse({ error: "unauthorized" }, 401);
     }
 
-    if (!validateTranslations(body.content)) {
+    const bundle = normalizePayload(body);
+
+    if (!bundle) {
       return jsonResponse({ error: "invalid_content" }, 400);
     }
 
     if (process.env.NODE_ENV === "production") {
-      await saveToGitHub(body.content);
+      await saveBundleToGitHub(bundle);
     } else {
-      await writeLocalContent(body.content);
+      await writeLocalBundle(bundle);
     }
 
     return jsonResponse({ success: true });
