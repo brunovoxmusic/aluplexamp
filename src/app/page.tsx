@@ -341,6 +341,7 @@ function HeroSection({ t }: { t: (k: string) => string }) {
               src={src}
               alt=""
               loading={i === 0 ? 'eager' : 'lazy'}
+              decoding={i === 0 ? 'sync' : 'async'}
               className="w-full h-full object-cover scale-105 hero-ken-burns"
             />
           </div>
@@ -370,6 +371,7 @@ function HeroSection({ t }: { t: (k: string) => string }) {
             src="/aluplex/aluplex-red-front.jpg"
             alt="ALUPLEXamp ručne vyrábaný elektrónkový gitarový zosilňovač"
             loading="eager"
+            decoding="sync"
             className="mobile-hero-product-image"
           />
         </div>
@@ -395,20 +397,20 @@ function HeroSection({ t }: { t: (k: string) => string }) {
 
         {/* Subtitle — refined typography */}
         <div className="hero-fade-item" style={{ animationDelay: '0.7s' }}>
-          <p className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-light text-foreground/85 mb-4 sm:mb-5 tracking-wide hero-subtitle-text">
+          <p className="max-w-[21rem] sm:max-w-none text-xl sm:text-2xl md:text-3xl lg:text-4xl font-light text-foreground/85 mb-4 sm:mb-5 tracking-wide hero-subtitle-text">
             {t('hero.subtitle')}
           </p>
         </div>
 
         {/* Description */}
         <div className="hero-fade-item" style={{ animationDelay: '0.85s' }}>
-          <p className="text-sm sm:text-base text-muted-foreground/70 max-w-lg mb-10 sm:mb-14 leading-relaxed">
+          <p className="text-sm sm:text-base text-muted-foreground/70 max-w-[21rem] sm:max-w-lg mb-10 sm:mb-14 leading-relaxed">
             {t('hero.description')}
           </p>
         </div>
 
         {/* Key specs strip — centered, refined glass pills */}
-        <div className="hero-fade-item flex flex-wrap items-center gap-2.5 sm:gap-3 mb-10 sm:mb-14" style={{ animationDelay: '0.95s' }}>
+        <div className="hero-fade-item grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2.5 sm:gap-3 mb-10 sm:mb-14" style={{ animationDelay: '0.95s' }}>
           {[
             { icon: Zap, label: '30 W' },
             { icon: Flame, label: 'EL34' },
@@ -417,10 +419,12 @@ function HeroSection({ t }: { t: (k: string) => string }) {
           ].map((spec, i) => (
             <div
               key={i}
-              className="flex items-center gap-2 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-full bg-white/[0.04] border border-white/[0.07] backdrop-blur-md transition-all duration-500 hover:bg-white/[0.07] hover:border-primary/20"
+              className={`min-w-0 flex items-center justify-center sm:justify-start gap-2 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-full bg-white/[0.04] border border-white/[0.07] backdrop-blur-md transition-all duration-500 hover:bg-white/[0.07] hover:border-primary/20 ${
+                i === 3 ? 'col-span-2 sm:col-span-1' : ''
+              }`}
             >
               <spec.icon className="size-3.5 sm:size-4 text-primary/80" />
-              <span className="text-xs sm:text-sm font-medium text-foreground/70 tracking-wide">{spec.label}</span>
+              <span className="min-w-0 truncate text-xs sm:text-sm font-medium text-foreground/70 tracking-wide">{spec.label}</span>
             </div>
           ))}
         </div>
@@ -482,6 +486,7 @@ function ValueProps({ t }: { t: (k: string) => string }) {
           alt=""
           className="absolute inset-0 w-full h-full object-cover opacity-[0.06] grayscale mix-blend-luminosity pointer-events-none"
           loading="lazy"
+          decoding="async"
           aria-hidden="true"
         />
         {/* Dark overlay for readability */}
@@ -569,7 +574,7 @@ function EngineeringSection({ t }: { t: (k: string) => string }) {
             <div className="relative bg-card/50 border border-[#2a2a2a]/60 rounded-3xl overflow-hidden tube-glow backdrop-blur-sm">
               {/* Real chassis back image */}
               <div className="relative">
-                <img src="/aluplex/aluplex-back-naked.jpg" alt="ALUPLEXamp chassis internals" className="w-full h-auto object-cover" />
+                <img src="/aluplex/aluplex-back-naked.jpg" alt="Vnútorné turret board zapojenie zosilňovača ALUPLEXamp" className="w-full h-auto object-cover" loading="lazy" decoding="async" />
                 <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent" />
               </div>
 
@@ -650,7 +655,7 @@ function SoundArchitecture({ t }: { t: (k: string) => string }) {
         <div className="fade-in-up relative overflow-hidden bg-gradient-to-r from-primary/[0.04] via-primary/[0.08] to-primary/[0.04] border border-primary/15 rounded-3xl p-6 sm:p-8 lg:p-10 backdrop-blur-sm" style={{ transitionDelay: '400ms' }}>
           {/* Subtle amp photo background — right side */}
           <div className="absolute top-0 right-0 w-2/3 h-full opacity-[0.04] pointer-events-none">
-            <img src="/aluplex/aluplex-123.jpg" alt="" className="w-full h-full object-cover grayscale mix-blend-luminosity" loading="lazy" />
+            <img src="/aluplex/aluplex-123.jpg" alt="" className="w-full h-full object-cover grayscale mix-blend-luminosity" loading="lazy" decoding="async" />
           </div>
           <div className="absolute top-0 right-0 w-64 h-64 bg-[radial-gradient(ellipse,rgba(212,146,42,0.06)_0%,transparent_70%)] pointer-events-none" />
           <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground mb-3">
@@ -674,55 +679,41 @@ interface WaveformData {
 
 function generateWaveform(audioSrc: string): Promise<WaveformData> {
   const numBars = 120;
-  const fallbackWaveform = (dur: number): WaveformData => {
-    const fallbackPeaks: number[] = [];
+  const seed = audioSrc.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const metadataWaveform = (dur: number): WaveformData => {
+    const peaks: number[] = [];
     for (let i = 0; i < numBars; i++) {
-      const base = 0.3 + 0.5 * Math.sin(i * 0.15) * Math.sin(i * 0.07);
-      fallbackPeaks.push(Math.max(0.08, Math.min(1, base + (Math.random() - 0.5) * 0.3)));
+      const slow = Math.sin((i + seed) * 0.13);
+      const fast = Math.sin((i + seed) * 0.47);
+      const pulse = Math.sin((i + seed) * 0.031);
+      const peak = 0.36 + slow * 0.22 + fast * 0.12 + pulse * 0.18;
+      peaks.push(Math.max(0.08, Math.min(0.95, peak)));
     }
-    return { peaks: fallbackPeaks, duration: dur };
+    return { peaks, duration: dur };
   };
 
   return new Promise((resolve) => {
-    const audioCtx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
-    fetch(audioSrc)
-      .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.arrayBuffer(); })
-      .then(buf => audioCtx.decodeAudioData(buf))
-      .then(audioBuffer => {
-        const dur = audioBuffer.duration;
-        const channelData = audioBuffer.getChannelData(0);
-        const peaks: number[] = [];
-        const samplesPerBar = Math.floor(channelData.length / numBars);
-        for (let i = 0; i < numBars; i++) {
-          let max = 0;
-          const start = i * samplesPerBar;
-          for (let j = start; j < start + samplesPerBar && j < channelData.length; j++) {
-            const abs = Math.abs(channelData[j]);
-            if (abs > max) max = abs;
-          }
-          peaks.push(max);
-        }
-        audioCtx.close();
-        resolve({ peaks, duration: dur });
-      })
-      .catch(() => {
-        // Fallback: use a regular Audio element to get duration, generate visual waveform
-        const fallback = new Audio();
-        fallback.preload = 'metadata';
-        fallback.src = audioSrc;
-        const onMeta = () => {
-          fallback.removeEventListener('loadedmetadata', onMeta);
-          resolve(fallbackWaveform(fallback.duration || 10));
-        };
-        const onErr = () => {
-          fallback.removeEventListener('error', onErr);
-          resolve(fallbackWaveform(10));
-        };
-        fallback.addEventListener('loadedmetadata', onMeta);
-        fallback.addEventListener('error', onErr);
-        // Timeout fallback
-        setTimeout(() => resolve(fallbackWaveform(10)), 5000);
-      });
+    const metadataAudio = new Audio();
+    metadataAudio.preload = 'metadata';
+    metadataAudio.src = audioSrc;
+    const cleanup = () => {
+      metadataAudio.removeEventListener('loadedmetadata', onMeta);
+      metadataAudio.removeEventListener('error', onErr);
+    };
+    const onMeta = () => {
+      cleanup();
+      resolve(metadataWaveform(metadataAudio.duration || 10));
+    };
+    const onErr = () => {
+      cleanup();
+      resolve(metadataWaveform(10));
+    };
+    metadataAudio.addEventListener('loadedmetadata', onMeta);
+    metadataAudio.addEventListener('error', onErr);
+    setTimeout(() => {
+      cleanup();
+      resolve(metadataWaveform(10));
+    }, 5000);
   });
 }
 
@@ -775,12 +766,6 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
   // Load all waveforms when section becomes visible + set initial audio source
   useEffect(() => {
     if (!waveformsInitialized) return;
-    // Set initial audio source so play button works on first click
-    if (audioRef.current && tracks[0]) {
-      audioRef.current.preload = 'auto';
-      audioRef.current.src = tracks[0].src;
-      audioRef.current.load();
-    }
     Promise.all(tracks.map(tr => generateWaveform(tr.src))).then(data => {
       setWaveforms(data);
       setLoaded(true);
@@ -891,19 +876,15 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
     }
 
     audio.src = tracks[index].src;
+    audio.preload = 'auto';
     audio.load();
-    const onCanPlay = () => {
-      audio.removeEventListener('canplaythrough', onCanPlay);
-      audio.play().then(() => {
-        setActiveTrack(index);
-        setPlaying(true);
-      }).catch((err) => {
-        console.warn('Audio play failed:', err);
-        // Autoplay might be blocked - try once user interacts
-        setActiveTrack(index);
-      });
-    };
-    audio.addEventListener('canplaythrough', onCanPlay);
+    audio.play().then(() => {
+      setActiveTrack(index);
+      setPlaying(true);
+    }).catch((err) => {
+      console.warn('Audio play failed:', err);
+      setActiveTrack(index);
+    });
   };
 
   const togglePlay = () => {
@@ -917,6 +898,7 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
       // If no source is loaded yet, load the current track first
       if (!audio.src || audio.src === window.location.href) {
         audio.src = tracks[activeTrack].src;
+        audio.preload = 'auto';
         audio.load();
       }
       audio.play().then(() => setPlaying(true)).catch(() => {
@@ -1430,6 +1412,8 @@ function ConfiguratorSection({
                   <img
                     src={color === 'red' ? '/aluplex/aluplex-red-front.jpg' : color === 'black' ? '/aluplex/aluplex-1.jpg' : color === 'cream' ? '/aluplex/aluplex-138.jpg' : '/aluplex/aluplex-56.jpg'}
                     alt={`ALUPLEXamp — ${colors.find(c => c.id === color)?.label}`}
+                    loading="lazy"
+                    decoding="async"
                     className="w-full max-w-sm mx-auto rounded-2xl opacity-90 object-cover aspect-[3/2] shadow-2xl shadow-black/30 transition-opacity duration-300"
                   />
                 </div>
@@ -1535,7 +1519,7 @@ function GallerySection({ t }: { t: (k: string) => string }) {
               style={{ transitionDelay: `${i * 60}ms` }}
               aria-label={item.label}
             >
-              <img src={item.src} alt={item.label} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+              <img src={item.src} alt={item.label} loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
               {/* Always-on gradient */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
               {/* Hover overlay */}
@@ -1584,7 +1568,7 @@ function GallerySection({ t }: { t: (k: string) => string }) {
             <div className="relative w-[95vw] sm:w-[85vw] max-w-5xl aspect-[4/3] rounded-2xl overflow-hidden border border-white/10 shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
-              <img src={items[lightbox].src} alt={items[lightbox].label} className="absolute inset-0 w-full h-full object-cover" />
+              <img src={items[lightbox].src} alt={items[lightbox].label} decoding="async" className="absolute inset-0 w-full h-full object-cover" />
             </div>
             <p className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 text-xs sm:text-sm text-white/50 bg-black/40 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/10">
               {items[lightbox].label}

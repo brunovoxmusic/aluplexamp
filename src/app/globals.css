@@ -135,6 +135,7 @@
   html {
     scroll-behavior: smooth;
     scroll-padding-top: 5rem;
+    overflow-x: hidden;
   }
 }
 
@@ -444,6 +445,11 @@ select:focus-visible {
   outline-offset: 2px;
 }
 
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
 /* ========== iOS Safe Area ========== */
 
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
@@ -492,7 +498,13 @@ select:focus-visible {
 
 .track-scroll {
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
   scrollbar-width: none;
+}
+
+.track-scroll > * {
+  scroll-snap-align: start;
 }
 .track-scroll::-webkit-scrollbar {
   display: none;
@@ -679,6 +691,8 @@ select:focus-visible {
   display: flex;
   align-items: center;
   justify-content: center;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
 }
 
 /* ========== Configurator Preview ========== */
