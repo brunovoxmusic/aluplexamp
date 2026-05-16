@@ -231,10 +231,13 @@ function Navigation({ lang, setLang, t }: { lang: Language; setLang: (l: Languag
           {/* Right side: Language + Mobile toggle */}
           <div className="flex items-center gap-2 sm:gap-3">
             {/* Language Switcher */}
-            <div className="hidden sm:flex items-center gap-0.5 bg-white/[0.04] rounded-xl p-1 border border-white/[0.06]" role="radiogroup" aria-label="Language">
+            <div className="hidden sm:flex items-center gap-0.5 bg-white/[0.04] rounded-xl p-1 border border-white/[0.06]" role="radiogroup" aria-label={t('a11y.language')}>
               {langOptions.map((l) => (
                 <button
                   key={l}
+                  role="radio"
+                  aria-checked={lang === l}
+                  aria-label={l.toUpperCase()}
                   onClick={() => setLang(l)}
                   className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all duration-200 ${
                     lang === l
@@ -250,21 +253,29 @@ function Navigation({ lang, setLang, t }: { lang: Language; setLang: (l: Languag
             {/* Mobile hamburger */}
             <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
               <SheetTrigger asChild className="lg:hidden">
-                <button className="p-2.5 text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-white/5" aria-label="Menu">
+                <button
+                  className="p-2.5 text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-white/5"
+                  aria-label={t('a11y.menu.open')}
+                  aria-expanded={mobileOpen}
+                  aria-controls="mobile-navigation"
+                >
                   <Menu className="size-5" />
                 </button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-80 bg-[#0a0a0a]/95 backdrop-blur-xl border-[#2a2a2a]/50">
+              <SheetContent id="mobile-navigation" side="right" className="w-80 bg-[#0a0a0a]/95 backdrop-blur-xl border-[#2a2a2a]/50">
                 <SheetHeader className="mb-8">
                   <SheetTitle className="text-foreground flex items-center gap-3">
                     <img src="/aluplex/logo.png" alt="ALUPLEXamp" className="h-7 w-auto" />
                   </SheetTitle>
                 </SheetHeader>
                 {/* Mobile Language Switcher */}
-                <div className="flex items-center gap-0.5 bg-white/[0.04] rounded-xl p-1 mb-8 w-fit border border-white/[0.06]" role="radiogroup" aria-label="Language">
+                <div className="flex items-center gap-0.5 bg-white/[0.04] rounded-xl p-1 mb-8 w-fit border border-white/[0.06]" role="radiogroup" aria-label={t('a11y.language')}>
                   {langOptions.map((l) => (
                     <button
                       key={l}
+                      role="radio"
+                      aria-checked={lang === l}
+                      aria-label={l.toUpperCase()}
                       onClick={() => { setLang(l); }}
                       className={`px-4 py-2 text-xs font-semibold rounded-lg transition-all duration-200 ${
                         lang === l
@@ -284,6 +295,7 @@ function Navigation({ lang, setLang, t }: { lang: Language; setLang: (l: Languag
                       <button
                         key={link.id}
                         onClick={() => scrollTo(link.id)}
+                        aria-current={isActive ? 'true' : undefined}
                         className={`relative text-left pl-4 pr-4 py-3 text-sm rounded-xl transition-all duration-300 ${
                           isActive
                             ? 'bg-primary/[0.08] text-primary font-medium'
@@ -303,7 +315,7 @@ function Navigation({ lang, setLang, t }: { lang: Language; setLang: (l: Languag
                     );
                   })}
                 </div>
-                <SheetClose className="absolute top-4 right-4 text-muted-foreground hover:text-foreground">
+                <SheetClose aria-label={t('a11y.menu.close')} className="absolute top-4 right-4 text-muted-foreground hover:text-foreground">
                   <X className="size-5" />
                 </SheetClose>
               </SheetContent>
@@ -948,6 +960,24 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
     setCurrentTime(pct * duration);
   };
 
+  const handleSeekKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (!audioRef.current || !duration) return;
+
+    const step = e.shiftKey ? 10 : 5;
+    let nextTime = audioRef.current.currentTime;
+
+    if (e.key === 'ArrowRight') nextTime += step;
+    else if (e.key === 'ArrowLeft') nextTime -= step;
+    else if (e.key === 'Home') nextTime = 0;
+    else if (e.key === 'End') nextTime = duration;
+    else return;
+
+    e.preventDefault();
+    const boundedTime = Math.max(0, Math.min(duration, nextTime));
+    audioRef.current.currentTime = boundedTime;
+    setCurrentTime(boundedTime);
+  };
+
   const handleWaveformMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     isDragging.current = true;
     dragTarget.current = 'waveform';
@@ -1016,6 +1046,8 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
                 <button
                   key={i}
                   onClick={() => { if (i !== activeTrack) { setActiveTrack(i); setPlaying(false); setCurrentTime(0); } else { playTrack(i); } }}
+                  aria-pressed={activeTrack === i}
+                  aria-label={`${track.tag}: ${track.name}`}
                   className="flex-shrink-0 flex items-center gap-2.5 px-4 py-2.5 rounded-xl border text-left transition-all duration-300"
                   style={{
                     background: activeTrack === i ? trackAccentsFaded[i] : 'rgba(255,255,255,0.02)',
@@ -1053,6 +1085,8 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
                 <button
                   key={i}
                   onClick={() => { if (i !== activeTrack) { setActiveTrack(i); setPlaying(false); setCurrentTime(0); } else { playTrack(i); } }}
+                  aria-pressed={activeTrack === i}
+                  aria-label={`${track.tag}: ${track.name}`}
                   className="w-full flex items-center gap-3 px-4 py-3.5 text-left transition-all duration-300 hover:bg-white/[0.03] group"
                   style={{
                     background: activeTrack === i ? trackAccentsFaded[i] : undefined,
@@ -1141,6 +1175,14 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
                   className={`relative w-full h-24 sm:h-28 lg:h-32 rounded-xl bg-white/[0.02] border border-white/[0.05] cursor-pointer overflow-hidden transition-all duration-300 ${playing ? 'border-white/[0.08]' : ''}`}
                   onMouseDown={handleWaveformMouseDown}
                   onTouchStart={(e) => { isDragging.current = true; if (e.touches[0]) seekToPosition(e.touches[0] as unknown as MouseEvent); }}
+                  onKeyDown={handleSeekKeyDown}
+                  role="slider"
+                  tabIndex={0}
+                  aria-label={t('a11y.audio.seek')}
+                  aria-valuemin={0}
+                  aria-valuemax={Math.round(duration || 0)}
+                  aria-valuenow={Math.round(currentTime || 0)}
+                  aria-valuetext={`${formatTime(currentTime)} / ${formatTime(duration)}`}
                 >
                   <canvas ref={waveformRef} className="absolute inset-0 w-full h-full" />
                   {!loaded && (
@@ -1199,7 +1241,7 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
                       value={volume}
                       onChange={(e) => setVolume(parseFloat(e.target.value))}
                       className="w-20 h-1 accent-[#d4922a] cursor-pointer"
-                      aria-label="Volume"
+                      aria-label={t('a11y.audio.volume')}
                     />
                   </div>
 
@@ -1208,7 +1250,7 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
                     <button
                       onClick={playPrev}
                       className="w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center text-muted-foreground/60 hover:text-foreground hover:bg-white/[0.05] transition-all duration-200"
-                      aria-label="Previous track"
+                      aria-label={t('a11y.audio.previous')}
                     >
                       <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z" />
@@ -1226,7 +1268,7 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
                         background: trackAccents[activeTrack],
                         boxShadow: playing ? `0 0 24px ${trackAccentsMid[activeTrack]}` : undefined,
                       }}
-                      aria-label={playing ? 'Pause' : 'Play'}
+                      aria-label={playing ? t('a11y.audio.pause') : t('a11y.audio.play')}
                     >
                       {playing ? (
                         <svg className="size-5 sm:size-6" fill="currentColor" viewBox="0 0 24 24">
@@ -1242,7 +1284,7 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
                     <button
                       onClick={playNext}
                       className="w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center text-muted-foreground/60 hover:text-foreground hover:bg-white/[0.05] transition-all duration-200"
-                      aria-label="Next track"
+                      aria-label={t('a11y.audio.next')}
                     >
                       <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" />
@@ -1479,13 +1521,13 @@ function GallerySection({ t }: { t: (k: string) => string }) {
     { label: t('gal.rear'), src: '/aluplex/aluplex-123.jpg' },
   ];
 
-  const prev = () => {
+  const prev = useCallback(() => {
     if (lightbox !== null) setLightbox(lightbox === 0 ? items.length - 1 : lightbox - 1);
-  };
+  }, [items.length, lightbox]);
 
-  const next = () => {
+  const next = useCallback(() => {
     if (lightbox !== null) setLightbox(lightbox === items.length - 1 ? 0 : lightbox + 1);
-  };
+  }, [items.length, lightbox]);
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -1496,6 +1538,15 @@ function GallerySection({ t }: { t: (k: string) => string }) {
     };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
+  }, [lightbox, next, prev]);
+
+  useEffect(() => {
+    if (lightbox === null) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
   }, [lightbox]);
 
   return (
@@ -1517,7 +1568,7 @@ function GallerySection({ t }: { t: (k: string) => string }) {
                 i === 0 ? 'sm:col-span-2 sm:row-span-2 sm:aspect-square' : ''
               }`}
               style={{ transitionDelay: `${i * 60}ms` }}
-              aria-label={item.label}
+              aria-label={`${t('a11y.gallery.open')}: ${item.label}`}
             >
               <img src={item.src} alt={item.label} loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
               {/* Always-on gradient */}
@@ -1538,12 +1589,18 @@ function GallerySection({ t }: { t: (k: string) => string }) {
 
         {/* Lightbox */}
         {lightbox !== null && (
-          <div className="lightbox-overlay" onClick={() => setLightbox(null)}>
+          <div
+            className="lightbox-overlay"
+            onClick={() => setLightbox(null)}
+            role="dialog"
+            aria-modal="true"
+            aria-label={t('a11y.gallery.dialog')}
+          >
             <div className="absolute top-0 left-0 right-0 z-[102] flex items-center justify-between p-4 sm:p-6">
               <button
                 className="p-2.5 rounded-xl bg-black/40 backdrop-blur-sm text-white hover:bg-black/60 transition-colors border border-white/10"
                 onClick={() => setLightbox(null)}
-                aria-label="Close"
+                aria-label={t('a11y.gallery.close')}
               >
                 <X className="size-5" />
               </button>
@@ -1554,14 +1611,14 @@ function GallerySection({ t }: { t: (k: string) => string }) {
             <button
               className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 z-[101] p-2.5 sm:p-3 rounded-xl bg-black/40 backdrop-blur-sm text-white hover:bg-black/60 transition-colors border border-white/10"
               onClick={(e) => { e.stopPropagation(); prev(); }}
-              aria-label="Previous"
+              aria-label={t('a11y.gallery.previous')}
             >
               <ChevronLeft className="size-5" />
             </button>
             <button
               className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-[101] p-2.5 sm:p-3 rounded-xl bg-black/40 backdrop-blur-sm text-white hover:bg-black/60 transition-colors border border-white/10"
               onClick={(e) => { e.stopPropagation(); next(); }}
-              aria-label="Next"
+              aria-label={t('a11y.gallery.next')}
             >
               <ChevronRight className="size-5" />
             </button>
