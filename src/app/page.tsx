@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Heart, Target, Shield, Music, ThermometerSun, Weight, Magnet, ShieldCheck,
@@ -1846,10 +1847,17 @@ function ContactSection({ lang, t }: { lang: Language; t: (k: string) => string 
 
                 {/* Privacy note */}
                 <p className="text-[10px] sm:text-[11px] text-muted-foreground/30 leading-relaxed">
-                  {t('form.privacy')}
+                  {t('form.privacy')}{' '}
+                  <Link href="/privacy" className="text-primary/70 hover:text-primary underline underline-offset-4">
+                    {t('form.privacy.link')}
+                  </Link>
                 </p>
 
                 {/* Submit */}
+                <div className="sr-only" aria-live="polite" aria-atomic="true">
+                  {status === 'sending' && t('form.sending')}
+                  {status === 'error' && t('form.error')}
+                </div>
                 <Button
                   type="submit"
                   disabled={status === 'sending'}
@@ -2019,6 +2027,24 @@ function Footer({ lang, setLang, t }: { lang: Language; setLang: (l: Language) =
                     {t('footer.support.order')}
                   </a>
                 </li>
+                <li>
+                  <Link
+                    href="/privacy"
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200 flex items-center gap-1.5 group"
+                  >
+                    <span className="w-0 group-hover:w-3 h-[1px] bg-primary/40 transition-all duration-300" />
+                    {t('footer.privacy')}
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/cookies"
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200 flex items-center gap-1.5 group"
+                  >
+                    <span className="w-0 group-hover:w-3 h-[1px] bg-primary/40 transition-all duration-300" />
+                    {t('footer.cookies')}
+                  </Link>
+                </li>
               </ul>
             </div>
 
@@ -2154,7 +2180,10 @@ function CookieConsent({ t }: { t: (k: string) => string }) {
       <div className="max-w-3xl mx-auto bg-[#111]/95 backdrop-blur-xl border border-white/[0.08] rounded-2xl px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 shadow-2xl shadow-black/40">
         <p className="text-xs sm:text-sm text-muted-foreground/70 leading-relaxed flex-1">
           <Shield className="size-4 text-primary/50 inline-block mr-2 -mt-0.5" />
-          {t('cookie.text')}
+          {t('cookie.text')}{' '}
+          <Link href="/cookies" className="text-primary/75 hover:text-primary underline underline-offset-4">
+            {t('cookie.link')}
+          </Link>
         </p>
         <div className="flex items-center gap-2 flex-shrink-0">
           <button onClick={reject} className="px-4 py-2 text-xs font-semibold rounded-lg border border-white/10 text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all duration-200">

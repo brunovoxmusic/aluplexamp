@@ -6,7 +6,14 @@ interface ContactPayload {
   subject: string;
   message: string;
   lang?: string;
+  website?: string;
 }
+
+type SanitizedContactPayload = Required<Omit<ContactPayload, 'website'>>;
+
+const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
+const RATE_LIMIT_MAX_REQUESTS = 5;
+const rateLimitStore = new Map<string, { count: number; resetAt: number }>();
 
 function escapeHtml(value: string) {
   return value
@@ -17,7 +24,7 @@ function escapeHtml(value: string) {
     .replaceAll("'", '&#039;');
 }
 
-function buildEmailHtml(data: Required<ContactPayload>, timestamp: string) {
+function buildEmailHtml(data: SanitizedContactPayload, timestamp: string) {
   const rows = [
     ['Name', data.name],
     ['Email', data.email],
@@ -49,7 +56,71 @@ function buildEmailHtml(data: Required<ContactPayload>, timestamp: string) {
   `;
 }
 
-async function sendContactEmail(payload: Required<ContactPayload>, timestamp: string) {
+function getClientIp(request: NextRequest) {
+  return (
+    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    request.headers.get('x-real-ip') ||
+    'unknown'
+  );
+}
+
+function isRateLimited(key: string) {
+  const now = Date.now();
+  const current = rateLimitStore.get(key);
+
+  if (!current || current.resetAt <= now) {
+    rateLimitStore.set(key, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+    return false;
+  }
+
+  current.count += 1;
+  rateLimitStore.set(key, current);
+  return current.count > RATE_LIMIT_MAX_REQUESTS;
+}
+
+function normalizeString(value: unknown) {
+  return typeof value === 'string' ? value.trim() : '';
+}
+
+function validateAndSanitize(body: ContactPayload): SanitizedContactPayload | NextResponse {
+  const name = normalizeString(body.name);
+  const email = normalizeString(body.email).toLowerCase();
+  const subject = normalizeString(body.subject);
+  const message = normalizeString(body.message);
+  const lang = normalizeString(body.lang) || 'sk';
+
+  if (!name || !email || !message) {
+    return NextResponse.json(
+      { success: false, error: 'missing_fields' },
+      { status: 400 }
+    );
+  }
+
+  if (name.length > 100 || email.length > 200 || subject.length > 200 || message.length > 5000) {
+    return NextResponse.json(
+      { success: false, error: 'field_too_long' },
+      { status: 400 }
+    );
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return NextResponse.json(
+      { success: false, error: 'invalid_email' },
+      { status: 400 }
+    );
+  }
+
+  return {
+    name,
+    email,
+    subject,
+    message,
+    lang: ['sk', 'en', 'de'].includes(lang) ? lang : 'sk',
+  };
+}
+
+async function sendContactEmail(payload: SanitizedContactPayload, timestamp: string) {
   const apiKey = process.env.RESEND_API_KEY;
   const to = (process.env.CONTACT_TO_EMAIL || 'info@aluplex.sk')
     .split(',')
@@ -92,38 +163,29 @@ export async function POST(request: NextRequest) {
   try {
     const body: ContactPayload = await request.json();
 
-    // Validate required fields
-    if (!body.name?.trim() || !body.email?.trim() || !body.message?.trim()) {
+    if (normalizeString(body.website)) {
+      return NextResponse.json({ success: true });
+    }
+
+    const ip = getClientIp(request);
+    const rateLimitKey = `${ip}:${normalizeString(body.email).toLowerCase() || 'anonymous'}`;
+    if (isRateLimited(rateLimitKey)) {
       return NextResponse.json(
-        { success: false, error: 'missing_fields' },
-        { status: 400 }
+        { success: false, error: 'rate_limited' },
+        { status: 429 }
       );
     }
 
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(body.email)) {
-      return NextResponse.json(
-        { success: false, error: 'invalid_email' },
-        { status: 400 }
-      );
-    }
-
-    // Sanitize inputs
-    const name = body.name.trim().slice(0, 100);
-    const email = body.email.trim().slice(0, 200);
-    const subject = (body.subject || '').trim().slice(0, 200);
-    const message = body.message.trim().slice(0, 5000);
-    const lang = body.lang || 'sk';
-    const payload = { name, email, subject, message, lang };
+    const payload = validateAndSanitize(body);
+    if (payload instanceof NextResponse) return payload;
 
     const timestamp = new Date().toISOString();
     console.log(`[CONTACT FORM] ${timestamp}`);
-    console.log(`  Name: ${name}`);
-    console.log(`  Email: ${email}`);
-    console.log(`  Subject: ${subject || '(no subject)'}`);
-    console.log(`  Language: ${lang}`);
-    console.log(`  Message: ${message.slice(0, 100)}${message.length > 100 ? '...' : ''}`);
+    console.log(`  Name: ${payload.name}`);
+    console.log(`  Email: ${payload.email}`);
+    console.log(`  Subject: ${payload.subject || '(no subject)'}`);
+    console.log(`  Language: ${payload.lang}`);
+    console.log(`  Message: ${payload.message.slice(0, 100)}${payload.message.length > 100 ? '...' : ''}`);
 
     await sendContactEmail(payload, timestamp);
 
