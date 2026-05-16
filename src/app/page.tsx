@@ -19,6 +19,12 @@ import {
 } from '@/components/ui/sheet';
 import { translations, type Language } from '@/lib/translations';
 
+type ConfigInquiry = {
+  subject: string;
+  message: string;
+  nonce: number;
+};
+
 // ========== HOOKS ==========
 
 function useTranslation() {
@@ -359,8 +365,17 @@ function HeroSection({ t }: { t: (k: string) => string }) {
       {/* Content — left-aligned with generous spacing */}
       <div className="relative z-10 w-full max-w-5xl mx-auto px-6 sm:px-10 lg:px-16 xl:px-24 py-32 sm:py-36 lg:py-44">
         {/* Badge */}
+        <div className="mobile-hero-product hero-fade-item sm:hidden" style={{ animationDelay: '0.1s' }}>
+          <img
+            src="/aluplex/aluplex-red-front.jpg"
+            alt="ALUPLEXamp ručne vyrábaný elektrónkový gitarový zosilňovač"
+            loading="eager"
+            className="mobile-hero-product-image"
+          />
+        </div>
+
         <div className="hero-fade-item" style={{ animationDelay: '0.2s' }}>
-          <Badge className="mb-8 sm:mb-10 px-5 py-2.5 text-xs sm:text-sm bg-primary/[0.08] text-primary/90 border-primary/15 hover:bg-primary/[0.12] backdrop-blur-md">
+          <Badge className="mb-8 sm:mb-10 max-w-full px-4 sm:px-5 py-2.5 text-left text-xs sm:text-sm leading-relaxed whitespace-normal bg-primary/[0.08] text-primary/90 border-primary/15 hover:bg-primary/[0.12] backdrop-blur-md">
             <Sparkles className="size-3.5 mr-2" />
             {t('hero.badge')}
           </Badge>
@@ -1280,7 +1295,13 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
 
 // ========== CONFIGURATOR ==========
 
-function ConfiguratorSection({ t }: { t: (k: string) => string }) {
+function ConfiguratorSection({
+  t,
+  onInquiry,
+}: {
+  t: (k: string) => string;
+  onInquiry: (inquiry: ConfigInquiry) => void;
+}) {
   const ref = useScrollAnimation();
   const [color, setColor] = useState<string>('tiger');
   const [impedance, setImpedance] = useState<string>('8');
@@ -1298,6 +1319,24 @@ function ConfiguratorSection({ t }: { t: (k: string) => string }) {
   const scrollTo = (id: string) => {
     const el = document.getElementById(id);
     if (el) el.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const sendConfiguration = () => {
+    const selectedColor = colors.find((c) => c.id === color)?.label || color;
+    onInquiry({
+      subject: t('cfg.inquiry.subject'),
+      message: [
+        t('cfg.inquiry.intro'),
+        '',
+        `${t('cfg.summary.color')}: ${selectedColor}`,
+        `${t('cfg.summary.impedance')}: ${impedance} Ohm`,
+        `${t('cfg.summary.fxloop')}: ${fxLoop ? t('cfg.fxloop.on') : t('cfg.fxloop.off')}`,
+        '',
+        t('cfg.inquiry.details'),
+      ].join('\n'),
+      nonce: Date.now(),
+    });
+    requestAnimationFrame(() => scrollTo('contact'));
   };
 
   return (
@@ -1422,7 +1461,7 @@ function ConfiguratorSection({ t }: { t: (k: string) => string }) {
 
             <div className="mt-6">
               <Button
-                onClick={() => scrollTo('contact')}
+                onClick={sendConfiguration}
                 className="w-full bg-primary text-primary-foreground hover:bg-primary/90 py-5 sm:py-6 text-base font-semibold rounded-xl shadow-xl shadow-primary/20 transition-all duration-300 hover:shadow-primary/30 hover:scale-[1.01]"
               >
                 {t('cfg.cta')}
@@ -1659,13 +1698,35 @@ function CTASection({ t }: { t: (k: string) => string }) {
 
 // ========== CONTACT FORM ==========
 
-function ContactSection({ lang, t }: { lang: Language; t: (k: string) => string }) {
+function ContactSection({
+  lang,
+  t,
+  configInquiry,
+}: {
+  lang: Language;
+  t: (k: string) => string;
+  configInquiry: ConfigInquiry | null;
+}) {
   const ref = useScrollAnimation();
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  useEffect(() => {
+    if (!configInquiry) return;
+    const timer = window.setTimeout(() => {
+      setStatus('idle');
+      setErrors({});
+      setFormData((prev) => ({
+        ...prev,
+        subject: configInquiry.subject,
+        message: configInquiry.message,
+      }));
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [configInquiry]);
 
   const validate = () => {
     const errs: Record<string, string> = {};
@@ -1773,11 +1834,13 @@ function ContactSection({ lang, t }: { lang: Language; t: (k: string) => string 
                       value={formData.name}
                       onChange={(e) => handleChange('name', e.target.value)}
                       placeholder={t('form.name.placeholder')}
+                      aria-invalid={Boolean(errors.name)}
+                      aria-describedby={errors.name ? 'cf-name-error' : undefined}
                       className={`w-full px-4 py-3 rounded-xl bg-white/[0.03] border text-sm text-foreground placeholder:text-muted-foreground/30 outline-none transition-all duration-200 focus:ring-2 focus:ring-primary/20 ${
                         errors.name ? 'border-red-500/50 focus:border-red-500/70' : 'border-white/[0.07] focus:border-primary/40'
                       }`}
                     />
-                    {errors.name && <p className="text-[11px] text-red-400/80 mt-1.5" role="alert">{errors.name}</p>}
+                    {errors.name && <p id="cf-name-error" className="text-[11px] text-red-400/80 mt-1.5" role="alert">{errors.name}</p>}
                   </div>
 
                   {/* Email */}
@@ -1792,11 +1855,13 @@ function ContactSection({ lang, t }: { lang: Language; t: (k: string) => string 
                       value={formData.email}
                       onChange={(e) => handleChange('email', e.target.value)}
                       placeholder={t('form.email.placeholder')}
+                      aria-invalid={Boolean(errors.email)}
+                      aria-describedby={errors.email ? 'cf-email-error' : undefined}
                       className={`w-full px-4 py-3 rounded-xl bg-white/[0.03] border text-sm text-foreground placeholder:text-muted-foreground/30 outline-none transition-all duration-200 focus:ring-2 focus:ring-primary/20 ${
                         errors.email ? 'border-red-500/50 focus:border-red-500/70' : 'border-white/[0.07] focus:border-primary/40'
                       }`}
                     />
-                    {errors.email && <p className="text-[11px] text-red-400/80 mt-1.5" role="alert">{errors.email}</p>}
+                    {errors.email && <p id="cf-email-error" className="text-[11px] text-red-400/80 mt-1.5" role="alert">{errors.email}</p>}
                   </div>
                 </div>
 
@@ -1828,11 +1893,13 @@ function ContactSection({ lang, t }: { lang: Language; t: (k: string) => string 
                     value={formData.message}
                     onChange={(e) => handleChange('message', e.target.value)}
                     placeholder={t('form.message.placeholder')}
+                    aria-invalid={Boolean(errors.message)}
+                    aria-describedby={errors.message ? 'cf-message-error' : undefined}
                     className={`w-full px-4 py-3 rounded-xl bg-white/[0.03] border text-sm text-foreground placeholder:text-muted-foreground/30 outline-none transition-all duration-200 resize-none focus:ring-2 focus:ring-primary/20 ${
                       errors.message ? 'border-red-500/50 focus:border-red-500/70' : 'border-white/[0.07] focus:border-primary/40'
                     }`}
                   />
-                  {errors.message && <p className="text-[11px] text-red-400/80 mt-1.5" role="alert">{errors.message}</p>}
+                  {errors.message && <p id="cf-message-error" className="text-[11px] text-red-400/80 mt-1.5" role="alert">{errors.message}</p>}
                 </div>
 
                 {/* Error message */}
@@ -2202,6 +2269,7 @@ function CookieConsent({ t }: { t: (k: string) => string }) {
 
 export default function Home() {
   const { lang, setLang, t } = useTranslation();
+  const [configInquiry, setConfigInquiry] = useState<ConfigInquiry | null>(null);
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground grain-overlay">
@@ -2221,7 +2289,7 @@ export default function Home() {
         <SectionDivider />
         <SoundLibrary t={t} />
         <SectionDivider />
-        <ConfiguratorSection t={t} />
+        <ConfiguratorSection t={t} onInquiry={setConfigInquiry} />
         <SectionDivider />
         <GallerySection t={t} />
         <SectionDivider />
@@ -2229,7 +2297,7 @@ export default function Home() {
         <SectionDivider />
         <CTASection t={t} />
         <SectionDivider />
-        <ContactSection lang={lang} t={t} />
+        <ContactSection lang={lang} t={t} configInquiry={configInquiry} />
       </main>
       <Footer lang={lang} setLang={setLang} t={t} />
       <CookieConsent t={t} />
