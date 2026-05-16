@@ -363,19 +363,19 @@ function HeroSection({ t }: { t: (k: string) => string }) {
       {/* Decorative grid pattern */}
       <div className="absolute inset-0 hero-grid-pattern pointer-events-none opacity-[0.02]" />
 
-      {/* Content — left-aligned with generous spacing */}
-      <div className="relative z-10 w-full max-w-5xl mx-auto px-6 sm:px-10 lg:px-16 xl:px-24 py-32 sm:py-36 lg:py-44">
-        {/* Badge */}
-        <div className="mobile-hero-product hero-fade-item sm:hidden" style={{ animationDelay: '0.1s' }}>
-          <img
-            src="/aluplex/aluplex-red-front.jpg"
-            alt="ALUPLEXamp ručne vyrábaný elektrónkový gitarový zosilňovač"
-            loading="eager"
-            decoding="sync"
-            className="mobile-hero-product-image"
-          />
-        </div>
+      <div className="mobile-hero-product sm:hidden">
+        <img
+          src="/aluplex/aluplex-red-front.jpg"
+          alt="ALUPLEXamp ručne vyrábaný elektrónkový gitarový zosilňovač"
+          loading="eager"
+          decoding="sync"
+          className="mobile-hero-product-image"
+        />
+      </div>
 
+      {/* Content — left-aligned with generous spacing */}
+      <div className="mobile-hero-content relative z-10 w-full max-w-5xl mx-auto px-6 sm:px-10 lg:px-16 xl:px-24 py-32 sm:py-36 lg:py-44">
+        {/* Badge */}
         <div className="hero-fade-item" style={{ animationDelay: '0.2s' }}>
           <Badge className="mb-8 sm:mb-10 max-w-full px-4 sm:px-5 py-2.5 text-left text-xs sm:text-sm leading-relaxed whitespace-normal bg-primary/[0.08] text-primary/90 border-primary/15 hover:bg-primary/[0.12] backdrop-blur-md">
             <Sparkles className="size-3.5 mr-2" />
