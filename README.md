@@ -47,6 +47,8 @@ The GitHub token needs repository access to `brunovoxmusic/aluplexamp` with `Con
 
 When `/admin` saves content in production, it creates GitHub commits. If the Vercel project is connected to the repository, those commits trigger a new deployment automatically.
 
+See `DEPLOYMENT.md` for the production checklist.
+
 ## Checks
 
 ```bash
