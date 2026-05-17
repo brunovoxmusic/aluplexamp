@@ -19,6 +19,9 @@ const TRANSLATIONS_FILE = path.join(
 const SITE_FILE = path.join(process.cwd(), "src", "content", "site.json");
 const REPO = process.env.GITHUB_REPO || "brunovoxmusic/aluplexamp";
 const BRANCH = process.env.GITHUB_BRANCH || "main";
+const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
+const RATE_LIMIT_MAX_ATTEMPTS = 8;
+const authAttemptStore = new Map<string, { count: number; resetAt: number }>();
 
 type ContentBundle = {
   translations: Translations;
@@ -34,6 +37,32 @@ type SavePayload = {
 
 function jsonResponse(body: unknown, status = 200) {
   return NextResponse.json(body, { status });
+}
+
+function getClientIp(request: NextRequest) {
+  return (
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    request.headers.get("x-real-ip") ||
+    "unknown"
+  );
+}
+
+function isRateLimited(key: string) {
+  const now = Date.now();
+  const current = authAttemptStore.get(key);
+
+  if (!current || current.resetAt <= now) {
+    authAttemptStore.set(key, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+    return false;
+  }
+
+  current.count += 1;
+  authAttemptStore.set(key, current);
+  return current.count > RATE_LIMIT_MAX_ATTEMPTS;
+}
+
+function clearRateLimit(key: string) {
+  authAttemptStore.delete(key);
 }
 
 function verifyPassword(password?: string) {
@@ -209,10 +238,17 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = (await request.json()) as SavePayload;
+    const authKey = getClientIp(request);
+
+    if (isRateLimited(authKey)) {
+      return jsonResponse({ error: "rate_limited" }, 429);
+    }
 
     if (!verifyPassword(body.password)) {
       return jsonResponse({ error: "unauthorized" }, 401);
     }
+
+    clearRateLimit(authKey);
 
     const bundle = normalizePayload(body);
 
