@@ -2242,16 +2242,16 @@ function Footer({ lang, setLang, t }: { lang: Language; setLang: (l: Language) =
 
 // ========== SCROLL TO TOP ==========
 
-function ScrollToTop() {
+function ScrollToTop({ t }: { t: (k: string) => string }) {
   const show = useShowScrollTop(500);
 
   return (
     <button
       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-      className={`fixed bottom-6 right-6 z-40 w-11 h-11 rounded-xl bg-primary/90 backdrop-blur-sm text-primary-foreground flex items-center justify-center shadow-xl shadow-primary/20 hover:bg-primary transition-all duration-300 hover:scale-105 ${
+      className={`fixed bottom-6 right-6 z-40 hidden sm:flex w-11 h-11 rounded-xl bg-primary/90 backdrop-blur-sm text-primary-foreground items-center justify-center shadow-xl shadow-primary/20 hover:bg-primary transition-all duration-300 hover:scale-105 ${
         show ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
       }`}
-      aria-label="Scroll to top"
+      aria-label={t('footer.back.top')}
     >
       <ChevronUp className="size-5" />
     </button>
@@ -2342,7 +2342,7 @@ export default function Home() {
       </main>
       <Footer lang={lang} setLang={setLang} t={t} />
       <CookieConsent t={t} />
-      <ScrollToTop />
+      <ScrollToTop t={t} />
     </div>
   );
 }
