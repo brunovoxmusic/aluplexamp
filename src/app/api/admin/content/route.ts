@@ -120,10 +120,25 @@ function validateSiteSettings(content: unknown): content is SiteSettings {
     "ogImage",
   ];
 
+  const validMaintenance =
+    value.maintenance === undefined ||
+    (typeof value.maintenance === "object" &&
+      value.maintenance !== null &&
+      !Array.isArray(value.maintenance) &&
+      typeof (value.maintenance as Record<string, unknown>).enabled === "boolean" &&
+      typeof (value.maintenance as Record<string, unknown>).eyebrow === "string" &&
+      typeof (value.maintenance as Record<string, unknown>).title === "string" &&
+      typeof (value.maintenance as Record<string, unknown>).message === "string" &&
+      typeof (value.maintenance as Record<string, unknown>).secondaryMessage ===
+        "string" &&
+      typeof (value.maintenance as Record<string, unknown>).imageUrl === "string" &&
+      typeof (value.maintenance as Record<string, unknown>).imageAlt === "string");
+
   return (
     requiredStrings.every((key) => typeof value[key] === "string") &&
     Array.isArray(value.keywords) &&
-    value.keywords.every((keyword) => typeof keyword === "string")
+    value.keywords.every((keyword) => typeof keyword === "string") &&
+    validMaintenance
   );
 }
 

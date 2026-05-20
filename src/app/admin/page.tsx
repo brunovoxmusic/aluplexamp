@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import type { SiteSettings } from "@/lib/site";
+import type { MaintenanceSettings, SiteSettings } from "@/lib/site";
 import type { Language, Translations } from "@/lib/translations";
 
 const languages: Array<{ value: Language; label: string }> = [
@@ -15,6 +15,7 @@ const sections = [
   { id: "cta", label: "CTA" },
   { id: "faq", label: "FAQ" },
   { id: "contact", label: "Kontakt" },
+  { id: "maintenance", label: "Maintenance" },
   { id: "seo", label: "SEO" },
   { id: "advanced", label: "JSON" },
 ] as const;
@@ -52,6 +53,18 @@ const contactFields: TextField[] = [
   { key: "form.error", label: "Error sprava", multiline: true },
 ];
 
+const defaultMaintenance: MaintenanceSettings = {
+  enabled: false,
+  eyebrow: "ALUPLEXamp",
+  title: "Stranku prave ladime.",
+  message:
+    "Pripravujeme aktualizaciu webu, aby sme mohli lepsie predstavit zosilnovac ALUPLEXamp, jeho zvuk a moznosti vyroby na objednavku.",
+  secondaryMessage:
+    "Ak nas potrebujes kontaktovat hned, napis na info@aluplex.sk alebo objednavky@aluplex.sk.",
+  imageUrl: "/aluplex/aluplex-1.jpg",
+  imageAlt: "ALUPLEXamp elektronkovy gitarovy zosilnovac",
+};
+
 function sortEntries(entries: Record<string, string>) {
   return Object.fromEntries(
     Object.entries(entries).sort(([a], [b]) => a.localeCompare(b))
@@ -70,6 +83,17 @@ function getFallbackSite(): SiteSettings {
     twitterDescription: "",
     ogImage: "/og-image.jpg",
     keywords: [],
+    maintenance: defaultMaintenance,
+  };
+}
+
+function normalizeSite(nextSite: SiteSettings): SiteSettings {
+  return {
+    ...nextSite,
+    maintenance: {
+      ...defaultMaintenance,
+      ...nextSite.maintenance,
+    },
   };
 }
 
@@ -96,7 +120,7 @@ export default function AdminPage() {
         }
 
         const nextTranslations = data.translations ?? data.content;
-        const nextSite = data.site ?? getFallbackSite();
+        const nextSite = normalizeSite(data.site ?? getFallbackSite());
 
         setTranslations(nextTranslations);
         setSite(nextSite);
@@ -140,9 +164,59 @@ export default function AdminPage() {
     key: K,
     value: SiteSettings[K]
   ) {
-    setSite((current) => ({ ...current, [key]: value }));
+    setSite((current) => {
+      const nextSite = { ...current, [key]: value };
+      setSiteJsonValue(JSON.stringify(nextSite, null, 2));
+      return nextSite;
+    });
     setStatus("idle");
     setMessage("");
+  }
+
+  function setMaintenanceField<K extends keyof MaintenanceSettings>(
+    key: K,
+    value: MaintenanceSettings[K]
+  ) {
+    setSite((current) => {
+      const nextSite = normalizeSite({
+        ...current,
+        maintenance: {
+          ...defaultMaintenance,
+          ...current.maintenance,
+          [key]: value,
+        },
+      });
+      setSiteJsonValue(JSON.stringify(nextSite, null, 2));
+      return nextSite;
+    });
+    setStatus("idle");
+    setMessage("");
+  }
+
+  function importMaintenanceImage(file: File | null) {
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setStatus("error");
+      setMessage("Vybrany subor musi byt obrazok.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result !== "string") {
+        setStatus("error");
+        setMessage("Obrazok sa nepodarilo nacitat.");
+        return;
+      }
+
+      setMaintenanceField("imageUrl", reader.result);
+    };
+    reader.onerror = () => {
+      setStatus("error");
+      setMessage("Obrazok sa nepodarilo nacitat.");
+    };
+    reader.readAsDataURL(file);
   }
 
   function changeLanguage(nextLanguage: Language) {
@@ -169,7 +243,7 @@ export default function AdminPage() {
         throw new Error("Kazdy prekladovy kluc aj hodnota musia byt text.");
       }
 
-      const parsedSite = JSON.parse(siteJsonValue) as SiteSettings;
+      const parsedSite = normalizeSite(JSON.parse(siteJsonValue) as SiteSettings);
       if (!Array.isArray(parsedSite.keywords)) {
         throw new Error("SEO keywords musia byt pole textov.");
       }
@@ -365,6 +439,174 @@ export default function AdminPage() {
     );
   }
 
+  function renderMaintenanceFields() {
+    const maintenance = site.maintenance ?? defaultMaintenance;
+
+    return (
+      <div className="grid gap-5">
+        {maintenance.enabled ? (
+          <div className="rounded-lg border border-[#ffb800]/30 bg-[#ffb800]/10 p-4 text-sm leading-6 text-[#ffe5a3]">
+            Web je momentalne prepnuty do maintenance mode. Bezny navstevnik vidi
+            iba servisnu obrazovku; administracia ostava dostupna.
+          </div>
+        ) : (
+          <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4 text-sm leading-6 text-white/55">
+            Maintenance mode je vypnuty. Po zapnuti sa verejna stranka nahradi
+            servisnou obrazovkou s textami a obrazkom z tejto sekcie.
+          </div>
+        )}
+
+        <label className="flex items-center justify-between gap-4 rounded-lg border border-white/10 bg-black/25 p-4">
+          <span>
+            <span className="block text-sm font-semibold text-white">
+              Zapnut maintenance mode
+            </span>
+            <span className="mt-1 block text-xs leading-5 text-white/45">
+              Pouzi len pocas priprav, oprav alebo kratkodobej odstavky webu.
+            </span>
+          </span>
+          <input
+            type="checkbox"
+            checked={maintenance.enabled}
+            onChange={(event) =>
+              setMaintenanceField("enabled", event.target.checked)
+            }
+            className="h-5 w-5 accent-[#ffb800]"
+          />
+        </label>
+
+        {[
+          ["eyebrow", "Kratky horny text", false],
+          ["title", "Hlavny nadpis", false],
+          ["message", "Hlavna informacia", true],
+          ["secondaryMessage", "Doplnkova informacia / kontakt", true],
+          ["imageUrl", "URL obrazka alebo importovany data URL obrazok", true],
+          ["imageAlt", "Alternativny popis obrazka", false],
+        ].map(([key, label, multiline]) => (
+          <label key={key as string} className="grid gap-2">
+            <span className="text-xs font-medium uppercase tracking-[0.14em] text-white/45">
+              {label}
+            </span>
+            {multiline ? (
+              <textarea
+                value={maintenance[key as keyof MaintenanceSettings] as string}
+                onChange={(event) =>
+                  setMaintenanceField(
+                    key as keyof MaintenanceSettings,
+                    event.target.value as never
+                  )
+                }
+                rows={key === "imageUrl" ? 4 : 5}
+                className="min-h-24 resize-y rounded-md border border-white/10 bg-black/35 px-3 py-3 text-sm leading-6 text-white outline-none transition focus:border-[#ffb800]/70"
+              />
+            ) : (
+              <input
+                value={maintenance[key as keyof MaintenanceSettings] as string}
+                onChange={(event) =>
+                  setMaintenanceField(
+                    key as keyof MaintenanceSettings,
+                    event.target.value as never
+                  )
+                }
+                className="h-11 rounded-md border border-white/10 bg-black/35 px-3 text-sm text-white outline-none transition focus:border-[#ffb800]/70"
+              />
+            )}
+          </label>
+        ))}
+
+        <label className="grid gap-2">
+          <span className="text-xs font-medium uppercase tracking-[0.14em] text-white/45">
+            Import obrazka z pocitaca
+          </span>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(event) => importMaintenanceImage(event.target.files?.[0] ?? null)}
+            className="rounded-md border border-white/10 bg-black/35 px-3 py-3 text-sm text-white file:mr-4 file:rounded-md file:border-0 file:bg-[#ffb800] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-black"
+          />
+          <span className="text-xs leading-5 text-white/40">
+            Import ulozi obrazok priamo do JSON ako data URL. Pre produkciu je
+            idealny komprimovany JPG alebo WebP do priblizne 300 kB.
+          </span>
+        </label>
+
+        {maintenance.imageUrl ? (
+          <div className="overflow-hidden rounded-lg border border-white/10 bg-black/30">
+            <div className="relative min-h-[320px]">
+              <img
+                src={maintenance.imageUrl}
+                alt={maintenance.imageAlt || "Maintenance preview"}
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-black/15" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/55" />
+              <div className="relative z-10 flex min-h-[320px] max-w-2xl flex-col justify-center p-6">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#ffb800]">
+                  Preview maintenance obrazovky
+                </p>
+                <h3 className="mt-4 text-4xl font-semibold leading-tight text-white">
+                  {maintenance.title || "Stranku prave ladime."}
+                </h3>
+                <p className="mt-4 max-w-xl text-sm leading-6 text-white/65">
+                  {maintenance.message}
+                </p>
+              </div>
+            </div>
+          </div>
+        ) : null}
+      </div>
+    );
+  }
+
+  function renderMaintenanceQuickControl() {
+    const maintenance = site.maintenance ?? defaultMaintenance;
+
+    return (
+      <div
+        className={`rounded-lg border p-4 ${
+          maintenance.enabled
+            ? "border-[#ffb800]/35 bg-[#ffb800]/10"
+            : "border-white/10 bg-white/[0.03]"
+        }`}
+      >
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#ffb800]">
+              Maintenance mode
+            </p>
+            <p className="mt-2 text-sm font-semibold text-white">
+              {maintenance.enabled ? "Stranka je odstavena" : "Stranka je aktivna"}
+            </p>
+            <p className="mt-1 text-xs leading-5 text-white/45">
+              Zapnut/vypnut maintenance mode a potom ulozit obsah.
+            </p>
+          </div>
+          <label className="relative mt-1 inline-flex cursor-pointer items-center">
+            <input
+              type="checkbox"
+              checked={maintenance.enabled}
+              onChange={(event) =>
+                setMaintenanceField("enabled", event.target.checked)
+              }
+              className="peer sr-only"
+              aria-label="Zapnut alebo vypnut maintenance mode"
+            />
+            <span className="h-6 w-11 rounded-full bg-white/15 transition peer-checked:bg-[#ffb800]" />
+            <span className="absolute left-1 h-4 w-4 rounded-full bg-white transition peer-checked:translate-x-5 peer-checked:bg-black" />
+          </label>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setSection("maintenance")}
+          className="mt-4 inline-flex h-9 w-full items-center justify-center rounded-md border border-white/10 px-3 text-xs font-semibold text-white/70 transition hover:border-[#ffb800]/50 hover:text-white"
+        >
+          Upravit texty a obrazok
+        </button>
+      </div>
+    );
+  }
+
   function renderAdvancedFields() {
     return (
       <div className="grid gap-4">
@@ -409,6 +651,7 @@ export default function AdminPage() {
     if (section === "cta") return renderTextFields(ctaFields);
     if (section === "faq") return renderFaqFields();
     if (section === "contact") return renderTextFields(contactFields);
+    if (section === "maintenance") return renderMaintenanceFields();
     if (section === "seo") return renderSeoFields();
     return renderAdvancedFields();
   }
@@ -428,6 +671,11 @@ export default function AdminPage() {
               Bezdatabazovy editor textov, FAQ a SEO metadat. V produkcii uklada
               zmeny priamo do GitHub repozitara.
             </p>
+            {site.maintenance?.enabled ? (
+              <p className="mt-4 inline-flex rounded-md border border-[#ffb800]/30 bg-[#ffb800]/10 px-3 py-2 text-sm font-medium text-[#ffe5a3]">
+                Web je aktualne v maintenance mode.
+              </p>
+            ) : null}
           </div>
 
           <a
@@ -452,6 +700,8 @@ export default function AdminPage() {
                 placeholder="ADMIN_PASSWORD"
               />
             </div>
+
+            {renderMaintenanceQuickControl()}
 
             <div className="rounded-lg border border-white/10 bg-white/[0.03] p-2">
               {languages.map((item) => (
@@ -503,7 +753,9 @@ export default function AdminPage() {
               <div>
                 <h2 className="text-lg font-semibold text-white">
                   {sections.find((item) => item.id === section)?.label}
-                  {section !== "seo" && section !== "advanced"
+                  {section !== "seo" &&
+                  section !== "advanced" &&
+                  section !== "maintenance"
                     ? ` - ${language.toUpperCase()}`
                     : ""}
                 </h2>

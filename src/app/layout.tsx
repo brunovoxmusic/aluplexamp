@@ -15,6 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 const SITE_URL = siteSettings.siteUrl;
+const MAINTENANCE_ENABLED = siteSettings.maintenance?.enabled === true;
 
 export const metadata: Metadata = {
   title: siteSettings.title,
@@ -60,11 +61,11 @@ export const metadata: Metadata = {
     images: [siteSettings.ogImage],
   },
   robots: {
-    index: true,
-    follow: true,
+    index: !MAINTENANCE_ENABLED,
+    follow: !MAINTENANCE_ENABLED,
     googleBot: {
-      index: true,
-      follow: true,
+      index: !MAINTENANCE_ENABLED,
+      follow: !MAINTENANCE_ENABLED,
       "max-video-preview": -1,
       "max-image-preview": "large",
       "max-snippet": -1,

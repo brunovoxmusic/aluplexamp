@@ -18,6 +18,7 @@ import {
   Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle, SheetClose,
 } from '@/components/ui/sheet';
 import { translations, type Language } from '@/lib/translations';
+import { siteSettings, type MaintenanceSettings } from '@/lib/site';
 
 type ConfigInquiry = {
   subject: string;
@@ -2308,9 +2309,120 @@ function CookieConsent({ t }: { t: (k: string) => string }) {
 
 // ========== MAIN PAGE ==========
 
+const defaultMaintenance: MaintenanceSettings = {
+  enabled: false,
+  eyebrow: 'ALUPLEXamp',
+  title: 'Stranku prave ladime.',
+  message:
+    'Pripravujeme aktualizaciu webu, aby sme mohli lepsie predstavit zosilnovac ALUPLEXamp, jeho zvuk a moznosti vyroby na objednavku.',
+  secondaryMessage:
+    'Ak nas potrebujes kontaktovat hned, napis na info@aluplex.sk alebo objednavky@aluplex.sk.',
+  imageUrl: '/aluplex/aluplex-1.jpg',
+  imageAlt: 'ALUPLEXamp elektronkovy gitarovy zosilnovac',
+};
+
+function MaintenancePage({ maintenance }: { maintenance: MaintenanceSettings }) {
+  return (
+    <main className="relative min-h-screen overflow-hidden bg-[#070707] text-foreground">
+      {maintenance.imageUrl ? (
+        <div className="absolute inset-0 z-0" aria-hidden="true">
+          <img
+            src={maintenance.imageUrl}
+            alt=""
+            className="h-full w-full scale-105 object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#050505] via-[#050505]/82 to-[#050505]/28" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#050505]/82 via-transparent to-[#050505]/76" />
+          <div className="absolute inset-0 hero-vignette" />
+        </div>
+      ) : (
+        <div className="absolute inset-0 z-0 bg-[#070707]" aria-hidden="true" />
+      )}
+      <div className="hero-grid-pattern absolute inset-0 z-0 opacity-[0.025]" aria-hidden="true" />
+      <div className="pointer-events-none absolute -right-40 top-10 z-0 h-[520px] w-[520px] bg-[radial-gradient(circle,rgba(255,184,0,0.10)_0%,transparent_62%)]" />
+      <div className="pointer-events-none absolute -bottom-44 -left-32 z-0 h-[460px] w-[460px] bg-[radial-gradient(circle,rgba(255,184,0,0.07)_0%,transparent_64%)]" />
+
+      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-7xl flex-col px-5 py-5 sm:px-8 lg:px-10">
+        <header className="flex items-center justify-between border-b border-white/[0.08] pb-5">
+          <img
+            src="/aluplex/real/logo-white.png"
+            alt="ALUPLEXamp"
+            className="h-9 w-auto sm:h-11"
+          />
+          <span className="rounded-full border border-[#ffb800]/35 bg-black/35 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#ffb800] shadow-[0_0_30px_rgba(255,184,0,0.08)] backdrop-blur sm:text-[11px]">
+            Maintenance
+          </span>
+        </header>
+
+        <section className="grid flex-1 items-center gap-10 py-12 sm:py-16 lg:grid-cols-[minmax(0,0.9fr)_minmax(280px,0.55fr)] lg:py-20">
+          <div className="max-w-3xl">
+            <div className="inline-flex items-center gap-3 rounded-full border border-[#ffb800]/25 bg-[#ffb800]/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#ffcb47] backdrop-blur">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#ffb800] shadow-[0_0_16px_rgba(255,184,0,0.75)]" />
+              {maintenance.eyebrow}
+            </div>
+            <h1 className="mt-7 max-w-3xl text-5xl font-semibold leading-[0.98] tracking-normal text-white sm:text-7xl lg:text-8xl">
+              {maintenance.title}
+            </h1>
+            <div className="mt-7 h-px w-32 bg-gradient-to-r from-[#ffb800] via-[#ffcf4d]/70 to-transparent" />
+            <p className="mt-7 max-w-2xl text-lg font-light leading-8 text-white/76 sm:text-2xl sm:leading-10">
+              {maintenance.message}
+            </p>
+            {maintenance.secondaryMessage ? (
+              <p className="mt-5 max-w-2xl text-sm leading-7 text-white/54 sm:text-base sm:leading-8">
+                {maintenance.secondaryMessage}
+              </p>
+            ) : null}
+          </div>
+
+          <aside className="rounded-lg border border-white/[0.08] bg-black/42 p-5 shadow-2xl shadow-black/40 backdrop-blur-md sm:p-6 lg:justify-self-end">
+            <div className="border-b border-white/[0.08] pb-5">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/42">
+                Status
+              </p>
+              <p className="mt-2 text-2xl font-semibold text-white">
+                Web je dočasne mimo prevádzky
+              </p>
+            </div>
+            <div className="grid gap-4 py-5 text-sm text-white/58">
+              <div className="flex items-center justify-between gap-6">
+                <span>Aktualizácia obsahu</span>
+                <span className="font-semibold text-[#ffb800]">prebieha</span>
+              </div>
+              <div className="flex items-center justify-between gap-6">
+                <span>Objednávky a dopyty</span>
+                <span className="font-semibold text-white/80">e-mailom</span>
+              </div>
+              <div className="flex items-center justify-between gap-6">
+                <span>Kontakt</span>
+                <a
+                  href="mailto:info@aluplex.sk"
+                  className="font-semibold text-[#ffb800] transition hover:text-[#ffcf4d]"
+                >
+                  info@aluplex.sk
+                </a>
+              </div>
+            </div>
+            <a
+              href="mailto:info@aluplex.sk"
+              className="inline-flex h-12 w-full items-center justify-center rounded-md bg-[#ffb800] px-5 text-sm font-semibold text-black shadow-lg shadow-[#ffb800]/20 transition hover:bg-[#ffcf4d]"
+            >
+              Kontaktovať ALUPLEXamp
+            </a>
+          </aside>
+        </section>
+      </div>
+    </main>
+  );
+}
+
 export default function Home() {
   const { lang, setLang, t } = useTranslation();
   const [configInquiry, setConfigInquiry] = useState<ConfigInquiry | null>(null);
+  const maintenance = { ...defaultMaintenance, ...siteSettings.maintenance };
+
+  if (maintenance.enabled) {
+    return <MaintenancePage maintenance={maintenance} />;
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground grain-overlay">

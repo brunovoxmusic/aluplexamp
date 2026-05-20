@@ -16,7 +16,12 @@ The admin editor is available at `/admin`.
 Content is stored in:
 
 - `src/content/translations.json` for page text, CTA labels, FAQ and form copy
-- `src/content/site.json` for SEO metadata
+- `src/content/site.json` for SEO metadata and maintenance mode settings
+
+The CMS includes a `Maintenance` section. When enabled, the public website shows
+a maintenance screen with editable text and an optional image. The image can be
+set as a URL or imported from the computer; imported images are saved into
+`site.json` as a data URL, so use a compressed image for production.
 
 In local development the admin API writes directly to these files. In production it commits changes back to GitHub, so Vercel can deploy the updated content without a database.
 
