@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Heart, Target, Shield, Music, ThermometerSun, Weight, Magnet, ShieldCheck,
@@ -17,6 +18,13 @@ import {
   Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle, SheetClose,
 } from '@/components/ui/sheet';
 import { translations, type Language } from '@/lib/translations';
+import { siteSettings, type MaintenanceSettings } from '@/lib/site';
+
+type ConfigInquiry = {
+  subject: string;
+  message: string;
+  nonce: number;
+};
 
 // ========== HOOKS ==========
 
@@ -224,10 +232,13 @@ function Navigation({ lang, setLang, t }: { lang: Language; setLang: (l: Languag
           {/* Right side: Language + Mobile toggle */}
           <div className="flex items-center gap-2 sm:gap-3">
             {/* Language Switcher */}
-            <div className="hidden sm:flex items-center gap-0.5 bg-white/[0.04] rounded-xl p-1 border border-white/[0.06]" role="radiogroup" aria-label="Language">
+            <div className="hidden sm:flex items-center gap-0.5 bg-white/[0.04] rounded-xl p-1 border border-white/[0.06]" role="radiogroup" aria-label={t('a11y.language')}>
               {langOptions.map((l) => (
                 <button
                   key={l}
+                  role="radio"
+                  aria-checked={lang === l}
+                  aria-label={l.toUpperCase()}
                   onClick={() => setLang(l)}
                   className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all duration-200 ${
                     lang === l
@@ -243,21 +254,29 @@ function Navigation({ lang, setLang, t }: { lang: Language; setLang: (l: Languag
             {/* Mobile hamburger */}
             <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
               <SheetTrigger asChild className="lg:hidden">
-                <button className="p-2.5 text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-white/5" aria-label="Menu">
+                <button
+                  className="p-2.5 text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-white/5"
+                  aria-label={t('a11y.menu.open')}
+                  aria-expanded={mobileOpen}
+                  aria-controls="mobile-navigation"
+                >
                   <Menu className="size-5" />
                 </button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-80 bg-[#0a0a0a]/95 backdrop-blur-xl border-[#2a2a2a]/50">
+              <SheetContent id="mobile-navigation" side="right" className="w-80 bg-[#0a0a0a]/95 backdrop-blur-xl border-[#2a2a2a]/50">
                 <SheetHeader className="mb-8">
                   <SheetTitle className="text-foreground flex items-center gap-3">
                     <img src="/aluplex/logo.png" alt="ALUPLEXamp" className="h-7 w-auto" />
                   </SheetTitle>
                 </SheetHeader>
                 {/* Mobile Language Switcher */}
-                <div className="flex items-center gap-0.5 bg-white/[0.04] rounded-xl p-1 mb-8 w-fit border border-white/[0.06]" role="radiogroup" aria-label="Language">
+                <div className="flex items-center gap-0.5 bg-white/[0.04] rounded-xl p-1 mb-8 w-fit border border-white/[0.06]" role="radiogroup" aria-label={t('a11y.language')}>
                   {langOptions.map((l) => (
                     <button
                       key={l}
+                      role="radio"
+                      aria-checked={lang === l}
+                      aria-label={l.toUpperCase()}
                       onClick={() => { setLang(l); }}
                       className={`px-4 py-2 text-xs font-semibold rounded-lg transition-all duration-200 ${
                         lang === l
@@ -277,6 +296,7 @@ function Navigation({ lang, setLang, t }: { lang: Language; setLang: (l: Languag
                       <button
                         key={link.id}
                         onClick={() => scrollTo(link.id)}
+                        aria-current={isActive ? 'true' : undefined}
                         className={`relative text-left pl-4 pr-4 py-3 text-sm rounded-xl transition-all duration-300 ${
                           isActive
                             ? 'bg-primary/[0.08] text-primary font-medium'
@@ -296,7 +316,7 @@ function Navigation({ lang, setLang, t }: { lang: Language; setLang: (l: Languag
                     );
                   })}
                 </div>
-                <SheetClose className="absolute top-4 right-4 text-muted-foreground hover:text-foreground">
+                <SheetClose aria-label={t('a11y.menu.close')} className="absolute top-4 right-4 text-muted-foreground hover:text-foreground">
                   <X className="size-5" />
                 </SheetClose>
               </SheetContent>
@@ -334,6 +354,7 @@ function HeroSection({ t }: { t: (k: string) => string }) {
               src={src}
               alt=""
               loading={i === 0 ? 'eager' : 'lazy'}
+              decoding={i === 0 ? 'sync' : 'async'}
               className="w-full h-full object-cover scale-105 hero-ken-burns"
             />
           </div>
@@ -355,11 +376,21 @@ function HeroSection({ t }: { t: (k: string) => string }) {
       {/* Decorative grid pattern */}
       <div className="absolute inset-0 hero-grid-pattern pointer-events-none opacity-[0.02]" />
 
+      <div className="mobile-hero-product sm:hidden">
+        <img
+          src="/aluplex/aluplex-red-front.jpg"
+          alt="ALUPLEXamp ručne vyrábaný elektrónkový gitarový zosilňovač"
+          loading="eager"
+          decoding="sync"
+          className="mobile-hero-product-image"
+        />
+      </div>
+
       {/* Content — left-aligned with generous spacing */}
-      <div className="relative z-10 w-full max-w-5xl mx-auto px-6 sm:px-10 lg:px-16 xl:px-24 py-32 sm:py-36 lg:py-44">
+      <div className="mobile-hero-content relative z-10 w-full max-w-5xl mx-auto px-6 sm:px-10 lg:px-16 xl:px-24 py-32 sm:py-36 lg:py-44">
         {/* Badge */}
         <div className="hero-fade-item" style={{ animationDelay: '0.2s' }}>
-          <Badge className="mb-8 sm:mb-10 px-5 py-2.5 text-xs sm:text-sm bg-primary/[0.08] text-primary/90 border-primary/15 hover:bg-primary/[0.12] backdrop-blur-md">
+          <Badge className="mb-8 sm:mb-10 max-w-full px-4 sm:px-5 py-2.5 text-left text-xs sm:text-sm leading-relaxed whitespace-normal bg-primary/[0.08] text-primary/90 border-primary/15 hover:bg-primary/[0.12] backdrop-blur-md">
             <Sparkles className="size-3.5 mr-2" />
             {t('hero.badge')}
           </Badge>
@@ -379,20 +410,20 @@ function HeroSection({ t }: { t: (k: string) => string }) {
 
         {/* Subtitle — refined typography */}
         <div className="hero-fade-item" style={{ animationDelay: '0.7s' }}>
-          <p className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-light text-foreground/85 mb-4 sm:mb-5 tracking-wide hero-subtitle-text">
+          <p className="max-w-[21rem] sm:max-w-none text-xl sm:text-2xl md:text-3xl lg:text-4xl font-light text-foreground/85 mb-4 sm:mb-5 tracking-wide hero-subtitle-text">
             {t('hero.subtitle')}
           </p>
         </div>
 
         {/* Description */}
         <div className="hero-fade-item" style={{ animationDelay: '0.85s' }}>
-          <p className="text-sm sm:text-base text-muted-foreground/70 max-w-lg mb-10 sm:mb-14 leading-relaxed">
+          <p className="text-sm sm:text-base text-muted-foreground/70 max-w-[21rem] sm:max-w-lg mb-10 sm:mb-14 leading-relaxed">
             {t('hero.description')}
           </p>
         </div>
 
         {/* Key specs strip — centered, refined glass pills */}
-        <div className="hero-fade-item flex flex-wrap items-center gap-2.5 sm:gap-3 mb-10 sm:mb-14" style={{ animationDelay: '0.95s' }}>
+        <div className="hero-fade-item grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2.5 sm:gap-3 mb-10 sm:mb-14" style={{ animationDelay: '0.95s' }}>
           {[
             { icon: Zap, label: '30 W' },
             { icon: Flame, label: 'EL34' },
@@ -401,10 +432,12 @@ function HeroSection({ t }: { t: (k: string) => string }) {
           ].map((spec, i) => (
             <div
               key={i}
-              className="flex items-center gap-2 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-full bg-white/[0.04] border border-white/[0.07] backdrop-blur-md transition-all duration-500 hover:bg-white/[0.07] hover:border-primary/20"
+              className={`min-w-0 flex items-center justify-center sm:justify-start gap-2 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-full bg-white/[0.04] border border-white/[0.07] backdrop-blur-md transition-all duration-500 hover:bg-white/[0.07] hover:border-primary/20 ${
+                i === 3 ? 'col-span-2 sm:col-span-1' : ''
+              }`}
             >
               <spec.icon className="size-3.5 sm:size-4 text-primary/80" />
-              <span className="text-xs sm:text-sm font-medium text-foreground/70 tracking-wide">{spec.label}</span>
+              <span className="min-w-0 truncate text-xs sm:text-sm font-medium text-foreground/70 tracking-wide">{spec.label}</span>
             </div>
           ))}
         </div>
@@ -466,6 +499,7 @@ function ValueProps({ t }: { t: (k: string) => string }) {
           alt=""
           className="absolute inset-0 w-full h-full object-cover opacity-[0.06] grayscale mix-blend-luminosity pointer-events-none"
           loading="lazy"
+          decoding="async"
           aria-hidden="true"
         />
         {/* Dark overlay for readability */}
@@ -553,7 +587,7 @@ function EngineeringSection({ t }: { t: (k: string) => string }) {
             <div className="relative bg-card/50 border border-[#2a2a2a]/60 rounded-3xl overflow-hidden tube-glow backdrop-blur-sm">
               {/* Real chassis back image */}
               <div className="relative">
-                <img src="/aluplex/aluplex-back-naked.jpg" alt="ALUPLEXamp chassis internals" className="w-full h-auto object-cover" />
+                <img src="/aluplex/aluplex-back-naked.jpg" alt="Vnútorné turret board zapojenie zosilňovača ALUPLEXamp" className="w-full h-auto object-cover" loading="lazy" decoding="async" />
                 <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent" />
               </div>
 
@@ -634,7 +668,7 @@ function SoundArchitecture({ t }: { t: (k: string) => string }) {
         <div className="fade-in-up relative overflow-hidden bg-gradient-to-r from-primary/[0.04] via-primary/[0.08] to-primary/[0.04] border border-primary/15 rounded-3xl p-6 sm:p-8 lg:p-10 backdrop-blur-sm" style={{ transitionDelay: '400ms' }}>
           {/* Subtle amp photo background — right side */}
           <div className="absolute top-0 right-0 w-2/3 h-full opacity-[0.04] pointer-events-none">
-            <img src="/aluplex/aluplex-123.jpg" alt="" className="w-full h-full object-cover grayscale mix-blend-luminosity" loading="lazy" />
+            <img src="/aluplex/aluplex-123.jpg" alt="" className="w-full h-full object-cover grayscale mix-blend-luminosity" loading="lazy" decoding="async" />
           </div>
           <div className="absolute top-0 right-0 w-64 h-64 bg-[radial-gradient(ellipse,rgba(212,146,42,0.06)_0%,transparent_70%)] pointer-events-none" />
           <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground mb-3">
@@ -658,55 +692,41 @@ interface WaveformData {
 
 function generateWaveform(audioSrc: string): Promise<WaveformData> {
   const numBars = 120;
-  const fallbackWaveform = (dur: number): WaveformData => {
-    const fallbackPeaks: number[] = [];
+  const seed = audioSrc.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const metadataWaveform = (dur: number): WaveformData => {
+    const peaks: number[] = [];
     for (let i = 0; i < numBars; i++) {
-      const base = 0.3 + 0.5 * Math.sin(i * 0.15) * Math.sin(i * 0.07);
-      fallbackPeaks.push(Math.max(0.08, Math.min(1, base + (Math.random() - 0.5) * 0.3)));
+      const slow = Math.sin((i + seed) * 0.13);
+      const fast = Math.sin((i + seed) * 0.47);
+      const pulse = Math.sin((i + seed) * 0.031);
+      const peak = 0.36 + slow * 0.22 + fast * 0.12 + pulse * 0.18;
+      peaks.push(Math.max(0.08, Math.min(0.95, peak)));
     }
-    return { peaks: fallbackPeaks, duration: dur };
+    return { peaks, duration: dur };
   };
 
   return new Promise((resolve) => {
-    const audioCtx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
-    fetch(audioSrc)
-      .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.arrayBuffer(); })
-      .then(buf => audioCtx.decodeAudioData(buf))
-      .then(audioBuffer => {
-        const dur = audioBuffer.duration;
-        const channelData = audioBuffer.getChannelData(0);
-        const peaks: number[] = [];
-        const samplesPerBar = Math.floor(channelData.length / numBars);
-        for (let i = 0; i < numBars; i++) {
-          let max = 0;
-          const start = i * samplesPerBar;
-          for (let j = start; j < start + samplesPerBar && j < channelData.length; j++) {
-            const abs = Math.abs(channelData[j]);
-            if (abs > max) max = abs;
-          }
-          peaks.push(max);
-        }
-        audioCtx.close();
-        resolve({ peaks, duration: dur });
-      })
-      .catch(() => {
-        // Fallback: use a regular Audio element to get duration, generate visual waveform
-        const fallback = new Audio();
-        fallback.preload = 'metadata';
-        fallback.src = audioSrc;
-        const onMeta = () => {
-          fallback.removeEventListener('loadedmetadata', onMeta);
-          resolve(fallbackWaveform(fallback.duration || 10));
-        };
-        const onErr = () => {
-          fallback.removeEventListener('error', onErr);
-          resolve(fallbackWaveform(10));
-        };
-        fallback.addEventListener('loadedmetadata', onMeta);
-        fallback.addEventListener('error', onErr);
-        // Timeout fallback
-        setTimeout(() => resolve(fallbackWaveform(10)), 5000);
-      });
+    const metadataAudio = new Audio();
+    metadataAudio.preload = 'metadata';
+    metadataAudio.src = audioSrc;
+    const cleanup = () => {
+      metadataAudio.removeEventListener('loadedmetadata', onMeta);
+      metadataAudio.removeEventListener('error', onErr);
+    };
+    const onMeta = () => {
+      cleanup();
+      resolve(metadataWaveform(metadataAudio.duration || 10));
+    };
+    const onErr = () => {
+      cleanup();
+      resolve(metadataWaveform(10));
+    };
+    metadataAudio.addEventListener('loadedmetadata', onMeta);
+    metadataAudio.addEventListener('error', onErr);
+    setTimeout(() => {
+      cleanup();
+      resolve(metadataWaveform(10));
+    }, 5000);
   });
 }
 
@@ -759,12 +779,6 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
   // Load all waveforms when section becomes visible + set initial audio source
   useEffect(() => {
     if (!waveformsInitialized) return;
-    // Set initial audio source so play button works on first click
-    if (audioRef.current && tracks[0]) {
-      audioRef.current.preload = 'auto';
-      audioRef.current.src = tracks[0].src;
-      audioRef.current.load();
-    }
     Promise.all(tracks.map(tr => generateWaveform(tr.src))).then(data => {
       setWaveforms(data);
       setLoaded(true);
@@ -875,19 +889,15 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
     }
 
     audio.src = tracks[index].src;
+    audio.preload = 'auto';
     audio.load();
-    const onCanPlay = () => {
-      audio.removeEventListener('canplaythrough', onCanPlay);
-      audio.play().then(() => {
-        setActiveTrack(index);
-        setPlaying(true);
-      }).catch((err) => {
-        console.warn('Audio play failed:', err);
-        // Autoplay might be blocked - try once user interacts
-        setActiveTrack(index);
-      });
-    };
-    audio.addEventListener('canplaythrough', onCanPlay);
+    audio.play().then(() => {
+      setActiveTrack(index);
+      setPlaying(true);
+    }).catch((err) => {
+      console.warn('Audio play failed:', err);
+      setActiveTrack(index);
+    });
   };
 
   const togglePlay = () => {
@@ -901,6 +911,7 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
       // If no source is loaded yet, load the current track first
       if (!audio.src || audio.src === window.location.href) {
         audio.src = tracks[activeTrack].src;
+        audio.preload = 'auto';
         audio.load();
       }
       audio.play().then(() => setPlaying(true)).catch(() => {
@@ -948,6 +959,24 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
     const pct = x / rect.width;
     audioRef.current.currentTime = pct * duration;
     setCurrentTime(pct * duration);
+  };
+
+  const handleSeekKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (!audioRef.current || !duration) return;
+
+    const step = e.shiftKey ? 10 : 5;
+    let nextTime = audioRef.current.currentTime;
+
+    if (e.key === 'ArrowRight') nextTime += step;
+    else if (e.key === 'ArrowLeft') nextTime -= step;
+    else if (e.key === 'Home') nextTime = 0;
+    else if (e.key === 'End') nextTime = duration;
+    else return;
+
+    e.preventDefault();
+    const boundedTime = Math.max(0, Math.min(duration, nextTime));
+    audioRef.current.currentTime = boundedTime;
+    setCurrentTime(boundedTime);
   };
 
   const handleWaveformMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -1018,6 +1047,8 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
                 <button
                   key={i}
                   onClick={() => { if (i !== activeTrack) { setActiveTrack(i); setPlaying(false); setCurrentTime(0); } else { playTrack(i); } }}
+                  aria-pressed={activeTrack === i}
+                  aria-label={`${track.tag}: ${track.name}`}
                   className="flex-shrink-0 flex items-center gap-2.5 px-4 py-2.5 rounded-xl border text-left transition-all duration-300"
                   style={{
                     background: activeTrack === i ? trackAccentsFaded[i] : 'rgba(255,255,255,0.02)',
@@ -1055,6 +1086,8 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
                 <button
                   key={i}
                   onClick={() => { if (i !== activeTrack) { setActiveTrack(i); setPlaying(false); setCurrentTime(0); } else { playTrack(i); } }}
+                  aria-pressed={activeTrack === i}
+                  aria-label={`${track.tag}: ${track.name}`}
                   className="w-full flex items-center gap-3 px-4 py-3.5 text-left transition-all duration-300 hover:bg-white/[0.03] group"
                   style={{
                     background: activeTrack === i ? trackAccentsFaded[i] : undefined,
@@ -1143,6 +1176,14 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
                   className={`relative w-full h-24 sm:h-28 lg:h-32 rounded-xl bg-white/[0.02] border border-white/[0.05] cursor-pointer overflow-hidden transition-all duration-300 ${playing ? 'border-white/[0.08]' : ''}`}
                   onMouseDown={handleWaveformMouseDown}
                   onTouchStart={(e) => { isDragging.current = true; if (e.touches[0]) seekToPosition(e.touches[0] as unknown as MouseEvent); }}
+                  onKeyDown={handleSeekKeyDown}
+                  role="slider"
+                  tabIndex={0}
+                  aria-label={t('a11y.audio.seek')}
+                  aria-valuemin={0}
+                  aria-valuemax={Math.round(duration || 0)}
+                  aria-valuenow={Math.round(currentTime || 0)}
+                  aria-valuetext={`${formatTime(currentTime)} / ${formatTime(duration)}`}
                 >
                   <canvas ref={waveformRef} className="absolute inset-0 w-full h-full" />
                   {!loaded && (
@@ -1201,7 +1242,7 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
                       value={volume}
                       onChange={(e) => setVolume(parseFloat(e.target.value))}
                       className="w-20 h-1 accent-[#d4922a] cursor-pointer"
-                      aria-label="Volume"
+                      aria-label={t('a11y.audio.volume')}
                     />
                   </div>
 
@@ -1210,7 +1251,7 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
                     <button
                       onClick={playPrev}
                       className="w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center text-muted-foreground/60 hover:text-foreground hover:bg-white/[0.05] transition-all duration-200"
-                      aria-label="Previous track"
+                      aria-label={t('a11y.audio.previous')}
                     >
                       <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z" />
@@ -1228,7 +1269,7 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
                         background: trackAccents[activeTrack],
                         boxShadow: playing ? `0 0 24px ${trackAccentsMid[activeTrack]}` : undefined,
                       }}
-                      aria-label={playing ? 'Pause' : 'Play'}
+                      aria-label={playing ? t('a11y.audio.pause') : t('a11y.audio.play')}
                     >
                       {playing ? (
                         <svg className="size-5 sm:size-6" fill="currentColor" viewBox="0 0 24 24">
@@ -1244,7 +1285,7 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
                     <button
                       onClick={playNext}
                       className="w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center text-muted-foreground/60 hover:text-foreground hover:bg-white/[0.05] transition-all duration-200"
-                      aria-label="Next track"
+                      aria-label={t('a11y.audio.next')}
                     >
                       <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" />
@@ -1279,7 +1320,13 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
 
 // ========== CONFIGURATOR ==========
 
-function ConfiguratorSection({ t }: { t: (k: string) => string }) {
+function ConfiguratorSection({
+  t,
+  onInquiry,
+}: {
+  t: (k: string) => string;
+  onInquiry: (inquiry: ConfigInquiry) => void;
+}) {
   const ref = useScrollAnimation();
   const [color, setColor] = useState<string>('tiger');
   const [impedance, setImpedance] = useState<string>('8');
@@ -1297,6 +1344,24 @@ function ConfiguratorSection({ t }: { t: (k: string) => string }) {
   const scrollTo = (id: string) => {
     const el = document.getElementById(id);
     if (el) el.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const sendConfiguration = () => {
+    const selectedColor = colors.find((c) => c.id === color)?.label || color;
+    onInquiry({
+      subject: t('cfg.inquiry.subject'),
+      message: [
+        t('cfg.inquiry.intro'),
+        '',
+        `${t('cfg.summary.color')}: ${selectedColor}`,
+        `${t('cfg.summary.impedance')}: ${impedance} Ohm`,
+        `${t('cfg.summary.fxloop')}: ${fxLoop ? t('cfg.fxloop.on') : t('cfg.fxloop.off')}`,
+        '',
+        t('cfg.inquiry.details'),
+      ].join('\n'),
+      nonce: Date.now(),
+    });
+    requestAnimationFrame(() => scrollTo('contact'));
   };
 
   return (
@@ -1390,6 +1455,8 @@ function ConfiguratorSection({ t }: { t: (k: string) => string }) {
                   <img
                     src={color === 'red' ? '/aluplex/aluplex-red-front.jpg' : color === 'black' ? '/aluplex/aluplex-1.jpg' : color === 'cream' ? '/aluplex/aluplex-138.jpg' : '/aluplex/aluplex-56.jpg'}
                     alt={`ALUPLEXamp — ${colors.find(c => c.id === color)?.label}`}
+                    loading="lazy"
+                    decoding="async"
                     className="w-full max-w-sm mx-auto rounded-2xl opacity-90 object-cover aspect-[3/2] shadow-2xl shadow-black/30 transition-opacity duration-300"
                   />
                 </div>
@@ -1421,7 +1488,7 @@ function ConfiguratorSection({ t }: { t: (k: string) => string }) {
 
             <div className="mt-6">
               <Button
-                onClick={() => scrollTo('contact')}
+                onClick={sendConfiguration}
                 className="w-full bg-primary text-primary-foreground hover:bg-primary/90 py-5 sm:py-6 text-base font-semibold rounded-xl shadow-xl shadow-primary/20 transition-all duration-300 hover:shadow-primary/30 hover:scale-[1.01]"
               >
                 {t('cfg.cta')}
@@ -1455,13 +1522,13 @@ function GallerySection({ t }: { t: (k: string) => string }) {
     { label: t('gal.rear'), src: '/aluplex/aluplex-123.jpg' },
   ];
 
-  const prev = () => {
+  const prev = useCallback(() => {
     if (lightbox !== null) setLightbox(lightbox === 0 ? items.length - 1 : lightbox - 1);
-  };
+  }, [items.length, lightbox]);
 
-  const next = () => {
+  const next = useCallback(() => {
     if (lightbox !== null) setLightbox(lightbox === items.length - 1 ? 0 : lightbox + 1);
-  };
+  }, [items.length, lightbox]);
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -1472,6 +1539,15 @@ function GallerySection({ t }: { t: (k: string) => string }) {
     };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
+  }, [lightbox, next, prev]);
+
+  useEffect(() => {
+    if (lightbox === null) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
   }, [lightbox]);
 
   return (
@@ -1493,9 +1569,9 @@ function GallerySection({ t }: { t: (k: string) => string }) {
                 i === 0 ? 'sm:col-span-2 sm:row-span-2 sm:aspect-square' : ''
               }`}
               style={{ transitionDelay: `${i * 60}ms` }}
-              aria-label={item.label}
+              aria-label={`${t('a11y.gallery.open')}: ${item.label}`}
             >
-              <img src={item.src} alt={item.label} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+              <img src={item.src} alt={item.label} loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
               {/* Always-on gradient */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
               {/* Hover overlay */}
@@ -1514,12 +1590,18 @@ function GallerySection({ t }: { t: (k: string) => string }) {
 
         {/* Lightbox */}
         {lightbox !== null && (
-          <div className="lightbox-overlay" onClick={() => setLightbox(null)}>
+          <div
+            className="lightbox-overlay"
+            onClick={() => setLightbox(null)}
+            role="dialog"
+            aria-modal="true"
+            aria-label={t('a11y.gallery.dialog')}
+          >
             <div className="absolute top-0 left-0 right-0 z-[102] flex items-center justify-between p-4 sm:p-6">
               <button
                 className="p-2.5 rounded-xl bg-black/40 backdrop-blur-sm text-white hover:bg-black/60 transition-colors border border-white/10"
                 onClick={() => setLightbox(null)}
-                aria-label="Close"
+                aria-label={t('a11y.gallery.close')}
               >
                 <X className="size-5" />
               </button>
@@ -1530,21 +1612,21 @@ function GallerySection({ t }: { t: (k: string) => string }) {
             <button
               className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 z-[101] p-2.5 sm:p-3 rounded-xl bg-black/40 backdrop-blur-sm text-white hover:bg-black/60 transition-colors border border-white/10"
               onClick={(e) => { e.stopPropagation(); prev(); }}
-              aria-label="Previous"
+              aria-label={t('a11y.gallery.previous')}
             >
               <ChevronLeft className="size-5" />
             </button>
             <button
               className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-[101] p-2.5 sm:p-3 rounded-xl bg-black/40 backdrop-blur-sm text-white hover:bg-black/60 transition-colors border border-white/10"
               onClick={(e) => { e.stopPropagation(); next(); }}
-              aria-label="Next"
+              aria-label={t('a11y.gallery.next')}
             >
               <ChevronRight className="size-5" />
             </button>
             <div className="relative w-[95vw] sm:w-[85vw] max-w-5xl aspect-[4/3] rounded-2xl overflow-hidden border border-white/10 shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
-              <img src={items[lightbox].src} alt={items[lightbox].label} className="absolute inset-0 w-full h-full object-cover" />
+              <img src={items[lightbox].src} alt={items[lightbox].label} decoding="async" className="absolute inset-0 w-full h-full object-cover" />
             </div>
             <p className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 text-xs sm:text-sm text-white/50 bg-black/40 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/10">
               {items[lightbox].label}
@@ -1658,13 +1740,35 @@ function CTASection({ t }: { t: (k: string) => string }) {
 
 // ========== CONTACT FORM ==========
 
-function ContactSection({ lang, t }: { lang: Language; t: (k: string) => string }) {
+function ContactSection({
+  lang,
+  t,
+  configInquiry,
+}: {
+  lang: Language;
+  t: (k: string) => string;
+  configInquiry: ConfigInquiry | null;
+}) {
   const ref = useScrollAnimation();
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  useEffect(() => {
+    if (!configInquiry) return;
+    const timer = window.setTimeout(() => {
+      setStatus('idle');
+      setErrors({});
+      setFormData((prev) => ({
+        ...prev,
+        subject: configInquiry.subject,
+        message: configInquiry.message,
+      }));
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [configInquiry]);
 
   const validate = () => {
     const errs: Record<string, string> = {};
@@ -1772,11 +1876,13 @@ function ContactSection({ lang, t }: { lang: Language; t: (k: string) => string 
                       value={formData.name}
                       onChange={(e) => handleChange('name', e.target.value)}
                       placeholder={t('form.name.placeholder')}
+                      aria-invalid={Boolean(errors.name)}
+                      aria-describedby={errors.name ? 'cf-name-error' : undefined}
                       className={`w-full px-4 py-3 rounded-xl bg-white/[0.03] border text-sm text-foreground placeholder:text-muted-foreground/30 outline-none transition-all duration-200 focus:ring-2 focus:ring-primary/20 ${
                         errors.name ? 'border-red-500/50 focus:border-red-500/70' : 'border-white/[0.07] focus:border-primary/40'
                       }`}
                     />
-                    {errors.name && <p className="text-[11px] text-red-400/80 mt-1.5" role="alert">{errors.name}</p>}
+                    {errors.name && <p id="cf-name-error" className="text-[11px] text-red-400/80 mt-1.5" role="alert">{errors.name}</p>}
                   </div>
 
                   {/* Email */}
@@ -1791,11 +1897,13 @@ function ContactSection({ lang, t }: { lang: Language; t: (k: string) => string 
                       value={formData.email}
                       onChange={(e) => handleChange('email', e.target.value)}
                       placeholder={t('form.email.placeholder')}
+                      aria-invalid={Boolean(errors.email)}
+                      aria-describedby={errors.email ? 'cf-email-error' : undefined}
                       className={`w-full px-4 py-3 rounded-xl bg-white/[0.03] border text-sm text-foreground placeholder:text-muted-foreground/30 outline-none transition-all duration-200 focus:ring-2 focus:ring-primary/20 ${
                         errors.email ? 'border-red-500/50 focus:border-red-500/70' : 'border-white/[0.07] focus:border-primary/40'
                       }`}
                     />
-                    {errors.email && <p className="text-[11px] text-red-400/80 mt-1.5" role="alert">{errors.email}</p>}
+                    {errors.email && <p id="cf-email-error" className="text-[11px] text-red-400/80 mt-1.5" role="alert">{errors.email}</p>}
                   </div>
                 </div>
 
@@ -1827,11 +1935,13 @@ function ContactSection({ lang, t }: { lang: Language; t: (k: string) => string 
                     value={formData.message}
                     onChange={(e) => handleChange('message', e.target.value)}
                     placeholder={t('form.message.placeholder')}
+                    aria-invalid={Boolean(errors.message)}
+                    aria-describedby={errors.message ? 'cf-message-error' : undefined}
                     className={`w-full px-4 py-3 rounded-xl bg-white/[0.03] border text-sm text-foreground placeholder:text-muted-foreground/30 outline-none transition-all duration-200 resize-none focus:ring-2 focus:ring-primary/20 ${
                       errors.message ? 'border-red-500/50 focus:border-red-500/70' : 'border-white/[0.07] focus:border-primary/40'
                     }`}
                   />
-                  {errors.message && <p className="text-[11px] text-red-400/80 mt-1.5" role="alert">{errors.message}</p>}
+                  {errors.message && <p id="cf-message-error" className="text-[11px] text-red-400/80 mt-1.5" role="alert">{errors.message}</p>}
                 </div>
 
                 {/* Error message */}
@@ -1846,10 +1956,17 @@ function ContactSection({ lang, t }: { lang: Language; t: (k: string) => string 
 
                 {/* Privacy note */}
                 <p className="text-[10px] sm:text-[11px] text-muted-foreground/30 leading-relaxed">
-                  {t('form.privacy')}
+                  {t('form.privacy')}{' '}
+                  <Link href="/privacy" className="text-primary/70 hover:text-primary underline underline-offset-4">
+                    {t('form.privacy.link')}
+                  </Link>
                 </p>
 
                 {/* Submit */}
+                <div className="sr-only" aria-live="polite" aria-atomic="true">
+                  {status === 'sending' && t('form.sending')}
+                  {status === 'error' && t('form.error')}
+                </div>
                 <Button
                   type="submit"
                   disabled={status === 'sending'}
@@ -2019,6 +2136,24 @@ function Footer({ lang, setLang, t }: { lang: Language; setLang: (l: Language) =
                     {t('footer.support.order')}
                   </a>
                 </li>
+                <li>
+                  <Link
+                    href="/privacy"
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200 flex items-center gap-1.5 group"
+                  >
+                    <span className="w-0 group-hover:w-3 h-[1px] bg-primary/40 transition-all duration-300" />
+                    {t('footer.privacy')}
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/cookies"
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200 flex items-center gap-1.5 group"
+                  >
+                    <span className="w-0 group-hover:w-3 h-[1px] bg-primary/40 transition-all duration-300" />
+                    {t('footer.cookies')}
+                  </Link>
+                </li>
               </ul>
             </div>
 
@@ -2108,16 +2243,16 @@ function Footer({ lang, setLang, t }: { lang: Language; setLang: (l: Language) =
 
 // ========== SCROLL TO TOP ==========
 
-function ScrollToTop() {
+function ScrollToTop({ t }: { t: (k: string) => string }) {
   const show = useShowScrollTop(500);
 
   return (
     <button
       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-      className={`fixed bottom-6 right-6 z-40 w-11 h-11 rounded-xl bg-primary/90 backdrop-blur-sm text-primary-foreground flex items-center justify-center shadow-xl shadow-primary/20 hover:bg-primary transition-all duration-300 hover:scale-105 ${
+      className={`fixed bottom-6 right-6 z-40 hidden sm:flex w-11 h-11 rounded-xl bg-primary/90 backdrop-blur-sm text-primary-foreground items-center justify-center shadow-xl shadow-primary/20 hover:bg-primary transition-all duration-300 hover:scale-105 ${
         show ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
       }`}
-      aria-label="Scroll to top"
+      aria-label={t('footer.back.top')}
     >
       <ChevronUp className="size-5" />
     </button>
@@ -2154,7 +2289,10 @@ function CookieConsent({ t }: { t: (k: string) => string }) {
       <div className="max-w-3xl mx-auto bg-[#111]/95 backdrop-blur-xl border border-white/[0.08] rounded-2xl px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 shadow-2xl shadow-black/40">
         <p className="text-xs sm:text-sm text-muted-foreground/70 leading-relaxed flex-1">
           <Shield className="size-4 text-primary/50 inline-block mr-2 -mt-0.5" />
-          {t('cookie.text')}
+          {t('cookie.text')}{' '}
+          <Link href="/cookies" className="text-primary/75 hover:text-primary underline underline-offset-4">
+            {t('cookie.link')}
+          </Link>
         </p>
         <div className="flex items-center gap-2 flex-shrink-0">
           <button onClick={reject} className="px-4 py-2 text-xs font-semibold rounded-lg border border-white/10 text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all duration-200">
@@ -2171,8 +2309,120 @@ function CookieConsent({ t }: { t: (k: string) => string }) {
 
 // ========== MAIN PAGE ==========
 
+const defaultMaintenance: MaintenanceSettings = {
+  enabled: false,
+  eyebrow: 'ALUPLEXamp',
+  title: 'Stranku prave ladime.',
+  message:
+    'Pripravujeme aktualizaciu webu, aby sme mohli lepsie predstavit zosilnovac ALUPLEXamp, jeho zvuk a moznosti vyroby na objednavku.',
+  secondaryMessage:
+    'Ak nas potrebujes kontaktovat hned, napis na info@aluplex.sk alebo objednavky@aluplex.sk.',
+  imageUrl: '/aluplex/aluplex-1.jpg',
+  imageAlt: 'ALUPLEXamp elektronkovy gitarovy zosilnovac',
+};
+
+function MaintenancePage({ maintenance }: { maintenance: MaintenanceSettings }) {
+  return (
+    <main className="relative min-h-screen overflow-hidden bg-[#070707] text-foreground">
+      {maintenance.imageUrl ? (
+        <div className="absolute inset-0 z-0" aria-hidden="true">
+          <img
+            src={maintenance.imageUrl}
+            alt=""
+            className="h-full w-full scale-105 object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#050505] via-[#050505]/82 to-[#050505]/28" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#050505]/82 via-transparent to-[#050505]/76" />
+          <div className="absolute inset-0 hero-vignette" />
+        </div>
+      ) : (
+        <div className="absolute inset-0 z-0 bg-[#070707]" aria-hidden="true" />
+      )}
+      <div className="hero-grid-pattern absolute inset-0 z-0 opacity-[0.025]" aria-hidden="true" />
+      <div className="pointer-events-none absolute -right-40 top-10 z-0 h-[520px] w-[520px] bg-[radial-gradient(circle,rgba(255,184,0,0.10)_0%,transparent_62%)]" />
+      <div className="pointer-events-none absolute -bottom-44 -left-32 z-0 h-[460px] w-[460px] bg-[radial-gradient(circle,rgba(255,184,0,0.07)_0%,transparent_64%)]" />
+
+      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-7xl flex-col px-5 py-5 sm:px-8 lg:px-10">
+        <header className="flex items-center justify-between border-b border-white/[0.08] pb-5">
+          <img
+            src="/aluplex/real/logo-white.png"
+            alt="ALUPLEXamp"
+            className="h-9 w-auto sm:h-11"
+          />
+          <span className="rounded-full border border-[#ffb800]/35 bg-black/35 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#ffb800] shadow-[0_0_30px_rgba(255,184,0,0.08)] backdrop-blur sm:text-[11px]">
+            Maintenance
+          </span>
+        </header>
+
+        <section className="grid flex-1 items-center gap-10 py-12 sm:py-16 lg:grid-cols-[minmax(0,0.9fr)_minmax(280px,0.55fr)] lg:py-20">
+          <div className="max-w-3xl">
+            <div className="inline-flex items-center gap-3 rounded-full border border-[#ffb800]/25 bg-[#ffb800]/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#ffcb47] backdrop-blur">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#ffb800] shadow-[0_0_16px_rgba(255,184,0,0.75)]" />
+              {maintenance.eyebrow}
+            </div>
+            <h1 className="mt-7 max-w-3xl text-5xl font-semibold leading-[0.98] tracking-normal text-white sm:text-7xl lg:text-8xl">
+              {maintenance.title}
+            </h1>
+            <div className="mt-7 h-px w-32 bg-gradient-to-r from-[#ffb800] via-[#ffcf4d]/70 to-transparent" />
+            <p className="mt-7 max-w-2xl text-lg font-light leading-8 text-white/76 sm:text-2xl sm:leading-10">
+              {maintenance.message}
+            </p>
+            {maintenance.secondaryMessage ? (
+              <p className="mt-5 max-w-2xl text-sm leading-7 text-white/54 sm:text-base sm:leading-8">
+                {maintenance.secondaryMessage}
+              </p>
+            ) : null}
+          </div>
+
+          <aside className="rounded-lg border border-white/[0.08] bg-black/42 p-5 shadow-2xl shadow-black/40 backdrop-blur-md sm:p-6 lg:justify-self-end">
+            <div className="border-b border-white/[0.08] pb-5">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/42">
+                Status
+              </p>
+              <p className="mt-2 text-2xl font-semibold text-white">
+                Web je dočasne mimo prevádzky
+              </p>
+            </div>
+            <div className="grid gap-4 py-5 text-sm text-white/58">
+              <div className="flex items-center justify-between gap-6">
+                <span>Aktualizácia obsahu</span>
+                <span className="font-semibold text-[#ffb800]">prebieha</span>
+              </div>
+              <div className="flex items-center justify-between gap-6">
+                <span>Objednávky a dopyty</span>
+                <span className="font-semibold text-white/80">e-mailom</span>
+              </div>
+              <div className="flex items-center justify-between gap-6">
+                <span>Kontakt</span>
+                <a
+                  href="mailto:info@aluplex.sk"
+                  className="font-semibold text-[#ffb800] transition hover:text-[#ffcf4d]"
+                >
+                  info@aluplex.sk
+                </a>
+              </div>
+            </div>
+            <a
+              href="mailto:info@aluplex.sk"
+              className="inline-flex h-12 w-full items-center justify-center rounded-md bg-[#ffb800] px-5 text-sm font-semibold text-black shadow-lg shadow-[#ffb800]/20 transition hover:bg-[#ffcf4d]"
+            >
+              Kontaktovať ALUPLEXamp
+            </a>
+          </aside>
+        </section>
+      </div>
+    </main>
+  );
+}
+
 export default function Home() {
   const { lang, setLang, t } = useTranslation();
+  const [configInquiry, setConfigInquiry] = useState<ConfigInquiry | null>(null);
+  const maintenance = { ...defaultMaintenance, ...siteSettings.maintenance };
+
+  if (maintenance.enabled) {
+    return <MaintenancePage maintenance={maintenance} />;
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground grain-overlay">
@@ -2192,7 +2442,7 @@ export default function Home() {
         <SectionDivider />
         <SoundLibrary t={t} />
         <SectionDivider />
-        <ConfiguratorSection t={t} />
+        <ConfiguratorSection t={t} onInquiry={setConfigInquiry} />
         <SectionDivider />
         <GallerySection t={t} />
         <SectionDivider />
@@ -2200,11 +2450,11 @@ export default function Home() {
         <SectionDivider />
         <CTASection t={t} />
         <SectionDivider />
-        <ContactSection lang={lang} t={t} />
+        <ContactSection lang={lang} t={t} configInquiry={configInquiry} />
       </main>
       <Footer lang={lang} setLang={setLang} t={t} />
       <CookieConsent t={t} />
-      <ScrollToTop />
+      <ScrollToTop t={t} />
     </div>
   );
 }

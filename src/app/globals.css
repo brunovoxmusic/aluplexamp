@@ -135,6 +135,7 @@
   html {
     scroll-behavior: smooth;
     scroll-padding-top: 5rem;
+    overflow-x: hidden;
   }
 }
 
@@ -278,6 +279,25 @@
 .hero-slide:nth-child(3) { animation-delay: 10s; }
 .hero-slide:nth-child(4) { animation-delay: 15s; }
 .hero-slide:nth-child(5) { animation-delay: 20s; }
+
+.mobile-hero-product {
+  position: absolute;
+  top: 4rem;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  width: 100%;
+  pointer-events: none;
+}
+
+.mobile-hero-product-image {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  filter: saturate(1.05) contrast(1.02);
+}
 
 /* ========== Gradient Text ========== */
 
@@ -424,6 +444,11 @@ select:focus-visible {
   outline-offset: 2px;
 }
 
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
 /* ========== iOS Safe Area ========== */
 
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
@@ -472,7 +497,13 @@ select:focus-visible {
 
 .track-scroll {
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
   scrollbar-width: none;
+}
+
+.track-scroll > * {
+  scroll-snap-align: start;
 }
 .track-scroll::-webkit-scrollbar {
   display: none;
@@ -659,6 +690,8 @@ select:focus-visible {
   display: flex;
   align-items: center;
   justify-content: center;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
 }
 
 /* ========== Configurator Preview ========== */
@@ -678,6 +711,16 @@ select:focus-visible {
 @media (max-width: 640px) {
   .hero-fade-item {
     animation-duration: 0.7s;
+  }
+
+  .mobile-hero-content {
+    padding-top: calc(4rem + 56.25vw + 2rem);
+  }
+
+  @media (max-height: 760px) {
+    .mobile-hero-content {
+      padding-top: calc(4rem + 56.25vw + 1.25rem);
+    }
   }
 
   .card-hover {

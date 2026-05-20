@@ -1,0 +1,39 @@
+{
+  "siteUrl": "https://aluplexamp.com",
+  "brandName": "ALUPLEXamp",
+  "title": "ALUPLEXamp - ručne vyrábaný elektrónkový gitarový zosilňovač",
+  "description": "Ručne vyrábaný 30 W elektrónkový gitarový zosilňovač s hliníkovým šasi, EL34 koncovým stupňom a turret board zapojením. Britský charakter, nízka hmotnosť a výroba na objednávku.",
+  "ogTitle": "ALUPLEXamp - ručne vyrábaný elektrónkový gitarový zosilňovač",
+  "ogDescription": "30 W elektrónkový aparát s EL34, hliníkovým šasi a ručným turret board zapojením. Vyrobený na objednávku pre gitaristov, ktorí hľadajú vlastný tón.",
+  "twitterTitle": "ALUPLEXamp - ručne vyrábaný elektrónkový zosilňovač",
+  "twitterDescription": "30 W elektrónkový gitarový zosilňovač s EL34, hliníkovým šasi a ručným turret board zapojením.",
+  "ogImage": "/og-image.jpg",
+  "keywords": [
+    "elektrónkový zosilňovač",
+    "lampový zosilňovač",
+    "gitarový zosilňovač",
+    "ručná výroba zosilňovačov",
+    "ručné zapojenie zosilňovača",
+    "tube amplifier",
+    "guitar amplifier",
+    "hand wired amplifier",
+    "ALUPLEXamp",
+    "EL34",
+    "ECC83",
+    "JJ Electronics",
+    "British tone",
+    "aluminium chassis",
+    "turret board",
+    "Class AB",
+    "30 W amplifier"
+  ],
+  "maintenance": {
+    "enabled": true,
+    "eyebrow": "ALUPLEXamp",
+    "title": "Stránku práve ladíme.",
+    "message": "Pripravujeme aktualizáciu webu, aby sme mohli lepšie predstaviť zosilňovač ALUPLEXamp, jeho zvuk a možnosti výroby na objednávku.",
+    "secondaryMessage": "Ak nás potrebuješ kontaktovať hneď, napíš na info@aluplex.sk alebo objednavky@aluplex.sk.",
+    "imageUrl": "/aluplex/aluplex-1.jpg",
+    "imageAlt": "ALUPLEXamp elektrónkový gitarový zosilňovač"
+  }
+}
