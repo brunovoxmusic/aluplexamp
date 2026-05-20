@@ -28,7 +28,7 @@
     "30 W amplifier"
   ],
   "maintenance": {
-    "enabled": true,
+    "enabled": false,
     "eyebrow": "ALUPLEXamp",
     "title": "Stránku práve ladíme.",
     "message": "Pripravujeme aktualizáciu webu, aby sme mohli lepšie predstaviť zosilňovač ALUPLEXamp, jeho zvuk a možnosti výroby na objednávku.",
