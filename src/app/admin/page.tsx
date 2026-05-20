@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import type { FormEvent } from "react";
 import type { MaintenanceSettings, SiteSettings } from "@/lib/site";
 import type { Language, Translations } from "@/lib/translations";
 
@@ -106,38 +107,82 @@ export default function AdminPage() {
   const [siteJsonValue, setSiteJsonValue] = useState("");
   const [keywordValue, setKeywordValue] = useState("");
   const [password, setPassword] = useState("");
-  const [status, setStatus] = useState<SaveState>("loading");
+  const [adminPassword, setAdminPassword] = useState("");
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
+  const [status, setStatus] = useState<SaveState>("idle");
   const [message, setMessage] = useState("");
 
-  useEffect(() => {
-    async function loadContent() {
-      try {
-        const response = await fetch("/api/admin/content", { cache: "no-store" });
-        const data = await response.json();
+  async function loadContent(adminPassword: string) {
+    try {
+      setStatus("loading");
+      setMessage("");
 
-        if (!response.ok) {
-          throw new Error(data.error || "Nepodarilo sa nacitat obsah.");
-        }
+      const response = await fetch("/api/admin/content", {
+        cache: "no-store",
+        headers: {
+          "x-admin-password": adminPassword,
+        },
+      });
+      const data = await response.json();
 
-        const nextTranslations = data.translations ?? data.content;
-        const nextSite = normalizeSite(data.site ?? getFallbackSite());
-
-        setTranslations(nextTranslations);
-        setSite(nextSite);
-        setJsonValue(JSON.stringify(sortEntries(nextTranslations.sk), null, 2));
-        setSiteJsonValue(JSON.stringify(nextSite, null, 2));
-        setKeywordValue(nextSite.keywords.join("\n"));
-        setStatus("idle");
-      } catch (error) {
-        setStatus("error");
-        setMessage(
-          error instanceof Error ? error.message : "Nepodarilo sa nacitat obsah."
-        );
+      if (!response.ok) {
+        throw new Error(data.error || "Nepodarilo sa nacitat obsah.");
       }
+
+      const nextTranslations = data.translations ?? data.content;
+      const nextSite = normalizeSite(data.site ?? getFallbackSite());
+
+      setTranslations(nextTranslations);
+      setSite(nextSite);
+      setJsonValue(JSON.stringify(sortEntries(nextTranslations.sk), null, 2));
+      setSiteJsonValue(JSON.stringify(nextSite, null, 2));
+      setKeywordValue(nextSite.keywords.join("\n"));
+      setAdminPassword(adminPassword);
+      setIsAuthenticated(true);
+      sessionStorage.setItem("aluplex-admin-password", adminPassword);
+      setStatus("idle");
+    } catch (error) {
+      setIsAuthenticated(false);
+      sessionStorage.removeItem("aluplex-admin-password");
+      setStatus("error");
+      setMessage(
+        error instanceof Error ? error.message : "Nepodarilo sa nacitat obsah."
+      );
+    } finally {
+      setAuthChecked(true);
+    }
+  }
+
+  useEffect(() => {
+    const storedPassword = sessionStorage.getItem("aluplex-admin-password");
+
+    if (storedPassword) {
+      queueMicrotask(() => {
+        loadContent(storedPassword);
+      });
+      return;
     }
 
-    loadContent();
+    queueMicrotask(() => {
+      setAuthChecked(true);
+    });
   }, []);
+
+  async function login(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    await loadContent(password);
+  }
+
+  function logout() {
+    setIsAuthenticated(false);
+    setTranslations(null);
+    setPassword("");
+    setAdminPassword("");
+    setStatus("idle");
+    setMessage("");
+    sessionStorage.removeItem("aluplex-admin-password");
+  }
 
   const keyCount = useMemo(() => {
     if (!translations) return 0;
@@ -283,7 +328,7 @@ export default function AdminPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          password,
+          password: adminPassword,
           translations: bundle.translations,
           site: bundle.site,
         }),
@@ -296,7 +341,9 @@ export default function AdminPage() {
 
       setStatus("saved");
       setMessage(
-        "Obsah je ulozeny. V produkcii sa zmena zapise do GitHubu a Vercel ju nasadi novym deployom."
+        data.savedTo === "github"
+          ? "Obsah je ulozeny do GitHubu. Verejna stranka si nacita aktualny CMS obsah automaticky; Vercel zaroven spusti novy produkcny deploy."
+          : "Obsah je ulozeny lokalne."
       );
     } catch (error) {
       setStatus("error");
@@ -656,6 +703,64 @@ export default function AdminPage() {
     return renderAdvancedFields();
   }
 
+  if (!authChecked) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-[#0a0a0a] px-4 text-[#e8e6e1]">
+        <p className="text-sm text-white/55">Overujem prihlasenie...</p>
+      </main>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-[#0a0a0a] px-4 text-[#e8e6e1]">
+        <form
+          onSubmit={login}
+          className="w-full max-w-md rounded-lg border border-white/10 bg-[#101010] p-6 shadow-2xl shadow-black/40"
+        >
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#ffb800]">
+            ALUPLEXamp CMS
+          </p>
+          <h1 className="mt-3 text-3xl font-semibold tracking-normal text-white">
+            Prihlasenie administratora
+          </h1>
+          <p className="mt-3 text-sm leading-6 text-white/55">
+            Obsah administracie, upravy a ukladanie zmien su dostupne iba po
+            zadani admin hesla.
+          </p>
+
+          <label className="mt-6 grid gap-2">
+            <span className="text-xs font-medium uppercase tracking-[0.16em] text-white/45">
+              Admin heslo
+            </span>
+            <input
+              type="password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              autoComplete="current-password"
+              className="h-12 rounded-md border border-white/10 bg-black/35 px-3 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-[#ffb800]/70"
+              placeholder="ADMIN_PASSWORD"
+            />
+          </label>
+
+          <button
+            type="submit"
+            disabled={status === "loading"}
+            className="mt-5 inline-flex h-11 w-full items-center justify-center rounded-md bg-[#ffb800] px-5 text-sm font-semibold text-black transition hover:bg-[#ffc933] disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {status === "loading" ? "Overujem..." : "Prihlasit sa"}
+          </button>
+
+          {message ? (
+            <p className="mt-4 rounded-md border border-red-500/20 bg-red-500/10 px-3 py-2 text-sm text-red-200">
+              {message === "unauthorized" ? "Nespravne admin heslo." : message}
+            </p>
+          ) : null}
+        </form>
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-[#0a0a0a] text-[#e8e6e1]">
       <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col px-4 py-6 sm:px-6 lg:px-8">
@@ -689,16 +794,19 @@ export default function AdminPage() {
         <section className="grid flex-1 gap-5 py-6 lg:grid-cols-[280px_1fr]">
           <aside className="space-y-5">
             <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
-              <label className="text-xs font-medium uppercase tracking-[0.16em] text-white/45">
-                Admin heslo
-              </label>
-              <input
-                type="password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                className="mt-3 h-11 w-full rounded-md border border-white/10 bg-black/35 px-3 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-[#ffb800]/70"
-                placeholder="ADMIN_PASSWORD"
-              />
+              <p className="text-xs font-medium uppercase tracking-[0.16em] text-white/45">
+                Prihlasenie
+              </p>
+              <p className="mt-2 text-sm font-semibold text-white">
+                Administrator prihlaseny
+              </p>
+              <button
+                type="button"
+                onClick={logout}
+                className="mt-4 inline-flex h-9 w-full items-center justify-center rounded-md border border-white/10 px-3 text-xs font-semibold text-white/70 transition hover:border-[#ffb800]/50 hover:text-white"
+              >
+                Odhlasit sa
+              </button>
             </div>
 
             {renderMaintenanceQuickControl()}

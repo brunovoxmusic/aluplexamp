@@ -28,6 +28,18 @@ type ContentBundle = {
   site: SiteSettings;
 };
 
+type GitHubContentFile = {
+  content?: string;
+  encoding?: string;
+  sha?: string;
+};
+
+type SaveResult = {
+  path: string;
+  commitSha?: string;
+  commitUrl?: string;
+};
+
 type SavePayload = {
   password?: string;
   content?: unknown;
@@ -36,7 +48,12 @@ type SavePayload = {
 };
 
 function jsonResponse(body: unknown, status = 200) {
-  return NextResponse.json(body, { status });
+  return NextResponse.json(body, {
+    status,
+    headers: {
+      "Cache-Control": "no-store, max-age=0",
+    },
+  });
 }
 
 function getClientIp(request: NextRequest) {
@@ -154,6 +171,60 @@ async function readLocalBundle(): Promise<ContentBundle> {
   };
 }
 
+function getGitHubHeaders() {
+  const token = process.env.GITHUB_CONTENT_TOKEN;
+
+  return {
+    Accept: "application/vnd.github+json",
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    "X-GitHub-Api-Version": "2022-11-28",
+  };
+}
+
+async function readGitHubFile<T>(repoPath: string): Promise<T> {
+  const encodedPath = repoPath.split("/").map(encodeURIComponent).join("/");
+  const response = await fetch(
+    `https://api.github.com/repos/${REPO}/contents/${encodedPath}?ref=${encodeURIComponent(BRANCH)}`,
+    {
+      headers: getGitHubHeaders(),
+      cache: "no-store",
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`github_read_failed_${repoPath}_${response.status}`);
+  }
+
+  const file = (await response.json()) as GitHubContentFile;
+
+  if (file.encoding !== "base64" || !file.content) {
+    throw new Error(`github_invalid_content_${repoPath}`);
+  }
+
+  return JSON.parse(Buffer.from(file.content, "base64").toString("utf8")) as T;
+}
+
+async function readGitHubBundle(): Promise<ContentBundle> {
+  const [translations, site] = await Promise.all([
+    readGitHubFile<Translations>(TRANSLATIONS_PATH),
+    readGitHubFile<SiteSettings>(SITE_PATH),
+  ]);
+
+  return { translations, site };
+}
+
+async function readContentBundle(): Promise<{ bundle: ContentBundle; source: string }> {
+  if (process.env.NODE_ENV === "production") {
+    try {
+      return { bundle: await readGitHubBundle(), source: "github" };
+    } catch {
+      return { bundle: await readLocalBundle(), source: "deployment" };
+    }
+  }
+
+  return { bundle: await readLocalBundle(), source: "local" };
+}
+
 async function writeLocalBundle(bundle: ContentBundle) {
   await Promise.all([
     fs.writeFile(
@@ -168,18 +239,14 @@ async function saveFileToGitHub(
   repoPath: string,
   content: unknown,
   message: string
-) {
+): Promise<SaveResult> {
   const token = process.env.GITHUB_CONTENT_TOKEN;
 
   if (!token) {
     throw new Error("missing_github_content_token");
   }
 
-  const headers = {
-    Accept: "application/vnd.github+json",
-    Authorization: `Bearer ${token}`,
-    "X-GitHub-Api-Version": "2022-11-28",
-  };
+  const headers = getGitHubHeaders();
   const encodedPath = repoPath.split("/").map(encodeURIComponent).join("/");
   const currentFileResponse = await fetch(
     `https://api.github.com/repos/${REPO}/contents/${encodedPath}?ref=${encodeURIComponent(BRANCH)}`,
@@ -210,19 +277,31 @@ async function saveFileToGitHub(
   if (!saveResponse.ok) {
     throw new Error(`github_write_failed_${repoPath}_${saveResponse.status}`);
   }
+
+  const savedFile = (await saveResponse.json()) as {
+    commit?: { sha?: string; html_url?: string };
+  };
+
+  return {
+    path: repoPath,
+    commitSha: savedFile.commit?.sha,
+    commitUrl: savedFile.commit?.html_url,
+  };
 }
 
 async function saveBundleToGitHub(bundle: ContentBundle) {
-  await saveFileToGitHub(
+  const translationsResult = await saveFileToGitHub(
     TRANSLATIONS_PATH,
     bundle.translations,
     "Update ALUPLEXamp CMS text content"
   );
-  await saveFileToGitHub(
+  const siteResult = await saveFileToGitHub(
     SITE_PATH,
     bundle.site,
-    "Update ALUPLEXamp CMS SEO settings"
+    "Update ALUPLEXamp CMS site settings"
   );
+
+  return [translationsResult, siteResult];
 }
 
 function normalizePayload(body: SavePayload): ContentBundle | null {
@@ -236,14 +315,28 @@ function normalizePayload(body: SavePayload): ContentBundle | null {
   return { translations, site };
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const bundle = await readLocalBundle();
+    const authKey = getClientIp(request);
+    const password = request.headers.get("x-admin-password") ?? undefined;
+
+    if (isRateLimited(authKey)) {
+      return jsonResponse({ error: "rate_limited" }, 429);
+    }
+
+    if (!verifyPassword(password)) {
+      return jsonResponse({ error: "unauthorized" }, 401);
+    }
+
+    clearRateLimit(authKey);
+
+    const { bundle, source } = await readContentBundle();
 
     return jsonResponse({
       content: bundle.translations,
       translations: bundle.translations,
       site: bundle.site,
+      source,
     });
   } catch {
     return jsonResponse({ error: "content_read_failed" }, 500);
@@ -271,13 +364,22 @@ export async function POST(request: NextRequest) {
       return jsonResponse({ error: "invalid_content" }, 400);
     }
 
+    let saveResults: SaveResult[] = [];
+    let savedTo = "local";
+
     if (process.env.NODE_ENV === "production") {
-      await saveBundleToGitHub(bundle);
+      saveResults = await saveBundleToGitHub(bundle);
+      savedTo = "github";
     } else {
       await writeLocalBundle(bundle);
     }
 
-    return jsonResponse({ success: true });
+    return jsonResponse({
+      success: true,
+      savedTo,
+      branch: BRANCH,
+      results: saveResults,
+    });
   } catch (error) {
     const message = error instanceof Error ? error.message : "save_failed";
     return jsonResponse({ error: message }, 500);

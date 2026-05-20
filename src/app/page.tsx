@@ -17,8 +17,12 @@ import { Switch } from '@/components/ui/switch';
 import {
   Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle, SheetClose,
 } from '@/components/ui/sheet';
-import { translations, type Language } from '@/lib/translations';
-import { siteSettings, type MaintenanceSettings } from '@/lib/site';
+import {
+  translations as staticTranslations,
+  type Language,
+  type Translations,
+} from '@/lib/translations';
+import { siteSettings as staticSiteSettings, type MaintenanceSettings, type SiteSettings } from '@/lib/site';
 
 type ConfigInquiry = {
   subject: string;
@@ -26,19 +30,58 @@ type ConfigInquiry = {
   nonce: number;
 };
 
+type ContentResponse = {
+  translations?: Translations;
+  content?: Translations;
+  site?: SiteSettings;
+};
+
 // ========== HOOKS ==========
 
 function useTranslation() {
   const [lang, setLang] = useState<Language>('sk');
+  const [content, setContent] = useState<Translations>(staticTranslations);
+  const [site, setSite] = useState<SiteSettings>(staticSiteSettings);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadLiveContent() {
+      try {
+        const response = await fetch('/api/content', { cache: 'no-store' });
+        if (!response.ok) return;
+
+        const data = (await response.json()) as ContentResponse;
+        const nextTranslations = data.translations ?? data.content;
+
+        if (!cancelled && nextTranslations) {
+          setContent(nextTranslations);
+        }
+
+        if (!cancelled && data.site) {
+          setSite(data.site);
+        }
+      } catch {
+        // Keep static build content if live CMS content cannot be loaded.
+      }
+    }
+
+    loadLiveContent();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const t = useCallback(
-    (key: string): string => translations[lang]?.[key] ?? key,
-    [lang]
+    (key: string): string => content[lang]?.[key] ?? key,
+    [content, lang]
   );
   // Update <html lang> attribute dynamically for accessibility and SEO
   useEffect(() => {
     document.documentElement.lang = lang;
   }, [lang]);
-  return { lang, setLang, t };
+  return { lang, setLang, t, site };
 }
 
 function useScrollAnimation() {
@@ -2416,9 +2459,9 @@ function MaintenancePage({ maintenance }: { maintenance: MaintenanceSettings }) 
 }
 
 export default function Home() {
-  const { lang, setLang, t } = useTranslation();
+  const { lang, setLang, t, site } = useTranslation();
   const [configInquiry, setConfigInquiry] = useState<ConfigInquiry | null>(null);
-  const maintenance = { ...defaultMaintenance, ...siteSettings.maintenance };
+  const maintenance = { ...defaultMaintenance, ...site.maintenance };
 
   if (maintenance.enabled) {
     return <MaintenancePage maintenance={maintenance} />;
