@@ -104,7 +104,7 @@
     "form.email": "E-mail",
     "form.email.invalid": "Zadajte platnú e-mailovú adresu",
     "form.email.placeholder": "vas@email.com",
-    "form.error": "Nepodarilo sa odoslať správu. Skúste to prosím znova alebo nám napíšte priamo na info@aluplex.sk.",
+    "form.error": "Nepodarilo sa odoslať správu. Skúste to prosím znova alebo nám napíšte priamo na info@aluplexamp.com.",
     "form.message": "Správa",
     "form.message.placeholder": "Napríklad: typ gitary, reprobox, požadovaný gain, použitie v štúdiu alebo na pódiu, preferovaná farba, FX Loop áno/nie...",
     "form.name": "Meno",
