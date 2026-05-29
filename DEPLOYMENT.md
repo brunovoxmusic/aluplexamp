@@ -21,8 +21,8 @@ Set these in Vercel for Production. Add the same values to Preview only if you w
 | `GITHUB_REPO` | Yes | Repository target, normally `brunovoxmusic/aluplexamp`. |
 | `GITHUB_BRANCH` | Yes | Branch where CMS commits content, normally `main`. |
 | `RESEND_API_KEY` | Yes | Sends contact form emails in production. |
-| `CONTACT_TO_EMAIL` | Yes | Comma-separated recipient list. |
-| `CONTACT_FROM_EMAIL` | Yes | Verified Resend sender address. |
+| `CONTACT_TO_EMAIL` | Yes | Universal recipient inbox, use `info@aluplexamp.com`. |
+| `CONTACT_FROM_EMAIL` | Yes | Verified Resend sender address, preferably `ALUPLEXamp <info@aluplexamp.com>`. |
 
 ## GitHub token scope
 
@@ -37,8 +37,8 @@ Do not use a broad personal access token if a fine-grained token is available.
 ## Resend setup
 
 1. Verify the sender domain in Resend.
-2. Set `CONTACT_FROM_EMAIL` to an address on that verified domain.
-3. Set `CONTACT_TO_EMAIL` to the real recipient inboxes.
+2. Set `CONTACT_FROM_EMAIL` to `ALUPLEXamp <info@aluplexamp.com>` after the domain is verified.
+3. Set `CONTACT_TO_EMAIL` to `info@aluplexamp.com`.
 4. Submit one test inquiry after deploy and confirm delivery.
 
 ## Post-deploy checks

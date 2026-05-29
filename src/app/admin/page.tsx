@@ -2,7 +2,11 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { FormEvent } from "react";
-import type { MaintenanceSettings, SiteSettings } from "@/lib/site";
+import type {
+  HeroBackgroundSettings,
+  MaintenanceSettings,
+  SiteSettings,
+} from "@/lib/site";
 import type { Language, Translations } from "@/lib/translations";
 
 const languages: Array<{ value: Language; label: string }> = [
@@ -24,6 +28,26 @@ const sections = [
 type SectionId = (typeof sections)[number]["id"];
 type SaveState = "idle" | "loading" | "saving" | "saved" | "error";
 type TextField = { key: string; label: string; multiline?: boolean };
+type MaintenanceLocalizedKey =
+  | "eyebrow"
+  | "title"
+  | "message"
+  | "secondaryMessage"
+  | "imageAlt";
+
+const CONTACT_EMAIL = "info@aluplexamp.com";
+
+const defaultHeroBackground: HeroBackgroundSettings = {
+  mode: "static",
+  staticImage: "/aluplex/aluplex-red-front.jpg",
+  slides: [
+    "/aluplex/aluplex-red-front.jpg",
+    "/aluplex/aluplex-1.jpg",
+    "/aluplex/aluplex-56.jpg",
+    "/aluplex/DSC6821.jpg",
+    "/aluplex/aluplex-138.jpg",
+  ],
+};
 
 const heroFields: TextField[] = [
   { key: "hero.badge", label: "Badge" },
@@ -61,9 +85,35 @@ const defaultMaintenance: MaintenanceSettings = {
   message:
     "Pripravujeme aktualizaciu webu, aby sme mohli lepsie predstavit zosilnovac ALUPLEXamp, jeho zvuk a moznosti vyroby na objednavku.",
   secondaryMessage:
-    "Ak nas potrebujes kontaktovat hned, napis na info@aluplex.sk alebo objednavky@aluplex.sk.",
+    `Ak nas potrebujes kontaktovat hned, napis na ${CONTACT_EMAIL}.`,
   imageUrl: "/aluplex/aluplex-1.jpg",
   imageAlt: "ALUPLEXamp elektronkovy gitarovy zosilnovac",
+  localized: {
+    sk: {
+      eyebrow: "ALUPLEXamp",
+      title: "Stranku prave ladime.",
+      message:
+        "Pripravujeme aktualizaciu webu, aby sme mohli lepsie predstavit zosilnovac ALUPLEXamp, jeho zvuk a moznosti vyroby na objednavku.",
+      secondaryMessage: `Ak nas potrebujes kontaktovat hned, napis na ${CONTACT_EMAIL}.`,
+      imageAlt: "ALUPLEXamp elektronkovy gitarovy zosilnovac",
+    },
+    en: {
+      eyebrow: "ALUPLEXamp",
+      title: "The website is being tuned.",
+      message:
+        "We are preparing an update that will present the ALUPLEXamp amplifier, its sound and made-to-order options with more precision.",
+      secondaryMessage: `For direct contact, email us at ${CONTACT_EMAIL}.`,
+      imageAlt: "ALUPLEXamp tube guitar amplifier",
+    },
+    de: {
+      eyebrow: "ALUPLEXamp",
+      title: "Die Website wird gerade abgestimmt.",
+      message:
+        "Wir bereiten ein Update vor, das den ALUPLEXamp Verstaerker, seinen Klang und die Fertigung auf Bestellung praeziser praesentiert.",
+      secondaryMessage: `Fuer direkten Kontakt schreiben Sie uns an ${CONTACT_EMAIL}.`,
+      imageAlt: "ALUPLEXamp Roehren-Gitarrenverstaerker",
+    },
+  },
 };
 
 function sortEntries(entries: Record<string, string>) {
@@ -84,6 +134,7 @@ function getFallbackSite(): SiteSettings {
     twitterDescription: "",
     ogImage: "/og-image.jpg",
     keywords: [],
+    heroBackground: defaultHeroBackground,
     maintenance: defaultMaintenance,
   };
 }
@@ -91,9 +142,21 @@ function getFallbackSite(): SiteSettings {
 function normalizeSite(nextSite: SiteSettings): SiteSettings {
   return {
     ...nextSite,
+    heroBackground: {
+      ...defaultHeroBackground,
+      ...nextSite.heroBackground,
+      slides:
+        nextSite.heroBackground?.slides && nextSite.heroBackground.slides.length > 0
+          ? nextSite.heroBackground.slides
+          : defaultHeroBackground.slides,
+    },
     maintenance: {
       ...defaultMaintenance,
       ...nextSite.maintenance,
+      localized: {
+        ...defaultMaintenance.localized,
+        ...nextSite.maintenance?.localized,
+      },
     },
   };
 }
@@ -218,6 +281,26 @@ export default function AdminPage() {
     setMessage("");
   }
 
+  function setHeroBackgroundField<K extends keyof HeroBackgroundSettings>(
+    key: K,
+    value: HeroBackgroundSettings[K]
+  ) {
+    setSite((current) => {
+      const nextSite = normalizeSite({
+        ...current,
+        heroBackground: {
+          ...defaultHeroBackground,
+          ...current.heroBackground,
+          [key]: value,
+        },
+      });
+      setSiteJsonValue(JSON.stringify(nextSite, null, 2));
+      return nextSite;
+    });
+    setStatus("idle");
+    setMessage("");
+  }
+
   function setMaintenanceField<K extends keyof MaintenanceSettings>(
     key: K,
     value: MaintenanceSettings[K]
@@ -229,6 +312,37 @@ export default function AdminPage() {
           ...defaultMaintenance,
           ...current.maintenance,
           [key]: value,
+        },
+      });
+      setSiteJsonValue(JSON.stringify(nextSite, null, 2));
+      return nextSite;
+    });
+    setStatus("idle");
+    setMessage("");
+  }
+
+  function setMaintenanceLocalizedField(
+    lang: Language,
+    key: MaintenanceLocalizedKey,
+    value: string
+  ) {
+    setSite((current) => {
+      const currentMaintenance = current.maintenance ?? defaultMaintenance;
+      const localized = {
+        ...defaultMaintenance.localized,
+        ...currentMaintenance.localized,
+        [lang]: {
+          ...defaultMaintenance.localized?.[lang],
+          ...currentMaintenance.localized?.[lang],
+          [key]: value,
+        },
+      };
+      const nextSite = normalizeSite({
+        ...current,
+        maintenance: {
+          ...defaultMaintenance,
+          ...currentMaintenance,
+          localized,
         },
       });
       setSiteJsonValue(JSON.stringify(nextSite, null, 2));
@@ -381,6 +495,110 @@ export default function AdminPage() {
     );
   }
 
+  function renderHeroFields() {
+    const heroBackground = site.heroBackground ?? defaultHeroBackground;
+
+    return (
+      <div className="grid gap-6">
+        {renderTextFields(heroFields)}
+
+        <div className="rounded-xl border border-white/10 bg-black/25 p-4">
+          <div className="mb-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#ffb800]">
+              Hero pozadie
+            </p>
+            <p className="mt-1 text-xs leading-5 text-white/45">
+              Nastavte hlavny obrazok hero sekcie alebo zapnite slideshow z vybranych obrazkov.
+            </p>
+          </div>
+
+          <label className="grid gap-2">
+            <span className="text-xs font-medium uppercase tracking-[0.14em] text-white/45">
+              Rezim pozadia
+            </span>
+            <select
+              value={heroBackground.mode}
+              onChange={(event) =>
+                setHeroBackgroundField(
+                  "mode",
+                  event.target.value === "slideshow" ? "slideshow" : "static"
+                )
+              }
+              className="h-11 rounded-md border border-white/10 bg-black/35 px-3 text-sm text-white outline-none transition focus:border-[#ffb800]/70"
+            >
+              <option value="static">Staticky obrazok</option>
+              <option value="slideshow">Slideshow obrazkov</option>
+            </select>
+          </label>
+
+          <label className="mt-4 grid gap-2">
+            <span className="text-xs font-medium uppercase tracking-[0.14em] text-white/45">
+              Staticky obrazok
+            </span>
+            <input
+              value={heroBackground.staticImage}
+              onChange={(event) =>
+                setHeroBackgroundField("staticImage", event.target.value)
+              }
+              placeholder="/aluplex/aluplex-red-front.jpg"
+              className="h-11 rounded-md border border-white/10 bg-black/35 px-3 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-[#ffb800]/70"
+            />
+          </label>
+
+          <label className="mt-4 grid gap-2">
+            <span className="text-xs font-medium uppercase tracking-[0.14em] text-white/45">
+              Slideshow obrazky
+            </span>
+            <textarea
+              value={heroBackground.slides.join("\n")}
+              onChange={(event) =>
+                setHeroBackgroundField(
+                  "slides",
+                  event.target.value
+                    .split("\n")
+                    .map((src) => src.trim())
+                    .filter(Boolean)
+                )
+              }
+              rows={6}
+              placeholder="/aluplex/aluplex-red-front.jpg"
+              className="min-h-36 resize-y rounded-md border border-white/10 bg-black/35 px-3 py-3 text-sm leading-6 text-white outline-none transition placeholder:text-white/25 focus:border-[#ffb800]/70"
+            />
+            <span className="text-xs leading-5 text-white/40">
+              Kazdy obrazok zadajte na novy riadok. Odporucane su subory z adresara
+              public/aluplex, napr. /aluplex/aluplex-red-front.jpg.
+            </span>
+          </label>
+
+          <div className="mt-4 overflow-hidden rounded-xl border border-white/10 bg-black/30">
+            <div className="relative min-h-52">
+              <img
+                src={
+                  heroBackground.mode === "slideshow"
+                    ? heroBackground.slides[0] ?? heroBackground.staticImage
+                    : heroBackground.staticImage
+                }
+                alt="Hero background preview"
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-black/82 via-black/45 to-transparent" />
+              <div className="relative z-10 flex min-h-52 flex-col justify-end p-5">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#ffb800]">
+                  Preview
+                </p>
+                <p className="mt-2 max-w-md text-lg font-semibold text-white">
+                  {heroBackground.mode === "slideshow"
+                    ? `Slideshow: ${heroBackground.slides.length} obrazkov`
+                    : "Staticky hero obrazok"}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   function renderFaqFields() {
     if (!translations) return null;
 
@@ -488,6 +706,10 @@ export default function AdminPage() {
 
   function renderMaintenanceFields() {
     const maintenance = site.maintenance ?? defaultMaintenance;
+    const maintenancePreview =
+      maintenance.localized?.[language] ??
+      defaultMaintenance.localized?.[language] ??
+      maintenance;
 
     return (
       <div className="grid gap-5">
@@ -561,6 +783,83 @@ export default function AdminPage() {
           </label>
         ))}
 
+        <div className="rounded-xl border border-white/10 bg-black/25 p-4">
+          <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#ffb800]">
+                Jazyk maintenance obrazovky
+              </p>
+              <p className="mt-1 text-xs leading-5 text-white/45">
+                Verejna servisna obrazovka pouziva tieto texty pre SK, EN a DE.
+              </p>
+            </div>
+            <div className="inline-flex rounded-lg border border-white/10 bg-white/[0.03] p-1">
+              {languages.map((item) => (
+                <button
+                  key={item.value}
+                  type="button"
+                  onClick={() => setLanguage(item.value)}
+                  className={`h-8 rounded-md px-3 text-xs font-semibold transition ${
+                    language === item.value
+                      ? "bg-[#ffb800] text-black"
+                      : "text-white/45 hover:bg-white/[0.05] hover:text-white"
+                  }`}
+                >
+                  {item.value.toUpperCase()}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {[
+            ["eyebrow", "Kratky horny text", false],
+            ["title", "Hlavny nadpis", false],
+            ["message", "Hlavna informacia", true],
+            ["secondaryMessage", "Doplnkova informacia / kontakt", true],
+            ["imageAlt", "Alternativny popis obrazka", false],
+          ].map(([key, label, multiline]) => {
+            const localizedCopy =
+              maintenance.localized?.[language] ??
+              defaultMaintenance.localized?.[language] ??
+              defaultMaintenance;
+            const value = localizedCopy[key as MaintenanceLocalizedKey] ?? "";
+
+            return (
+              <label key={`${language}-${key}`} className="mt-4 grid gap-2">
+                <span className="text-xs font-medium uppercase tracking-[0.14em] text-white/45">
+                  {label}
+                </span>
+                {multiline ? (
+                  <textarea
+                    value={value}
+                    onChange={(event) =>
+                      setMaintenanceLocalizedField(
+                        language,
+                        key as MaintenanceLocalizedKey,
+                        event.target.value
+                      )
+                    }
+                    rows={5}
+                    className="min-h-24 resize-y rounded-md border border-white/10 bg-black/35 px-3 py-3 text-sm leading-6 text-white outline-none transition focus:border-[#ffb800]/70"
+                  />
+                ) : (
+                  <input
+                    value={value}
+                    onChange={(event) =>
+                      setMaintenanceLocalizedField(
+                        language,
+                        key as MaintenanceLocalizedKey,
+                        event.target.value
+                      )
+                    }
+                    className="h-11 rounded-md border border-white/10 bg-black/35 px-3 text-sm text-white outline-none transition focus:border-[#ffb800]/70"
+                  />
+                )}
+              </label>
+            );
+          })}
+        </div>
+
         <label className="grid gap-2">
           <span className="text-xs font-medium uppercase tracking-[0.14em] text-white/45">
             Import obrazka z pocitaca
@@ -578,25 +877,51 @@ export default function AdminPage() {
         </label>
 
         {maintenance.imageUrl ? (
-          <div className="overflow-hidden rounded-lg border border-white/10 bg-black/30">
-            <div className="relative min-h-[320px]">
+          <div className="overflow-hidden rounded-2xl border border-white/10 bg-black/30">
+            <div className="relative min-h-[360px]">
               <img
                 src={maintenance.imageUrl}
                 alt={maintenance.imageAlt || "Maintenance preview"}
-                className="absolute inset-0 h-full w-full object-cover"
+                className="absolute inset-0 h-full w-full scale-105 object-cover opacity-70"
               />
-              <div className="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-black/15" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/55" />
-              <div className="relative z-10 flex min-h-[320px] max-w-2xl flex-col justify-center p-6">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#ffb800]">
-                  Preview maintenance obrazovky
-                </p>
-                <h3 className="mt-4 text-4xl font-semibold leading-tight text-white">
-                  {maintenance.title || "Stranku prave ladime."}
-                </h3>
-                <p className="mt-4 max-w-xl text-sm leading-6 text-white/65">
-                  {maintenance.message}
-                </p>
+              <div className="absolute inset-0 bg-gradient-to-r from-black via-black/82 to-black/35" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/70" />
+              <div className="amp-perforation-field absolute inset-y-0 right-0 w-1/2 opacity-[0.10]" />
+              <div className="relative z-10 grid min-h-[360px] gap-6 p-6 md:grid-cols-[minmax(0,1fr)_280px] md:items-center">
+                <div>
+                  <p className="inline-flex rounded-full border border-[#ffb800]/25 bg-[#ffb800]/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#ffb800]">
+                    Preview maintenance obrazovky
+                  </p>
+                  <h3 className="mt-5 max-w-xl text-4xl font-semibold leading-tight text-white">
+                    {maintenancePreview.title || "Stranku prave ladime."}
+                  </h3>
+                  <p className="mt-4 max-w-xl text-sm leading-6 text-white/68">
+                    {maintenancePreview.message}
+                  </p>
+                  {maintenancePreview.secondaryMessage ? (
+                    <p className="mt-3 max-w-xl text-xs leading-5 text-white/45">
+                      {maintenancePreview.secondaryMessage}
+                    </p>
+                  ) : null}
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-black/45 p-4 backdrop-blur">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/40">
+                    Status signalu
+                  </p>
+                  <p className="mt-2 text-lg font-semibold leading-tight text-white">
+                    Ladenie obsahu prebieha
+                  </p>
+                  <div className="mt-4 grid grid-cols-2 gap-2">
+                    {["EL34", "ECC83", "30 W", "Turret"].map((item) => (
+                      <span
+                        key={item}
+                        className="rounded-lg border border-white/10 bg-white/[0.04] px-2 py-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-white/55"
+                      >
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -694,7 +1019,7 @@ export default function AdminPage() {
       return <p className="text-sm text-red-200">Obsah nie je dostupny.</p>;
     }
 
-    if (section === "hero") return renderTextFields(heroFields);
+    if (section === "hero") return renderHeroFields();
     if (section === "cta") return renderTextFields(ctaFields);
     if (section === "faq") return renderFaqFields();
     if (section === "contact") return renderTextFields(contactFields);
@@ -743,13 +1068,24 @@ export default function AdminPage() {
             />
           </label>
 
-          <button
-            type="submit"
-            disabled={status === "loading"}
-            className="mt-5 inline-flex h-11 w-full items-center justify-center rounded-md bg-[#ffb800] px-5 text-sm font-semibold text-black transition hover:bg-[#ffc933] disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {status === "loading" ? "Overujem..." : "Prihlasit sa"}
-          </button>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            <button
+              type="button"
+              onClick={() => {
+                window.location.href = "/";
+              }}
+              className="inline-flex h-11 w-full items-center justify-center rounded-md border border-white/10 bg-white/[0.03] px-5 text-sm font-semibold text-white/70 transition hover:border-white/20 hover:bg-white/[0.06] hover:text-white"
+            >
+              Zrusit
+            </button>
+            <button
+              type="submit"
+              disabled={status === "loading"}
+              className="inline-flex h-11 w-full items-center justify-center rounded-md bg-[#ffb800] px-5 text-sm font-semibold text-black transition hover:bg-[#ffc933] disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {status === "loading" ? "Overujem..." : "Prihlasit sa"}
+            </button>
+          </div>
 
           {message ? (
             <p className="mt-4 rounded-md border border-red-500/20 bg-red-500/10 px-3 py-2 text-sm text-red-200">

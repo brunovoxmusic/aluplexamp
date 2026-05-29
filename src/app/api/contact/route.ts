@@ -7,9 +7,10 @@ interface ContactPayload {
   message: string;
   lang?: string;
   website?: string;
+  'cf-website'?: string;
 }
 
-type SanitizedContactPayload = Required<Omit<ContactPayload, 'website'>>;
+type SanitizedContactPayload = Required<Omit<ContactPayload, 'website' | 'cf-website'>>;
 
 const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
 const RATE_LIMIT_MAX_REQUESTS = 5;
@@ -122,7 +123,7 @@ function validateAndSanitize(body: ContactPayload): SanitizedContactPayload | Ne
 
 async function sendContactEmail(payload: SanitizedContactPayload, timestamp: string) {
   const apiKey = process.env.RESEND_API_KEY;
-  const to = (process.env.CONTACT_TO_EMAIL || 'info@aluplex.sk')
+  const to = (process.env.CONTACT_TO_EMAIL || 'info@aluplexamp.com')
     .split(',')
     .map((email) => email.trim())
     .filter(Boolean);
@@ -163,7 +164,7 @@ export async function POST(request: NextRequest) {
   try {
     const body: ContactPayload = await request.json();
 
-    if (normalizeString(body.website)) {
+    if (normalizeString(body.website) || normalizeString(body['cf-website'])) {
       return NextResponse.json({ success: true });
     }
 

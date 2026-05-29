@@ -29,23 +29,21 @@ export default function PrivacyPage() {
           Zásady ochrany osobných údajov
         </h1>
         <p className="mb-10 text-sm leading-7 text-muted-foreground sm:text-base">
-          Táto stránka vysvetľuje, aké osobné údaje spracúvame pri používaní
-          webu ALUPLEXamp a pri odoslaní dopytového formulára. Text je
-          pripravený pre bežný kontaktný a objednávkový proces bez používateľských
-          účtov a bez databázového ukladania dopytov na webe.
+          Táto stránka vysvetľuje, aké osobné údaje spracúvame pri odoslaní
+          kontaktného alebo objednávkového dopytu cez web ALUPLEXamp.
         </p>
 
         <div className="space-y-8 text-sm leading-7 text-muted-foreground sm:text-base">
           <section>
             <h2 className="mb-3 text-xl font-semibold text-foreground">
-              Prevádzkovateľ
+              Správca
             </h2>
             <p>
-              Prevádzkovateľom webu a kontaktného formulára je ALUPLEXamp.
+              Správcom osobných údajov je ALUPLEXamp, Slovensko, EÚ.
               Kontaktný e-mail pre otázky k ochrane osobných údajov:
               {" "}
-              <a href="mailto:info@aluplex.sk" className="text-primary underline underline-offset-4">
-                info@aluplex.sk
+              <a href="mailto:info@aluplexamp.com" className="text-primary underline underline-offset-4">
+                info@aluplexamp.com
               </a>
               .
             </p>
@@ -56,9 +54,10 @@ export default function PrivacyPage() {
               Aké údaje spracúvame
             </h2>
             <p>
-              Pri odoslaní formulára spracúvame údaje, ktoré nám dobrovoľne
-              poskytnete: meno, e-mailovú adresu, predmet správy, obsah správy,
-              jazykovú verziu formulára a technický čas odoslania.
+              Pri odoslaní formulára spracúvame iba údaje, ktoré nám
+              dobrovoľne poskytnete: meno, e-mailovú adresu a správu z
+              kontaktného formulára. Predmet správy a jazyková verzia môžu byť
+              pripojené ako doplnkový technický kontext dopytu.
             </p>
           </section>
 
@@ -67,10 +66,9 @@ export default function PrivacyPage() {
               Účel spracúvania
             </h2>
             <p>
-              Údaje používame výlučne na odpoveď na váš dopyt, prípravu
-              odporúčanej konfigurácie, komunikáciu o objednávke, cene,
-              dostupnosti, servise alebo ďalších praktických otázkach súvisiacich
-              s produktom ALUPLEXamp.
+              Údaje používame výlučne na vybavenie vášho dopytu, prípravu
+              odporúčanej konfigurácie a komunikáciu súvisiacu s výrobou
+              zosilňovača ALUPLEXamp na objednávku.
             </p>
           </section>
 
@@ -79,9 +77,9 @@ export default function PrivacyPage() {
               Právny základ
             </h2>
             <p>
-              Spracúvanie je založené na vašej žiadosti pred uzatvorením zmluvy
-              alebo na oprávnenom záujme odpovedať na doručenú obchodnú
-              komunikáciu.
+              Právnym základom spracúvania je čl. 6 ods. 1 písm. b) GDPR:
+              spracúvanie je potrebné na vykonanie opatrení pred uzatvorením
+              zmluvy alebo na plnenie zmluvy.
             </p>
           </section>
 
@@ -101,9 +99,9 @@ export default function PrivacyPage() {
               Doba uchovávania
             </h2>
             <p>
-              Komunikáciu uchovávame len tak dlho, ako je potrebné na vybavenie
-              dopytu, nadväzujúcu obchodnú komunikáciu, servisnú históriu alebo
-              splnenie zákonných povinností.
+              Komunikáciu uchovávame po dobu potrebnú na vybavenie dopytu a
+              následne počas zákonnej archivačnej lehoty, ak sa na konkrétnu
+              komunikáciu alebo objednávku vzťahuje.
             </p>
           </section>
 
@@ -112,12 +110,12 @@ export default function PrivacyPage() {
               Vaše práva
             </h2>
             <p>
-              Máte právo požiadať o prístup k údajom, opravu, vymazanie,
-              obmedzenie spracúvania alebo namietať proti spracúvaniu. Svoju
-              žiadosť môžete poslať na
+              Máte právo na prístup k údajom, opravu, vymazanie, obmedzenie
+              spracúvania, prenosnosť údajov a právo namietať proti
+              spracúvaniu. Svoju žiadosť môžete poslať na
               {" "}
-              <a href="mailto:info@aluplex.sk" className="text-primary underline underline-offset-4">
-                info@aluplex.sk
+              <a href="mailto:info@aluplexamp.com" className="text-primary underline underline-offset-4">
+                info@aluplexamp.com
               </a>
               .
             </p>

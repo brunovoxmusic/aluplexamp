@@ -29,43 +29,44 @@ export default function CookiesPage() {
           Informácie o cookies
         </h1>
         <p className="mb-10 text-sm leading-7 text-muted-foreground sm:text-base">
-          Web ALUPLEXamp používa cookies a lokálne uložené nastavenia iba v
-          rozsahu potrebnom pre základnú funkčnosť stránky, zapamätanie voľby v
-          cookie banneri a prípadné budúce meranie návštevnosti v súlade s
-          ochranou súkromia.
+          Cookies sú malé textové súbory alebo lokálne uložené nastavenia,
+          ktoré pomáhajú webu správne fungovať a zapamätať si niektoré voľby
+          návštevníka.
         </p>
 
         <div className="space-y-8 text-sm leading-7 text-muted-foreground sm:text-base">
           <section>
             <h2 className="mb-3 text-xl font-semibold text-foreground">
-              Nevyhnutné nastavenia
+              Prečo cookies používame
             </h2>
             <p>
-              Stránka si môže uložiť vašu voľbu v cookie banneri do lokálneho
-              úložiska prehliadača. Táto voľba slúži iba na to, aby sa banner
-              nezobrazoval opakovane pri každej návšteve.
+              Web ALUPLEXamp používa cookies a lokálne uložené nastavenia na
+              základnú funkčnosť stránky, zapamätanie voľby v cookie banneri a
+              technické nastavenia rozhrania.
             </p>
           </section>
 
           <section>
             <h2 className="mb-3 text-xl font-semibold text-foreground">
-              Analytika
+              Typy cookies
             </h2>
             <p>
-              Ak bude na webe aktivované meranie návštevnosti, má byť nastavené
-              v režime rešpektujúcom súkromie a až po zohľadnení vašej voľby v
-              cookie banneri, pokiaľ to vyžaduje platná legislatíva.
+              Nevyhnutné cookies a lokálne nastavenia slúžia na fungovanie webu,
+              napríklad pre Next.js session stav, uloženie témy a zapamätanie
+              rozhodnutia v cookie banneri. Analytické cookies môžu byť použité
+              iba v prípade aktivácie merania návštevnosti a v súlade s platnou
+              legislatívou.
             </p>
           </section>
 
           <section>
             <h2 className="mb-3 text-xl font-semibold text-foreground">
-              Ako zmeniť voľbu
+              Ako cookies spravovať
             </h2>
             <p>
-              Súhlas alebo odmietnutie môžete zmeniť vymazaním dát stránky v
-              nastaveniach prehliadača. Po ďalšej návšteve sa cookie banner
-              zobrazí znova.
+              Cookies môžete spravovať, obmedziť alebo vymazať v nastaveniach
+              svojho prehliadača. Po vymazaní dát stránky sa môže cookie banner
+              zobraziť znova.
             </p>
           </section>
 
@@ -76,8 +77,8 @@ export default function CookiesPage() {
             <p>
               Otázky k cookies alebo ochrane súkromia môžete poslať na
               {" "}
-              <a href="mailto:info@aluplex.sk" className="text-primary underline underline-offset-4">
-                info@aluplex.sk
+              <a href="mailto:info@aluplexamp.com" className="text-primary underline underline-offset-4">
+                info@aluplexamp.com
               </a>
               . Súvisiace informácie nájdete aj na stránke
               {" "}

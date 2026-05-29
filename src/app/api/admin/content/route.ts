@@ -137,6 +137,47 @@ function validateSiteSettings(content: unknown): content is SiteSettings {
     "ogImage",
   ];
 
+  const isValidMaintenanceCopy = (copy: unknown) =>
+    typeof copy === "object" &&
+    copy !== null &&
+    !Array.isArray(copy) &&
+    typeof (copy as Record<string, unknown>).eyebrow === "string" &&
+    typeof (copy as Record<string, unknown>).title === "string" &&
+    typeof (copy as Record<string, unknown>).message === "string" &&
+    typeof (copy as Record<string, unknown>).secondaryMessage === "string" &&
+    typeof (copy as Record<string, unknown>).imageAlt === "string";
+
+  const localizedMaintenance =
+    value.maintenance &&
+    typeof value.maintenance === "object" &&
+    !Array.isArray(value.maintenance)
+      ? (value.maintenance as Record<string, unknown>).localized
+      : undefined;
+
+  const validLocalizedMaintenance =
+    localizedMaintenance === undefined ||
+    (typeof localizedMaintenance === "object" &&
+      localizedMaintenance !== null &&
+      !Array.isArray(localizedMaintenance) &&
+      ["sk", "en", "de"].every((language) => {
+        const copy = (localizedMaintenance as Record<string, unknown>)[language];
+        return copy === undefined || isValidMaintenanceCopy(copy);
+      }));
+
+  const heroBackground = value.heroBackground;
+  const validHeroBackground =
+    heroBackground === undefined ||
+    (typeof heroBackground === "object" &&
+      heroBackground !== null &&
+      !Array.isArray(heroBackground) &&
+      ((heroBackground as Record<string, unknown>).mode === "static" ||
+        (heroBackground as Record<string, unknown>).mode === "slideshow") &&
+      typeof (heroBackground as Record<string, unknown>).staticImage === "string" &&
+      Array.isArray((heroBackground as Record<string, unknown>).slides) &&
+      ((heroBackground as Record<string, unknown>).slides as unknown[]).every(
+        (src) => typeof src === "string"
+      ));
+
   const validMaintenance =
     value.maintenance === undefined ||
     (typeof value.maintenance === "object" &&
@@ -149,12 +190,14 @@ function validateSiteSettings(content: unknown): content is SiteSettings {
       typeof (value.maintenance as Record<string, unknown>).secondaryMessage ===
         "string" &&
       typeof (value.maintenance as Record<string, unknown>).imageUrl === "string" &&
-      typeof (value.maintenance as Record<string, unknown>).imageAlt === "string");
+      typeof (value.maintenance as Record<string, unknown>).imageAlt === "string" &&
+      validLocalizedMaintenance);
 
   return (
     requiredStrings.every((key) => typeof value[key] === "string") &&
     Array.isArray(value.keywords) &&
     value.keywords.every((keyword) => typeof keyword === "string") &&
+    validHeroBackground &&
     validMaintenance
   );
 }

@@ -16,6 +16,59 @@ const geistMono = Geist_Mono({
 
 const SITE_URL = siteSettings.siteUrl;
 const MAINTENANCE_ENABLED = siteSettings.maintenance?.enabled === true;
+const verifiedSocialLinks = [] as string[];
+const faqJsonLdItems = [
+  {
+    question: "Aké elektrónky používa ALUPLEXamp?",
+    answer:
+      "ALUPLEXamp používa 4× ECC83 predzosilňovacie lampy a 2× EL34 výkonové lampy od JJ Electronics. Táto kombinácia prináša klasický britský rockový zvuk s teplými stredmi a bohatými harmonikami.",
+  },
+  {
+    question: "Aký má zosilňovač výkon?",
+    answer:
+      "30 W v triede AB push-pull konfigurácii – legendárny sweet spot pre pódiové aj štúdiové použitie.",
+  },
+  {
+    question: "Je aparát ručne zapojený?",
+    answer:
+      "Áno – každý ALUPLEXamp je ručne zapojený na turret board doske. Žiadna plošná karta, žiadna sériová výroba. Výsledkom je prehľadné zapojenie, jednoduchší servis a priama signálová cesta.",
+  },
+  {
+    question: "Má zosilňovač efektovú slučku?",
+    answer:
+      "Áno – ALUPLEXamp je vybavený elektrónkovou, vypínateľnou efektovou slučkou (FX Loop), ktorá zaraďuje časovo závislé efekty na optimálne miesto v signálovej ceste.",
+  },
+  {
+    question: "Akú impedanciu môžem použiť?",
+    answer:
+      "ALUPLEXamp podporuje prepínateľnú impedanciu 8 Ohm a 16 Ohm prostredníctvom prepínača na zadnom paneli.",
+  },
+  {
+    question: "Prečo hliníkové šasi?",
+    answer:
+      "Hliník je ľahší než oceľ, nemagnetický, prirodzene odoláva korózii a pasívne odvádza teplo od elektrónok bez ventilátorov. Aparát tak váži len 12,5 kg a časom získava vlastnú patinu.",
+  },
+  {
+    question: "Je zosilňovač vhodný do štúdia?",
+    answer:
+      "Áno – 30 W elektrónkový výkon, čistý signálový reťazec a FX Loop ho robia ideálnym pre nahrávanie. Pri nižšej hlasitosti reaguje prirodzene a zachováva charakter zvuku.",
+  },
+  {
+    question: "Je vhodný aj na pódium?",
+    answer:
+      "Áno – nízka hmotnosť (12,5 kg), pevný crunch a sýty overdrive z EL34 lampy ho predurčujú na pódiové použitie. Vstavaný prepínač napätia 115V/230V zaručí funkčnosť aj v zahraničí.",
+  },
+  {
+    question: "Ako prebieha objednávka?",
+    answer:
+      "Vyplňte dopytový formulár alebo napíšte na info@aluplexamp.com. Po prijatí dopytu sa dohodneme na konfigurácii, termíne výroby a podmienkach. Každý aparát je vyrábaný na objednávku.",
+  },
+  {
+    question: "Aká je záruka?",
+    answer:
+      "Na každý ALUPLEXamp poskytujeme záruku podľa platných predpisov SR/EÚ. V prípade otázok nás kontaktujte na info@aluplexamp.com.",
+  },
+];
 
 export const metadata: Metadata = {
   title: siteSettings.title,
@@ -100,17 +153,13 @@ export default function RootLayout({
           url: `${SITE_URL}/logo.svg`,
         },
         description: "Premium handcrafted tube guitar amplifier with aluminium chassis.",
-        email: ["info@aluplex.sk", "objednavky@aluplex.sk"],
+        email: "info@aluplexamp.com",
         address: {
           "@type": "PostalAddress",
           addressCountry: "SK",
           addressRegion: "Slovakia, European Union",
         },
-        sameAs: [
-          "https://instagram.com/aluplexamp",
-          "https://youtube.com/@aluplexamp",
-          "https://facebook.com/aluplexamp",
-        ],
+        sameAs: verifiedSocialLinks,
       },
       {
         "@type": "WebSite",
@@ -156,56 +205,14 @@ export default function RootLayout({
       },
       {
         "@type": "FAQPage",
-        mainEntity: [
-          {
-            "@type": "Question",
-            name: "What tubes does ALUPLEXamp use?",
-            acceptedAnswer: {
-              "@type": "Answer",
-              text: "The ALUPLEXamp uses 4× ECC83 preamp tubes and 2× EL34 power tubes, all by JJ Electronics. This combination delivers the classic British rock tone with warm midrange and rich harmonics.",
-            },
+        mainEntity: faqJsonLdItems.map((item) => ({
+          "@type": "Question",
+          name: item.question,
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: item.answer,
           },
-          {
-            "@type": "Question",
-            name: "What is the power output?",
-            acceptedAnswer: {
-              "@type": "Answer",
-              text: "30 W in Class AB push-pull configuration — the legendary sweet spot for stage and studio use.",
-            },
-          },
-          {
-            "@type": "Question",
-            name: "Does it have an effects loop?",
-            acceptedAnswer: {
-              "@type": "Answer",
-              text: "Yes — the ALUPLEXamp features a tube-driven, switchable effects loop that places time-based effects in the optimal position of the signal chain.",
-            },
-          },
-          {
-            "@type": "Question",
-            name: "What impedance can I use?",
-            acceptedAnswer: {
-              "@type": "Answer",
-              text: "The ALUPLEXamp supports switchable 8 Ohm and 16 Ohm impedance via a selector on the rear panel.",
-            },
-          },
-          {
-            "@type": "Question",
-            name: "Is the chassis really aluminium?",
-            acceptedAnswer: {
-              "@type": "Answer",
-              text: "Yes — the entire chassis is aluminium, providing passive cooling, non-magnetic properties, lightweight construction at only 12.5 kg, and natural corrosion resistance with beautiful patina over time.",
-            },
-          },
-          {
-            "@type": "Question",
-            name: "How does the voltage selector work?",
-            acceptedAnswer: {
-              "@type": "Answer",
-              text: "The built-in voltage selector on the rear panel switches between 115V (US) and 230V (EU), making the ALUPLEXamp ready for international use.",
-            },
-          },
-        ],
+        })),
       },
     ],
   };
@@ -213,11 +220,6 @@ export default function RootLayout({
   return (
     <html lang="sk" suppressHydrationWarning className="dark">
       <head>
-        <link rel="canonical" href={SITE_URL} />
-        <link rel="alternate" hrefLang="sk" href={SITE_URL} />
-        <link rel="alternate" hrefLang="en" href={`${SITE_URL}?lang=en`} />
-        <link rel="alternate" hrefLang="de" href={`${SITE_URL}?lang=de`} />
-        <link rel="alternate" hrefLang="x-default" href={SITE_URL} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

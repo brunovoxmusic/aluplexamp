@@ -27,13 +27,47 @@
     "Class AB",
     "30 W amplifier"
   ],
+  "heroBackground": {
+    "mode": "static",
+    "staticImage": "/aluplex/aluplex-red-front.jpg",
+    "slides": [
+      "/aluplex/aluplex-red-front.jpg",
+      "/aluplex/aluplex-1.jpg",
+      "/aluplex/aluplex-56.jpg",
+      "/aluplex/DSC6821.jpg",
+      "/aluplex/aluplex-138.jpg"
+    ]
+  },
   "maintenance": {
-    "enabled": true,
+    "enabled": false,
     "eyebrow": "ALUPLEXamp",
     "title": "Stránku práve ladíme.",
     "message": "Pripravujeme aktualizáciu webu, aby sme mohli lepšie predstaviť zosilňovač ALUPLEXamp, jeho zvuk a možnosti výroby na objednávku.",
-    "secondaryMessage": "Ak nás potrebuješ kontaktovať hneď, napíš na info@aluplexamp.com alebo objednavky@aluplexamp.com.",
+    "secondaryMessage": "Ak nás potrebuješ kontaktovať hneď, napíš na info@aluplexamp.com.",
     "imageUrl": "/aluplex/aluplex-123.jpg",
-    "imageAlt": "ALUPLEXamp elektrónkový gitarový zosilňovač"
+    "imageAlt": "ALUPLEXamp elektrónkový gitarový zosilňovač",
+    "localized": {
+      "sk": {
+        "eyebrow": "ALUPLEXamp",
+        "title": "Stránku práve ladíme.",
+        "message": "Pripravujeme aktualizáciu webu, aby sme mohli lepšie predstaviť zosilňovač ALUPLEXamp, jeho zvuk a možnosti výroby na objednávku.",
+        "secondaryMessage": "Ak nás potrebuješ kontaktovať hneď, napíš na info@aluplexamp.com.",
+        "imageAlt": "ALUPLEXamp elektrónkový gitarový zosilňovač"
+      },
+      "en": {
+        "eyebrow": "ALUPLEXamp",
+        "title": "The website is being tuned.",
+        "message": "We are preparing an update that will present the ALUPLEXamp amplifier, its sound and made-to-order options with more precision.",
+        "secondaryMessage": "For direct contact, email us at info@aluplexamp.com.",
+        "imageAlt": "ALUPLEXamp tube guitar amplifier"
+      },
+      "de": {
+        "eyebrow": "ALUPLEXamp",
+        "title": "Die Website wird gerade abgestimmt.",
+        "message": "Wir bereiten ein Update vor, das den ALUPLEXamp Verstärker, seinen Klang und die Fertigung auf Bestellung präziser präsentiert.",
+        "secondaryMessage": "Für direkten Kontakt schreiben Sie uns an info@aluplexamp.com.",
+        "imageAlt": "ALUPLEXamp Röhren-Gitarrenverstärker"
+      }
+    }
   }
 }

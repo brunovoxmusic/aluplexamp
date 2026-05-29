@@ -33,8 +33,8 @@ GITHUB_CONTENT_TOKEN="github-fine-grained-token"
 GITHUB_REPO="brunovoxmusic/aluplexamp"
 GITHUB_BRANCH="main"
 RESEND_API_KEY="resend-api-key"
-CONTACT_TO_EMAIL="info@aluplex.sk,objednavky@aluplex.sk"
-CONTACT_FROM_EMAIL="ALUPLEXamp <noreply@your-verified-domain.com>"
+CONTACT_TO_EMAIL="info@aluplexamp.com"
+CONTACT_FROM_EMAIL="ALUPLEXamp <info@aluplexamp.com>"
 ```
 
 The GitHub token needs repository access to `brunovoxmusic/aluplexamp` with `Contents: Read and write`.
