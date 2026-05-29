@@ -767,10 +767,14 @@
   display: block;
   height: 0.28rem;
   flex: 1;
+  border: 0;
+  padding: 0;
   border-radius: 999px;
   background: rgba(255,255,255,0.10);
   overflow: hidden;
   position: relative;
+  cursor: pointer;
+  transition: background 0.4s ease, opacity 0.4s ease;
 }
 
 .hero-slide-dot::after {
@@ -781,15 +785,12 @@
   background: rgba(255,184,0,0.86);
   transform: scaleX(0);
   transform-origin: left;
-  animation: heroSlideDot var(--hero-cycle-duration, 25s) linear infinite;
-  animation-delay: var(--hero-dot-delay, 0s);
+  transition: transform 0.7s ease;
 }
 
-.hero-slide-dot:nth-child(1)::after { animation-delay: var(--hero-dot-delay, 0s); }
-.hero-slide-dot:nth-child(2)::after { animation-delay: var(--hero-dot-delay, 5s); }
-.hero-slide-dot:nth-child(3)::after { animation-delay: var(--hero-dot-delay, 10s); }
-.hero-slide-dot:nth-child(4)::after { animation-delay: var(--hero-dot-delay, 15s); }
-.hero-slide-dot:nth-child(5)::after { animation-delay: var(--hero-dot-delay, 20s); }
+.hero-slide-dot-active::after {
+  transform: scaleX(1);
+}
 
 @media (max-width: 639px) {
   .hero-amp-3d {
@@ -815,17 +816,13 @@
   position: absolute;
   inset: 0;
   opacity: 0;
-  animation: heroSlideFadeIn var(--hero-cycle-duration, 25s) ease-in-out infinite;
+  transform: scale(1.055);
+  transition: opacity 1.35s ease, transform 6.5s ease;
 }
-.hero-slide-static {
+.hero-slide-active {
   opacity: 1;
-  animation: none;
+  transform: scale(1);
 }
-.hero-slide:nth-child(1) { animation-delay: 0s; }
-.hero-slide:nth-child(2) { animation-delay: 5s; }
-.hero-slide:nth-child(3) { animation-delay: 10s; }
-.hero-slide:nth-child(4) { animation-delay: 15s; }
-.hero-slide:nth-child(5) { animation-delay: 20s; }
 
 .mobile-hero-product {
   position: absolute;

@@ -38,6 +38,88 @@
       "/aluplex/aluplex-138.jpg"
     ]
   },
+  "contactSettings": {
+    "publicEmail": "info@aluplexamp.com",
+    "formEmail": "info@aluplexamp.com",
+    "phone": "",
+    "instagram": "https://instagram.com/aluplexamp",
+    "youtube": "https://youtube.com/@aluplexamp",
+    "facebook": "https://facebook.com/aluplexamp"
+  },
+  "audioLibrary": {
+    "tracks": [
+      {
+        "id": "track1",
+        "enabled": true,
+        "src": "/audio/track1-woody-clean.mp3",
+        "tagKey": "sl.track1.tag",
+        "nameKey": "sl.track1.name",
+        "gearKey": "sl.track1.gear",
+        "settingsKey": "sl.track1.settings",
+        "descKey": "sl.track1.desc"
+      },
+      {
+        "id": "track2",
+        "enabled": true,
+        "src": "/audio/track2-cranked-british-crunch.mp3",
+        "tagKey": "sl.track2.tag",
+        "nameKey": "sl.track2.name",
+        "gearKey": "sl.track2.gear",
+        "settingsKey": "sl.track2.settings",
+        "descKey": "sl.track2.desc"
+      },
+      {
+        "id": "track3",
+        "enabled": true,
+        "src": "/audio/track3-brown-sound-session.mp3",
+        "tagKey": "sl.track3.tag",
+        "nameKey": "sl.track3.name",
+        "gearKey": "sl.track3.gear",
+        "settingsKey": "sl.track3.settings",
+        "descKey": "sl.track3.desc"
+      },
+      {
+        "id": "track4",
+        "enabled": true,
+        "src": "/audio/track4-touch-dynamics.mp3",
+        "tagKey": "sl.track4.tag",
+        "nameKey": "sl.track4.name",
+        "gearKey": "sl.track4.gear",
+        "settingsKey": "sl.track4.settings",
+        "descKey": "sl.track4.desc"
+      },
+      {
+        "id": "track5",
+        "enabled": true,
+        "src": "/audio/track5-volume-rolloff.mp3",
+        "tagKey": "sl.track5.tag",
+        "nameKey": "sl.track5.name",
+        "gearKey": "sl.track5.gear",
+        "settingsKey": "sl.track5.settings",
+        "descKey": "sl.track5.desc"
+      },
+      {
+        "id": "track6",
+        "enabled": true,
+        "src": "/audio/track6-lead-sustain.mp3",
+        "tagKey": "sl.track6.tag",
+        "nameKey": "sl.track6.name",
+        "gearKey": "sl.track6.gear",
+        "settingsKey": "sl.track6.settings",
+        "descKey": "sl.track6.desc"
+      },
+      {
+        "id": "track7",
+        "enabled": true,
+        "src": "/audio/track7-extended-amp-journey.mp3",
+        "tagKey": "sl.track7.tag",
+        "nameKey": "sl.track7.name",
+        "gearKey": "sl.track7.gear",
+        "settingsKey": "sl.track7.settings",
+        "descKey": "sl.track7.desc"
+      }
+    ]
+  },
   "maintenance": {
     "enabled": false,
     "eyebrow": "ALUPLEXamp",

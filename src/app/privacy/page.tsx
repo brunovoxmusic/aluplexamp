@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { siteSettings } from "@/lib/site";
 
+const contactEmail = siteSettings.contactSettings?.publicEmail || "info@aluplexamp.com";
+
 export const metadata: Metadata = {
   title: `Ochrana osobných údajov | ${siteSettings.brandName}`,
   description:
@@ -42,8 +44,8 @@ export default function PrivacyPage() {
               Správcom osobných údajov je ALUPLEXamp, Slovensko, EÚ.
               Kontaktný e-mail pre otázky k ochrane osobných údajov:
               {" "}
-              <a href="mailto:info@aluplexamp.com" className="text-primary underline underline-offset-4">
-                info@aluplexamp.com
+              <a href={`mailto:${contactEmail}`} className="text-primary underline underline-offset-4">
+                {contactEmail}
               </a>
               .
             </p>
@@ -114,8 +116,8 @@ export default function PrivacyPage() {
               spracúvania, prenosnosť údajov a právo namietať proti
               spracúvaniu. Svoju žiadosť môžete poslať na
               {" "}
-              <a href="mailto:info@aluplexamp.com" className="text-primary underline underline-offset-4">
-                info@aluplexamp.com
+              <a href={`mailto:${contactEmail}`} className="text-primary underline underline-offset-4">
+                {contactEmail}
               </a>
               .
             </p>

@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { siteSettings } from "@/lib/site";
 
+const contactEmail = siteSettings.contactSettings?.publicEmail || "info@aluplexamp.com";
+
 export const metadata: Metadata = {
   title: `Cookies | ${siteSettings.brandName}`,
   description:
@@ -77,8 +79,8 @@ export default function CookiesPage() {
             <p>
               Otázky k cookies alebo ochrane súkromia môžete poslať na
               {" "}
-              <a href="mailto:info@aluplexamp.com" className="text-primary underline underline-offset-4">
-                info@aluplexamp.com
+              <a href={`mailto:${contactEmail}`} className="text-primary underline underline-offset-4">
+                {contactEmail}
               </a>
               . Súvisiace informácie nájdete aj na stránke
               {" "}

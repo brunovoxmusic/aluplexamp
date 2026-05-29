@@ -12,6 +12,8 @@ export type SiteSettings = {
   ogImage: string;
   keywords: string[];
   heroBackground?: HeroBackgroundSettings;
+  contactSettings?: ContactSettings;
+  audioLibrary?: AudioLibrarySettings;
   maintenance?: MaintenanceSettings;
 };
 
@@ -19,6 +21,30 @@ export type HeroBackgroundSettings = {
   mode: "static" | "slideshow";
   staticImage: string;
   slides: string[];
+};
+
+export type ContactSettings = {
+  publicEmail: string;
+  formEmail: string;
+  phone: string;
+  instagram: string;
+  youtube: string;
+  facebook: string;
+};
+
+export type AudioTrackSettings = {
+  id: string;
+  enabled: boolean;
+  src: string;
+  tagKey: string;
+  nameKey: string;
+  gearKey: string;
+  settingsKey: string;
+  descKey: string;
+};
+
+export type AudioLibrarySettings = {
+  tracks: AudioTrackSettings[];
 };
 
 export type MaintenanceLanguage = "sk" | "en" | "de";

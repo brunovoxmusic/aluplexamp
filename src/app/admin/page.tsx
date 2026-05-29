@@ -3,6 +3,9 @@
 import { useEffect, useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import type {
+  AudioLibrarySettings,
+  AudioTrackSettings,
+  ContactSettings,
   HeroBackgroundSettings,
   MaintenanceSettings,
   SiteSettings,
@@ -20,6 +23,9 @@ const sections = [
   { id: "cta", label: "CTA" },
   { id: "faq", label: "FAQ" },
   { id: "contact", label: "Kontakt" },
+  { id: "allText", label: "Vsetky texty" },
+  { id: "siteContact", label: "Kontakt udaje" },
+  { id: "audio", label: "Audio" },
   { id: "maintenance", label: "Maintenance" },
   { id: "seo", label: "SEO" },
   { id: "advanced", label: "JSON" },
@@ -37,6 +43,15 @@ type MaintenanceLocalizedKey =
 
 const CONTACT_EMAIL = "info@aluplexamp.com";
 
+const defaultContactSettings: ContactSettings = {
+  publicEmail: CONTACT_EMAIL,
+  formEmail: CONTACT_EMAIL,
+  phone: "",
+  instagram: "https://instagram.com/aluplexamp",
+  youtube: "https://youtube.com/@aluplexamp",
+  facebook: "https://facebook.com/aluplexamp",
+};
+
 const defaultHeroBackground: HeroBackgroundSettings = {
   mode: "static",
   staticImage: "/aluplex/aluplex-red-front.jpg",
@@ -47,6 +62,37 @@ const defaultHeroBackground: HeroBackgroundSettings = {
     "/aluplex/DSC6821.jpg",
     "/aluplex/aluplex-138.jpg",
   ],
+};
+
+const defaultAudioTracks: AudioTrackSettings[] = Array.from(
+  { length: 7 },
+  (_, index) => {
+    const id = index + 1;
+    const sources = [
+      "/audio/track1-woody-clean.mp3",
+      "/audio/track2-cranked-british-crunch.mp3",
+      "/audio/track3-brown-sound-session.mp3",
+      "/audio/track4-touch-dynamics.mp3",
+      "/audio/track5-volume-rolloff.mp3",
+      "/audio/track6-lead-sustain.mp3",
+      "/audio/track7-extended-amp-journey.mp3",
+    ];
+
+    return {
+      id: `track${id}`,
+      enabled: true,
+      src: sources[index],
+      tagKey: `sl.track${id}.tag`,
+      nameKey: `sl.track${id}.name`,
+      gearKey: `sl.track${id}.gear`,
+      settingsKey: `sl.track${id}.settings`,
+      descKey: `sl.track${id}.desc`,
+    };
+  }
+);
+
+const defaultAudioLibrary: AudioLibrarySettings = {
+  tracks: defaultAudioTracks,
 };
 
 const heroFields: TextField[] = [
@@ -135,6 +181,8 @@ function getFallbackSite(): SiteSettings {
     ogImage: "/og-image.jpg",
     keywords: [],
     heroBackground: defaultHeroBackground,
+    contactSettings: defaultContactSettings,
+    audioLibrary: defaultAudioLibrary,
     maintenance: defaultMaintenance,
   };
 }
@@ -149,6 +197,18 @@ function normalizeSite(nextSite: SiteSettings): SiteSettings {
         nextSite.heroBackground?.slides && nextSite.heroBackground.slides.length > 0
           ? nextSite.heroBackground.slides
           : defaultHeroBackground.slides,
+    },
+    contactSettings: {
+      ...defaultContactSettings,
+      ...nextSite.contactSettings,
+    },
+    audioLibrary: {
+      ...defaultAudioLibrary,
+      ...nextSite.audioLibrary,
+      tracks:
+        nextSite.audioLibrary?.tracks && nextSite.audioLibrary.tracks.length > 0
+          ? nextSite.audioLibrary.tracks
+          : defaultAudioLibrary.tracks,
     },
     maintenance: {
       ...defaultMaintenance,
@@ -169,12 +229,14 @@ export default function AdminPage() {
   const [jsonValue, setJsonValue] = useState("");
   const [siteJsonValue, setSiteJsonValue] = useState("");
   const [keywordValue, setKeywordValue] = useState("");
+  const [textFilter, setTextFilter] = useState("");
   const [password, setPassword] = useState("");
   const [adminPassword, setAdminPassword] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
   const [status, setStatus] = useState<SaveState>("idle");
   const [message, setMessage] = useState("");
+  const [uploadingTrackId, setUploadingTrackId] = useState<string | null>(null);
 
   async function loadContent(adminPassword: string) {
     try {
@@ -299,6 +361,188 @@ export default function AdminPage() {
     });
     setStatus("idle");
     setMessage("");
+  }
+
+  function setContactSettingsField<K extends keyof ContactSettings>(
+    key: K,
+    value: ContactSettings[K]
+  ) {
+    setSite((current) => {
+      const nextSite = normalizeSite({
+        ...current,
+        contactSettings: {
+          ...defaultContactSettings,
+          ...current.contactSettings,
+          [key]: value,
+        },
+      });
+      setSiteJsonValue(JSON.stringify(nextSite, null, 2));
+      return nextSite;
+    });
+    setStatus("idle");
+    setMessage("");
+  }
+
+  function setAudioTrackField<K extends keyof AudioTrackSettings>(
+    index: number,
+    key: K,
+    value: AudioTrackSettings[K]
+  ) {
+    setSite((current) => {
+      const audioLibrary = current.audioLibrary ?? defaultAudioLibrary;
+      const tracks = [...audioLibrary.tracks];
+      tracks[index] = { ...tracks[index], [key]: value };
+      const nextSite = normalizeSite({
+        ...current,
+        audioLibrary: {
+          ...audioLibrary,
+          tracks,
+        },
+      });
+      setSiteJsonValue(JSON.stringify(nextSite, null, 2));
+      return nextSite;
+    });
+    setStatus("idle");
+    setMessage("");
+  }
+
+  function removeAudioTrack(index: number) {
+    setSite((current) => {
+      const audioLibrary = current.audioLibrary ?? defaultAudioLibrary;
+      const tracks = audioLibrary.tracks.filter((_, trackIndex) => trackIndex !== index);
+      const nextSite = normalizeSite({
+        ...current,
+        audioLibrary: {
+          ...audioLibrary,
+          tracks,
+        },
+      });
+      setSiteJsonValue(JSON.stringify(nextSite, null, 2));
+      return nextSite;
+    });
+    setStatus("idle");
+    setMessage("");
+  }
+
+  function addAudioTrack() {
+    const currentTracks = site.audioLibrary?.tracks ?? defaultAudioLibrary.tracks;
+    const nextNumber = currentTracks.length + 1;
+    const id = `track${nextNumber}`;
+    const nextTrack: AudioTrackSettings = {
+      id,
+      enabled: true,
+      src: "",
+      tagKey: `sl.${id}.tag`,
+      nameKey: `sl.${id}.name`,
+      gearKey: `sl.${id}.gear`,
+      settingsKey: `sl.${id}.settings`,
+      descKey: `sl.${id}.desc`,
+    };
+
+    setSite((current) => {
+      const audioLibrary = current.audioLibrary ?? defaultAudioLibrary;
+      const nextSite = normalizeSite({
+        ...current,
+        audioLibrary: {
+          ...audioLibrary,
+          tracks: [...audioLibrary.tracks, nextTrack],
+        },
+      });
+      setSiteJsonValue(JSON.stringify(nextSite, null, 2));
+      return nextSite;
+    });
+
+    setTranslations((current) => {
+      if (!current) return current;
+
+      const defaults = {
+        sk: {
+          tag: "NOVÁ UKÁŽKA",
+          name: "Nová zvuková ukážka",
+          gear: "ALUPLEXamp",
+          settings: "Doplň nastavenie aparátu",
+          desc: "Doplň popis charakteru zvuku.",
+        },
+        en: {
+          tag: "NEW SAMPLE",
+          name: "New sound sample",
+          gear: "ALUPLEXamp",
+          settings: "Add amplifier settings",
+          desc: "Add a description of the tone character.",
+        },
+        de: {
+          tag: "NEUES SAMPLE",
+          name: "Neue Klangprobe",
+          gear: "ALUPLEXamp",
+          settings: "Verstärker-Einstellung ergänzen",
+          desc: "Beschreibung des Klangcharakters ergänzen.",
+        },
+      } satisfies Record<Language, Record<string, string>>;
+
+      return {
+        ...current,
+        sk: {
+          ...current.sk,
+          [nextTrack.tagKey]: defaults.sk.tag,
+          [nextTrack.nameKey]: defaults.sk.name,
+          [nextTrack.gearKey]: defaults.sk.gear,
+          [nextTrack.settingsKey]: defaults.sk.settings,
+          [nextTrack.descKey]: defaults.sk.desc,
+        },
+        en: {
+          ...current.en,
+          [nextTrack.tagKey]: defaults.en.tag,
+          [nextTrack.nameKey]: defaults.en.name,
+          [nextTrack.gearKey]: defaults.en.gear,
+          [nextTrack.settingsKey]: defaults.en.settings,
+          [nextTrack.descKey]: defaults.en.desc,
+        },
+        de: {
+          ...current.de,
+          [nextTrack.tagKey]: defaults.de.tag,
+          [nextTrack.nameKey]: defaults.de.name,
+          [nextTrack.gearKey]: defaults.de.gear,
+          [nextTrack.settingsKey]: defaults.de.settings,
+          [nextTrack.descKey]: defaults.de.desc,
+        },
+      };
+    });
+    setStatus("idle");
+    setMessage("");
+  }
+
+  async function uploadAudioTrack(index: number, file: File | null) {
+    if (!file) return;
+
+    try {
+      setUploadingTrackId(site.audioLibrary?.tracks[index]?.id ?? String(index));
+      setStatus("saving");
+      setMessage("");
+
+      const body = new FormData();
+      body.append("password", adminPassword);
+      body.append("kind", "audio");
+      body.append("file", file);
+
+      const response = await fetch("/api/admin/upload", {
+        method: "POST",
+        body,
+      });
+      const data = await response.json();
+
+      if (!response.ok || typeof data.src !== "string") {
+        throw new Error(data.error || "Upload audio suboru zlyhal.");
+      }
+
+      setAudioTrackField(index, "src", data.src);
+      setStatus("saved");
+      setMessage("Audio subor bol nahraty. Po kontrole nezabudni ulozit obsah.");
+    } catch (error) {
+      setStatus("error");
+      setMessage(error instanceof Error ? error.message : "Upload audio suboru zlyhal.");
+    } finally {
+      setUploadingTrackId(null);
+    }
   }
 
   function setMaintenanceField<K extends keyof MaintenanceSettings>(
@@ -595,6 +839,269 @@ export default function AdminPage() {
             </div>
           </div>
         </div>
+      </div>
+    );
+  }
+
+  function renderAllTextFields() {
+    if (!translations) return null;
+
+    const filter = textFilter.trim().toLowerCase();
+    const entries = Object.entries(translations[language])
+      .sort(([a], [b]) => a.localeCompare(b))
+      .filter(([key, value]) => {
+        if (!filter) return true;
+        return (
+          key.toLowerCase().includes(filter) ||
+          value.toLowerCase().includes(filter)
+        );
+      });
+
+    return (
+      <div className="grid gap-4">
+        <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
+          <p className="text-sm font-semibold text-white">
+            Kompletny editor textov pre {language.toUpperCase()}
+          </p>
+          <p className="mt-1 text-xs leading-5 text-white/45">
+            Tu su editovatelne vsetky textove kluce pouzite na stranke vratane
+            jazykovych mutacii. Zmeny sa ukladaju spolu s obsahom CMS.
+          </p>
+          <input
+            value={textFilter}
+            onChange={(event) => setTextFilter(event.target.value)}
+            placeholder="Filtrovat podla kluca alebo textu"
+            className="mt-4 h-11 w-full rounded-md border border-white/10 bg-black/35 px-3 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-[#ffb800]/70"
+          />
+        </div>
+
+        <div className="grid gap-3">
+          {entries.map(([key, value]) => (
+            <label key={key} className="grid gap-2 rounded-lg border border-white/10 bg-black/20 p-4">
+              <span className="font-mono text-[11px] text-[#ffb800]/85">
+                {key}
+              </span>
+              <textarea
+                value={value}
+                onChange={(event) => setTranslationField(key, event.target.value)}
+                rows={value.length > 120 ? 4 : 2}
+                className="min-h-16 resize-y rounded-md border border-white/10 bg-black/35 px-3 py-3 text-sm leading-6 text-white outline-none transition focus:border-[#ffb800]/70"
+              />
+            </label>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  function renderSiteContactFields() {
+    const contactSettings = site.contactSettings ?? defaultContactSettings;
+
+    return (
+      <div className="grid gap-5">
+        <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4 text-sm leading-6 text-white/55">
+          Tieto udaje sa pouzivaju vo footeri, CTA, maintenance obrazovke,
+          Schema.org metadatoch a kontaktnom/dopytovom formulari.
+        </div>
+        {[
+          ["publicEmail", "Univerzalny verejny e-mail"],
+          ["formEmail", "E-mail pre kontaktny/dopyt formular"],
+          ["phone", "Telefon"],
+          ["instagram", "Instagram URL"],
+          ["youtube", "YouTube URL"],
+          ["facebook", "Facebook URL"],
+        ].map(([key, label]) => (
+          <label key={key} className="grid gap-2">
+            <span className="text-xs font-medium uppercase tracking-[0.14em] text-white/45">
+              {label}
+            </span>
+            <input
+              value={contactSettings[key as keyof ContactSettings]}
+              onChange={(event) =>
+                setContactSettingsField(
+                  key as keyof ContactSettings,
+                  event.target.value
+                )
+              }
+              placeholder={key.includes("Email") ? CONTACT_EMAIL : undefined}
+              className="h-11 rounded-md border border-white/10 bg-black/35 px-3 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-[#ffb800]/70"
+            />
+          </label>
+        ))}
+      </div>
+    );
+  }
+
+  function renderAudioFields() {
+    const audioLibrary = site.audioLibrary ?? defaultAudioLibrary;
+
+    return (
+      <div className="grid gap-5">
+        <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
+          <p className="text-sm font-semibold text-white">
+            Audio prehravac zvukovych ukazok
+          </p>
+          <p className="mt-1 text-xs leading-5 text-white/45">
+            Zapni/vypni zverejnene tracky, nastav zdroj audio suboru alebo nahraj
+            novy subor. Nazvy a popisy trackov su prekladove kluce, ktore mozes
+            upravovat tu aj v sekcii Vsetky texty.
+          </p>
+        </div>
+
+        <div className="grid gap-4">
+          {audioLibrary.tracks.map((track, index) => (
+            <div key={`${track.id}-${index}`} className="rounded-xl border border-white/10 bg-black/25 p-4">
+              <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-white">
+                    {translations?.[language]?.[track.nameKey] || track.id}
+                  </p>
+                  <p className="mt-1 font-mono text-[11px] text-white/35">
+                    {track.src || "Bez audio suboru"}
+                  </p>
+                </div>
+                <label className="inline-flex items-center gap-2 text-sm text-white/65">
+                  <input
+                    type="checkbox"
+                    checked={track.enabled}
+                    onChange={(event) =>
+                      setAudioTrackField(index, "enabled", event.target.checked)
+                    }
+                    className="h-4 w-4 accent-[#ffb800]"
+                  />
+                  Zverejnit v prehravaci
+                </label>
+              </div>
+
+              <div className="grid gap-3 md:grid-cols-2">
+                <label className="grid gap-2">
+                  <span className="text-xs font-medium uppercase tracking-[0.14em] text-white/45">
+                    ID tracku
+                  </span>
+                  <input
+                    value={track.id}
+                    onChange={(event) =>
+                      setAudioTrackField(index, "id", event.target.value)
+                    }
+                    className="h-11 rounded-md border border-white/10 bg-black/35 px-3 text-sm text-white outline-none transition focus:border-[#ffb800]/70"
+                  />
+                </label>
+                <label className="grid gap-2">
+                  <span className="text-xs font-medium uppercase tracking-[0.14em] text-white/45">
+                    Audio URL
+                  </span>
+                  <input
+                    value={track.src}
+                    onChange={(event) =>
+                      setAudioTrackField(index, "src", event.target.value)
+                    }
+                    placeholder="/audio/nazov-suboru.mp3"
+                    className="h-11 rounded-md border border-white/10 bg-black/35 px-3 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-[#ffb800]/70"
+                  />
+                </label>
+              </div>
+
+              <div className="mt-3 grid gap-3 md:grid-cols-5">
+                {[
+                  ["tagKey", "Tag"],
+                  ["nameKey", "Nazov"],
+                  ["gearKey", "Aparat"],
+                  ["settingsKey", "Nastavenie"],
+                  ["descKey", "Popis"],
+                ].map(([key, label]) => (
+                  <label key={key} className="grid gap-2">
+                    <span className="text-xs font-medium uppercase tracking-[0.14em] text-white/45">
+                      {label}
+                    </span>
+                    <input
+                      value={track[key as keyof AudioTrackSettings] as string}
+                      onChange={(event) =>
+                        setAudioTrackField(
+                          index,
+                          key as keyof AudioTrackSettings,
+                          event.target.value as never
+                        )
+                      }
+                      className="h-10 rounded-md border border-white/10 bg-black/35 px-3 font-mono text-xs text-white outline-none transition focus:border-[#ffb800]/70"
+                    />
+                  </label>
+                ))}
+              </div>
+
+              <div className="mt-4 rounded-lg border border-white/10 bg-white/[0.025] p-3">
+                <div className="grid gap-3 md:grid-cols-2">
+                  <label className="grid gap-2">
+                    <span className="text-xs font-medium uppercase tracking-[0.14em] text-white/45">
+                      Nazov tracku ({language.toUpperCase()})
+                    </span>
+                    <input
+                      value={translations?.[language]?.[track.nameKey] ?? ""}
+                      onChange={(event) =>
+                        setTranslationField(track.nameKey, event.target.value)
+                      }
+                      className="h-10 rounded-md border border-white/10 bg-black/35 px-3 text-sm text-white outline-none transition focus:border-[#ffb800]/70"
+                    />
+                  </label>
+                  <label className="grid gap-2">
+                    <span className="text-xs font-medium uppercase tracking-[0.14em] text-white/45">
+                      Tag ({language.toUpperCase()})
+                    </span>
+                    <input
+                      value={translations?.[language]?.[track.tagKey] ?? ""}
+                      onChange={(event) =>
+                        setTranslationField(track.tagKey, event.target.value)
+                      }
+                      className="h-10 rounded-md border border-white/10 bg-black/35 px-3 text-sm text-white outline-none transition focus:border-[#ffb800]/70"
+                    />
+                  </label>
+                </div>
+                <label className="mt-3 grid gap-2">
+                  <span className="text-xs font-medium uppercase tracking-[0.14em] text-white/45">
+                    Popis zvuku ({language.toUpperCase()})
+                  </span>
+                  <textarea
+                    value={translations?.[language]?.[track.descKey] ?? ""}
+                    onChange={(event) =>
+                      setTranslationField(track.descKey, event.target.value)
+                    }
+                    rows={3}
+                    className="min-h-20 resize-y rounded-md border border-white/10 bg-black/35 px-3 py-3 text-sm leading-6 text-white outline-none transition focus:border-[#ffb800]/70"
+                  />
+                </label>
+              </div>
+
+              <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+                <label className="inline-flex h-10 cursor-pointer items-center justify-center rounded-md border border-white/10 px-4 text-xs font-semibold text-white/70 transition hover:border-[#ffb800]/50 hover:text-white">
+                  {uploadingTrackId === track.id ? "Nahravam..." : "Nahrat audio subor"}
+                  <input
+                    type="file"
+                    accept="audio/*,.mp3,.wav,.m4a,.ogg"
+                    className="sr-only"
+                    disabled={uploadingTrackId === track.id}
+                    onChange={(event) =>
+                      uploadAudioTrack(index, event.target.files?.[0] ?? null)
+                    }
+                  />
+                </label>
+                <button
+                  type="button"
+                  onClick={() => removeAudioTrack(index)}
+                  className="inline-flex h-10 items-center justify-center rounded-md border border-red-400/20 px-4 text-xs font-semibold text-red-200/80 transition hover:border-red-400/45 hover:text-red-100"
+                >
+                  Odstranit track
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <button
+          type="button"
+          onClick={addAudioTrack}
+          className="inline-flex h-11 items-center justify-center rounded-md bg-[#ffb800] px-5 text-sm font-semibold text-black transition hover:bg-[#ffc933]"
+        >
+          Pridat novy audio track
+        </button>
       </div>
     );
   }
@@ -1023,6 +1530,9 @@ export default function AdminPage() {
     if (section === "cta") return renderTextFields(ctaFields);
     if (section === "faq") return renderFaqFields();
     if (section === "contact") return renderTextFields(contactFields);
+    if (section === "allText") return renderAllTextFields();
+    if (section === "siteContact") return renderSiteContactFields();
+    if (section === "audio") return renderAudioFields();
     if (section === "maintenance") return renderMaintenanceFields();
     if (section === "seo") return renderSeoFields();
     return renderAdvancedFields();
@@ -1199,7 +1709,9 @@ export default function AdminPage() {
                   {sections.find((item) => item.id === section)?.label}
                   {section !== "seo" &&
                   section !== "advanced" &&
-                  section !== "maintenance"
+                  section !== "maintenance" &&
+                  section !== "siteContact" &&
+                  section !== "audio"
                     ? ` - ${language.toUpperCase()}`
                     : ""}
                 </h2>

@@ -1,8 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import type { CSSProperties } from 'react';
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import {
   Heart, Target, Shield, Music, ThermometerSun, Weight, Magnet, ShieldCheck,
   Zap, Power, Mic2, Volume2, Headphones, Settings, ChevronDown, ChevronUp,
@@ -25,6 +24,9 @@ import {
 } from '@/lib/translations';
 import {
   siteSettings as staticSiteSettings,
+  type AudioLibrarySettings,
+  type AudioTrackSettings,
+  type ContactSettings,
   type HeroBackgroundSettings,
   type MaintenanceSettings,
   type SiteSettings,
@@ -41,6 +43,15 @@ type ContentResponse = {
   translations?: Translations;
   content?: Translations;
   site?: SiteSettings;
+};
+
+type PlayerTrack = {
+  name: string;
+  gear: string;
+  settings: string;
+  desc: string;
+  src: string;
+  tag: string;
 };
 
 // ========== HOOKS ==========
@@ -424,13 +435,91 @@ const DEFAULT_HERO_BACKGROUND: HeroBackgroundSettings = {
   ],
 };
 
-const FALLBACK_HERO_SLIDES = [
-  '/aluplex/aluplex-red-front.jpg',
-  '/aluplex/aluplex-1.jpg',
-  '/aluplex/aluplex-56.jpg',
-  '/aluplex/DSC6821.jpg',
-  '/aluplex/aluplex-138.jpg',
+const DEFAULT_CONTACT_SETTINGS: ContactSettings = {
+  publicEmail: 'info@aluplexamp.com',
+  formEmail: 'info@aluplexamp.com',
+  phone: '',
+  instagram: 'https://instagram.com/aluplexamp',
+  youtube: 'https://youtube.com/@aluplexamp',
+  facebook: 'https://facebook.com/aluplexamp',
+};
+
+const DEFAULT_AUDIO_TRACK_SETTINGS: AudioTrackSettings[] = [
+  {
+    id: 'track1',
+    enabled: true,
+    src: '/audio/track1-woody-clean.mp3',
+    tagKey: 'sl.track1.tag',
+    nameKey: 'sl.track1.name',
+    gearKey: 'sl.track1.gear',
+    settingsKey: 'sl.track1.settings',
+    descKey: 'sl.track1.desc',
+  },
+  {
+    id: 'track2',
+    enabled: true,
+    src: '/audio/track2-cranked-british-crunch.mp3',
+    tagKey: 'sl.track2.tag',
+    nameKey: 'sl.track2.name',
+    gearKey: 'sl.track2.gear',
+    settingsKey: 'sl.track2.settings',
+    descKey: 'sl.track2.desc',
+  },
+  {
+    id: 'track3',
+    enabled: true,
+    src: '/audio/track3-brown-sound-session.mp3',
+    tagKey: 'sl.track3.tag',
+    nameKey: 'sl.track3.name',
+    gearKey: 'sl.track3.gear',
+    settingsKey: 'sl.track3.settings',
+    descKey: 'sl.track3.desc',
+  },
+  {
+    id: 'track4',
+    enabled: true,
+    src: '/audio/track4-touch-dynamics.mp3',
+    tagKey: 'sl.track4.tag',
+    nameKey: 'sl.track4.name',
+    gearKey: 'sl.track4.gear',
+    settingsKey: 'sl.track4.settings',
+    descKey: 'sl.track4.desc',
+  },
+  {
+    id: 'track5',
+    enabled: true,
+    src: '/audio/track5-volume-rolloff.mp3',
+    tagKey: 'sl.track5.tag',
+    nameKey: 'sl.track5.name',
+    gearKey: 'sl.track5.gear',
+    settingsKey: 'sl.track5.settings',
+    descKey: 'sl.track5.desc',
+  },
+  {
+    id: 'track6',
+    enabled: true,
+    src: '/audio/track6-lead-sustain.mp3',
+    tagKey: 'sl.track6.tag',
+    nameKey: 'sl.track6.name',
+    gearKey: 'sl.track6.gear',
+    settingsKey: 'sl.track6.settings',
+    descKey: 'sl.track6.desc',
+  },
+  {
+    id: 'track7',
+    enabled: true,
+    src: '/audio/track7-extended-amp-journey.mp3',
+    tagKey: 'sl.track7.tag',
+    nameKey: 'sl.track7.name',
+    gearKey: 'sl.track7.gear',
+    settingsKey: 'sl.track7.settings',
+    descKey: 'sl.track7.desc',
+  },
 ];
+
+const DEFAULT_AUDIO_LIBRARY: AudioLibrarySettings = {
+  tracks: DEFAULT_AUDIO_TRACK_SETTINGS,
+};
 
 function getHeroImages(settings?: HeroBackgroundSettings) {
   const nextSettings = { ...DEFAULT_HERO_BACKGROUND, ...settings };
@@ -438,10 +527,10 @@ function getHeroImages(settings?: HeroBackgroundSettings) {
     ? nextSettings.slides.map((src) => src.trim()).filter(Boolean)
     : [];
 
-  if (nextSettings.mode === 'slideshow') {
+  if (nextSettings.mode === 'slideshow' && slides.length > 1) {
     return {
       mode: 'slideshow' as const,
-      images: slides.length > 0 ? slides : FALLBACK_HERO_SLIDES,
+      images: slides,
     };
   }
 
@@ -449,6 +538,32 @@ function getHeroImages(settings?: HeroBackgroundSettings) {
     mode: 'static' as const,
     images: [nextSettings.staticImage?.trim() || DEFAULT_HERO_BACKGROUND.staticImage],
   };
+}
+
+function getContactSettings(settings?: ContactSettings): ContactSettings {
+  return {
+    ...DEFAULT_CONTACT_SETTINGS,
+    ...settings,
+  };
+}
+
+function getAudioTracks(
+  audioLibrary: AudioLibrarySettings | undefined,
+  t: (k: string) => string
+): PlayerTrack[] {
+  const configuredTracks =
+    audioLibrary?.tracks?.filter((track) => track.enabled && track.src.trim()) ?? [];
+  const sourceTracks =
+    configuredTracks.length > 0 ? configuredTracks : DEFAULT_AUDIO_LIBRARY.tracks;
+
+  return sourceTracks.map((track) => ({
+    name: t(track.nameKey),
+    gear: t(track.gearKey),
+    settings: t(track.settingsKey),
+    desc: t(track.descKey),
+    src: track.src,
+    tag: t(track.tagKey),
+  }));
 }
 
 function HeroSection({
@@ -474,7 +589,19 @@ function HeroSection({
     t('hero.proof.voltage'),
   ];
   const heroMedia = getHeroImages(heroBackground);
-  const heroCycleDuration = Math.max(heroMedia.images.length, 1) * 5;
+  const isHeroSlideshow = heroMedia.mode === 'slideshow' && heroMedia.images.length > 1;
+  const [activeHeroSlide, setActiveHeroSlide] = useState(0);
+
+  useEffect(() => {
+    setActiveHeroSlide(0);
+    if (!isHeroSlideshow) return;
+
+    const interval = window.setInterval(() => {
+      setActiveHeroSlide((current) => (current + 1) % heroMedia.images.length);
+    }, 5000);
+
+    return () => window.clearInterval(interval);
+  }, [isHeroSlideshow, heroMedia.images.join('|')]);
 
   return (
     <section className="relative min-h-screen flex items-start lg:items-center overflow-hidden bg-[#080808] section-amp-shell amp-tone-tiger">
@@ -483,15 +610,11 @@ function HeroSection({
         {heroMedia.images.map((src, i) => (
           <div
             key={`${src}-${i}`}
-            className={heroMedia.mode === 'static' ? 'hero-slide hero-slide-static' : 'hero-slide'}
-            style={
-              heroMedia.mode === 'slideshow'
-                ? {
-                    animationDelay: `${i * 5}s`,
-                    animationDuration: `${heroCycleDuration}s`,
-                  }
-                : undefined
-            }
+            className={`hero-slide ${
+              !isHeroSlideshow || i === activeHeroSlide
+                ? 'hero-slide-active'
+                : ''
+            }`}
           >
             <img
               src={src}
@@ -532,15 +655,12 @@ function HeroSection({
         aria-hidden="true"
       >
         {heroMedia.images.map((_, i) => (
-          <span
+          <button
             key={i}
-            className="hero-slide-dot"
-            style={
-              {
-                '--hero-dot-delay': `${i * 5}s`,
-                '--hero-cycle-duration': `${heroCycleDuration}s`,
-              } as CSSProperties
-            }
+            type="button"
+            className={`hero-slide-dot ${i === activeHeroSlide ? 'hero-slide-dot-active' : ''}`}
+            onClick={() => setActiveHeroSlide(i)}
+            aria-label={`Zobrazit hero obrazok ${i + 1}`}
           />
         ))}
       </div>
@@ -945,7 +1065,13 @@ function generateWaveform(audioSrc: string): Promise<WaveformData> {
   });
 }
 
-function SoundLibrary({ t }: { t: (k: string) => string }) {
+function SoundLibrary({
+  t,
+  audioLibrary,
+}: {
+  t: (k: string) => string;
+  audioLibrary?: AudioLibrarySettings;
+}) {
   const ref = useScrollAnimation();
   const [activeTrack, setActiveTrack] = useState(0);
   const [playing, setPlaying] = useState(false);
@@ -990,20 +1116,26 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
     'rgba(160,78,210,0.48)',
   ];
 
-  const tracks = [
-    { name: t('sl.track1.name'), gear: t('sl.track1.gear'), settings: t('sl.track1.settings'), desc: t('sl.track1.desc'), src: '/audio/track1-woody-clean.mp3', tag: t('sl.track1.tag') },
-    { name: t('sl.track2.name'), gear: t('sl.track2.gear'), settings: t('sl.track2.settings'), desc: t('sl.track2.desc'), src: '/audio/track2-cranked-british-crunch.mp3', tag: t('sl.track2.tag') },
-    { name: t('sl.track3.name'), gear: t('sl.track3.gear'), settings: t('sl.track3.settings'), desc: t('sl.track3.desc'), src: '/audio/track3-brown-sound-session.mp3', tag: t('sl.track3.tag') },
-    { name: t('sl.track4.name'), gear: t('sl.track4.gear'), settings: t('sl.track4.settings'), desc: t('sl.track4.desc'), src: '/audio/track4-touch-dynamics.mp3', tag: t('sl.track4.tag') },
-    { name: t('sl.track5.name'), gear: t('sl.track5.gear'), settings: t('sl.track5.settings'), desc: t('sl.track5.desc'), src: '/audio/track5-volume-rolloff.mp3', tag: t('sl.track5.tag') },
-    { name: t('sl.track6.name'), gear: t('sl.track6.gear'), settings: t('sl.track6.settings'), desc: t('sl.track6.desc'), src: '/audio/track6-lead-sustain.mp3', tag: t('sl.track6.tag') },
-    { name: t('sl.track7.name'), gear: t('sl.track7.gear'), settings: t('sl.track7.settings'), desc: t('sl.track7.desc'), src: '/audio/track7-extended-amp-journey.mp3', tag: t('sl.track7.tag') },
-  ];
+  const tracks = useMemo(
+    () => getAudioTracks(audioLibrary, t),
+    [audioLibrary, t]
+  );
+  const getTrackAccent = (index: number) => trackAccents[index % trackAccents.length];
+  const getTrackAccentFaded = (index: number) =>
+    trackAccentsFaded[index % trackAccentsFaded.length];
+  const getTrackAccentMid = (index: number) =>
+    trackAccentsMid[index % trackAccentsMid.length];
   const currentTrack = tracks[activeTrack];
   const audioAvailable = Boolean(currentTrack?.src);
 
   const sectionRef = useRef<HTMLDivElement>(null);
   const [waveformsInitialized, setWaveformsInitialized] = useState(false);
+
+  useEffect(() => {
+    if (activeTrack >= tracks.length) {
+      setActiveTrack(0);
+    }
+  }, [activeTrack, tracks.length]);
 
   // Lazy load all waveforms when SoundLibrary section enters viewport
   useEffect(() => {
@@ -1029,7 +1161,7 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
       setWaveforms(data);
       setLoaded(true);
     });
-  }, [waveformsInitialized]);
+  }, [tracks, waveformsInitialized]);
 
   // Set volume
   useEffect(() => {
@@ -1053,7 +1185,7 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
         console.warn('Audio play failed:', err);
       });
     }
-  }, [activeTrack, audioAvailable]);
+  }, [activeTrack, audioAvailable, currentTrack?.src]);
 
   // Draw waveform on canvas
   useEffect(() => {
@@ -1089,7 +1221,7 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
       const progress = duration > 0 ? currentTime / duration : 0;
       const progressIdx = Math.floor(progress * numBars);
       const centerY = h / 2;
-      const accent = trackAccents[activeTrack];
+      const accent = getTrackAccent(activeTrack);
 
       for (let i = 0; i < numBars; i++) {
         const x = i * (barWidth + barGap);
@@ -1099,7 +1231,7 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
         if (i <= progressIdx) {
           const gradient = ctx.createLinearGradient(x, centerY - barH, x, centerY + barH);
           gradient.addColorStop(0, accent);
-          gradient.addColorStop(0.5, trackAccentsMid[activeTrack]);
+          gradient.addColorStop(0.5, getTrackAccentMid(activeTrack));
           gradient.addColorStop(1, accent);
           ctx.fillStyle = gradient;
         } else {
@@ -1117,7 +1249,7 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
         ctx.beginPath();
         ctx.strokeStyle = accent;
         ctx.lineWidth = 2;
-        ctx.shadowColor = trackAccentsMid[activeTrack];
+        ctx.shadowColor = getTrackAccentMid(activeTrack);
         ctx.shadowBlur = 10;
         ctx.moveTo(cursorX, 4);
         ctx.lineTo(cursorX, h - 4);
@@ -1334,14 +1466,14 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
                   aria-label={`${track.tag}: ${track.name}`}
                   className="flex-shrink-0 flex w-[10.25rem] items-center gap-2.5 px-3.5 py-2.5 rounded-xl border text-left transition-all duration-300"
                   style={{
-                    background: activeTrack === i ? trackAccentsFaded[i] : 'rgba(255,255,255,0.02)',
-                    borderColor: activeTrack === i ? trackAccents[i] : 'rgba(42,42,42,0.6)',
+                    background: activeTrack === i ? getTrackAccentFaded(i) : 'rgba(255,255,255,0.02)',
+                    borderColor: activeTrack === i ? getTrackAccent(i) : 'rgba(42,42,42,0.6)',
                   }}
                 >
                   {/* Playing indicator or number */}
                   <div className="flex-shrink-0 w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-bold transition-all duration-300"
                     style={{
-                      background: activeTrack === i ? trackAccents[i] : 'rgba(255,255,255,0.04)',
+                      background: activeTrack === i ? getTrackAccent(i) : 'rgba(255,255,255,0.04)',
                       color: activeTrack === i ? '#0a0a0a' : 'rgba(138,133,128,0.7)',
                     }}
                   >
@@ -1356,7 +1488,7 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
                     )}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-[11px] font-bold truncate" style={{ color: activeTrack === i ? trackAccents[i] : 'rgba(138,133,128,0.9)' }}>
+                    <p className="text-[11px] font-bold truncate" style={{ color: activeTrack === i ? getTrackAccent(i) : 'rgba(138,133,128,0.9)' }}>
                       {track.tag}
                     </p>
                     <p className="mt-0.5 truncate text-[10px] text-muted-foreground/45">
@@ -1376,14 +1508,14 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
                   aria-label={`${track.tag}: ${track.name}`}
                   className="w-full flex items-center gap-3 px-4 py-3 text-left transition-all duration-300 hover:bg-white/[0.03] group"
                   style={{
-                    background: activeTrack === i ? trackAccentsFaded[i] : undefined,
+                    background: activeTrack === i ? getTrackAccentFaded(i) : undefined,
                     borderBottom: i < tracks.length - 1 ? '1px solid rgba(255,255,255,0.04)' : undefined,
                   }}
                 >
                   {/* Track Number / Playing Indicator */}
                   <div className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold transition-all duration-300"
                     style={{
-                      background: activeTrack === i ? trackAccents[i] : 'rgba(255,255,255,0.04)',
+                      background: activeTrack === i ? getTrackAccent(i) : 'rgba(255,255,255,0.04)',
                       color: activeTrack === i ? '#0a0a0a' : 'rgba(138,133,128,0.7)',
                     }}
                   >
@@ -1427,7 +1559,7 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
               </div>
               {/* Accent glow behind player */}
               <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-[400px] h-[160px] pointer-events-none transition-colors duration-700"
-                style={{ background: `radial-gradient(ellipse, ${trackAccentsFaded[activeTrack]} 0%, transparent 70%)` }}
+                style={{ background: `radial-gradient(ellipse, ${getTrackAccentFaded(activeTrack)} 0%, transparent 70%)` }}
               />
 
               {/* Now Playing Header */}
@@ -1435,7 +1567,7 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
                 <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-2.5 mb-2">
-                      <span className="inline-block w-2 h-2 rounded-full transition-colors duration-500" style={{ background: trackAccents[activeTrack] }} />
+                      <span className="inline-block w-2 h-2 rounded-full transition-colors duration-500" style={{ background: getTrackAccent(activeTrack) }} />
                       <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.15em] text-muted-foreground/60">{currentTrack.tag}</span>
                       <span className="rounded-full border border-white/[0.06] bg-white/[0.035] px-2 py-0.5 font-mono text-[9px] text-muted-foreground/45">
                         {String(activeTrack + 1).padStart(2, '0')} / {String(tracks.length).padStart(2, '0')}
@@ -1453,7 +1585,7 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
                     <div className="flex items-end gap-[3px] h-8 sm:h-10 flex-shrink-0 mt-1 px-2">
                       {[0,1,2,3,4].map((b) => (
                         <div key={b} className="w-[3px] rounded-full transition-colors duration-500"
-                          style={{ background: trackAccents[activeTrack], animation: `eqBar${b + 1} ${1.2 - b * 0.08}s ease-in-out infinite ${b * 0.1}s` }}
+                          style={{ background: getTrackAccent(activeTrack), animation: `eqBar${b + 1} ${1.2 - b * 0.08}s ease-in-out infinite ${b * 0.1}s` }}
                         />
                       ))}
                     </div>
@@ -1520,10 +1652,10 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
                   }}
                 >
                   <div className="absolute inset-0 h-full rounded-full transition-all duration-150"
-                    style={{ width: `${progress}%`, background: trackAccents[activeTrack] }}
+                    style={{ width: `${progress}%`, background: getTrackAccent(activeTrack) }}
                   />
                   <div className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 shadow-lg"
-                    style={{ left: `calc(${progress}% - 6px)`, background: trackAccents[activeTrack], boxShadow: `0 0 8px ${trackAccentsMid[activeTrack]}` }}
+                    style={{ left: `calc(${progress}% - 6px)`, background: getTrackAccent(activeTrack), boxShadow: `0 0 8px ${getTrackAccentMid(activeTrack)}` }}
                   />
                 </div>
 
@@ -1567,8 +1699,8 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
                           : 'text-primary-foreground hover:shadow-lg'
                       }`}
                       style={{
-                        background: trackAccents[activeTrack],
-                        boxShadow: playing ? `0 0 24px ${trackAccentsMid[activeTrack]}` : undefined,
+                        background: getTrackAccent(activeTrack),
+                        boxShadow: playing ? `0 0 24px ${getTrackAccentMid(activeTrack)}` : undefined,
                       }}
                       aria-label={playing ? t('a11y.audio.pause') : t('a11y.audio.play')}
                     >
@@ -1606,7 +1738,7 @@ function SoundLibrary({ t }: { t: (k: string) => string }) {
               {/* Track Description */}
               <div className="relative px-4 sm:px-6 pb-4 sm:pb-5">
                 <div className="rounded-xl bg-white/[0.02] border border-white/[0.04] px-3 sm:px-4 py-3">
-                  <p className="text-[10px] sm:text-[11px] font-mono uppercase tracking-wider mb-1.5 sm:hidden" style={{ color: trackAccentsMid[activeTrack] }}>
+                  <p className="text-[10px] sm:text-[11px] font-mono uppercase tracking-wider mb-1.5 sm:hidden" style={{ color: getTrackAccentMid(activeTrack) }}>
                     {audioAvailable ? currentTrack.settings : 'Ukážka sa pripravuje'}
                   </p>
                   <p className="text-xs sm:text-sm text-muted-foreground/70 leading-relaxed">
@@ -2091,7 +2223,13 @@ function FAQSection({ t }: { t: (k: string) => string }) {
 
 // ========== CTA SECTION ==========
 
-function CTASection({ t }: { t: (k: string) => string }) {
+function CTASection({
+  t,
+  contactSettings,
+}: {
+  t: (k: string) => string;
+  contactSettings: ContactSettings;
+}) {
   const ref = useScrollAnimation();
   const scrollTo = (id: string) => {
     const el = document.getElementById(id);
@@ -2131,7 +2269,7 @@ function CTASection({ t }: { t: (k: string) => string }) {
             <ArrowRight className="size-4 ml-2 transition-transform duration-300 group-hover:translate-x-1" />
           </Button>
           <a
-            href="mailto:info@aluplexamp.com"
+            href={`mailto:${contactSettings.publicEmail}`}
             className="inline-flex items-center gap-2 px-8 sm:px-10 py-5 text-base font-semibold rounded-xl border border-white/[0.08] text-foreground/80 hover:bg-white/[0.06] hover:text-foreground hover:border-white/15 backdrop-blur-md transition-all duration-300 hover:scale-[1.03] active:scale-[0.98]"
           >
             <Mail className="size-4" />
@@ -2149,10 +2287,12 @@ function ContactSection({
   lang,
   t,
   configInquiry,
+  contactSettings,
 }: {
   lang: Language;
   t: (k: string) => string;
   configInquiry: ConfigInquiry | null;
+  contactSettings: ContactSettings;
 }) {
   const ref = useScrollAnimation();
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
@@ -2404,19 +2544,21 @@ function ContactSection({
           <p className="text-xs text-muted-foreground/40 mb-4">{t('footer.contact.title')}</p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6">
             <a
-              href="mailto:info@aluplexamp.com"
+              href={`mailto:${contactSettings.publicEmail}`}
               className="flex items-center gap-2 text-sm text-muted-foreground/60 hover:text-primary transition-colors duration-200"
             >
               <Mail className="size-3.5" />
-              info@aluplexamp.com
+              {contactSettings.publicEmail}
             </a>
-            <a
-              href="mailto:info@aluplexamp.com"
-              className="flex items-center gap-2 text-sm text-muted-foreground/60 hover:text-primary transition-colors duration-200"
-            >
-              <Mail className="size-3.5" />
-              info@aluplexamp.com
-            </a>
+            {contactSettings.phone ? (
+              <a
+                href={`tel:${contactSettings.phone.replace(/\s+/g, '')}`}
+                className="flex items-center gap-2 text-sm text-muted-foreground/60 hover:text-primary transition-colors duration-200"
+              >
+                <Globe className="size-3.5" />
+                {contactSettings.phone}
+              </a>
+            ) : null}
           </div>
         </div>
       </div>
@@ -2426,7 +2568,17 @@ function ContactSection({
 
 // ========== FOOTER ==========
 
-function Footer({ lang, setLang, t }: { lang: Language; setLang: (l: Language) => void; t: (k: string) => string }) {
+function Footer({
+  lang,
+  setLang,
+  t,
+  contactSettings,
+}: {
+  lang: Language;
+  setLang: (l: Language) => void;
+  t: (k: string) => string;
+  contactSettings: ContactSettings;
+}) {
   const scrollTo = (id: string) => {
     const el = document.getElementById(id);
     if (el) el.scrollIntoView({ behavior: 'smooth' });
@@ -2442,9 +2594,9 @@ function Footer({ lang, setLang, t }: { lang: Language; setLang: (l: Language) =
   const langOptions: Language[] = ['sk', 'en', 'de'];
 
   const socialLinks = [
-    { href: '#', label: 'Instagram', disabled: true, svg: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="size-4"><rect x="2" y="2" width="20" height="20" rx="5" /><circle cx="12" cy="12" r="5" /><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" /></svg> },
-    { href: '#', label: 'YouTube', disabled: true, svg: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="size-4"><path d="M22.5 6.4a2.8 2.8 0 00-2-2C18.9 4 12 4 12 4s-6.9 0-8.5.4a2.8 2.8 0 00-2 2A29 29 0 001 11.8a29 29 0 00.5 5.4 2.8 2.8 0 002 2c1.6.4 8.5.4 8.5.4s6.9 0 8.5-.4a2.8 2.8 0 002-2 29 29 0 00.5-5.4 29 29 0 00-.5-5.4z" /><path d="M9.75 15.02l5.75-3.27-5.75-3.27v6.54z" fill="currentColor" stroke="none" /></svg> },
-    { href: '#', label: 'Facebook', disabled: true, svg: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="size-4"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" /></svg> },
+    { href: contactSettings.instagram, label: 'Instagram', svg: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="size-4"><rect x="2" y="2" width="20" height="20" rx="5" /><circle cx="12" cy="12" r="5" /><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" /></svg> },
+    { href: contactSettings.youtube, label: 'YouTube', svg: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="size-4"><path d="M22.5 6.4a2.8 2.8 0 00-2-2C18.9 4 12 4 12 4s-6.9 0-8.5.4a2.8 2.8 0 00-2 2A29 29 0 001 11.8a29 29 0 00.5 5.4 2.8 2.8 0 002 2c1.6.4 8.5.4 8.5.4s6.9 0 8.5-.4a2.8 2.8 0 002-2 29 29 0 00.5-5.4 29 29 0 00-.5-5.4z" /><path d="M9.75 15.02l5.75-3.27-5.75-3.27v6.54z" fill="currentColor" stroke="none" /></svg> },
+    { href: contactSettings.facebook, label: 'Facebook', svg: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="size-4"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" /></svg> },
   ];
   const currentYear = new Date().getFullYear();
 
@@ -2472,26 +2624,30 @@ function Footer({ lang, setLang, t }: { lang: Language; setLang: (l: Language) =
 
               {/* Social links */}
               <div className="flex items-center gap-2.5 mb-5">
-                {socialLinks.map((social) => (
-                  <a
-                    key={social.label}
-                    href={social.href}
-                    target={social.disabled ? undefined : '_blank'}
-                    rel={social.disabled ? undefined : 'noopener noreferrer'}
-                    aria-label={social.disabled ? `${social.label} profil sa pripravuje` : social.label}
-                    aria-disabled={social.disabled}
-                    onClick={(event) => {
-                      if (social.disabled) event.preventDefault();
-                    }}
-                    className={`w-9 h-9 rounded-xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center transition-all duration-300 ${
-                      social.disabled
-                        ? 'cursor-not-allowed text-muted-foreground/25'
-                        : 'text-muted-foreground/50 hover:text-primary hover:bg-primary/10 hover:border-primary/20'
-                    }`}
-                  >
-                    {social.svg}
-                  </a>
-                ))}
+                {socialLinks.map((social) => {
+                  const disabled = !social.href || social.href === '#';
+
+                  return (
+                    <a
+                      key={social.label}
+                      href={disabled ? '#' : social.href}
+                      target={disabled ? undefined : '_blank'}
+                      rel={disabled ? undefined : 'noopener noreferrer'}
+                      aria-label={disabled ? `${social.label} profil sa pripravuje` : social.label}
+                      aria-disabled={disabled}
+                      onClick={(event) => {
+                        if (disabled) event.preventDefault();
+                      }}
+                      className={`w-9 h-9 rounded-xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center transition-all duration-300 ${
+                        disabled
+                          ? 'cursor-not-allowed text-muted-foreground/25'
+                          : 'text-muted-foreground/50 hover:text-primary hover:bg-primary/10 hover:border-primary/20'
+                      }`}
+                    >
+                      {social.svg}
+                    </a>
+                  );
+                })}
               </div>
 
               {/* Made in Slovakia badge */}
@@ -2552,7 +2708,7 @@ function Footer({ lang, setLang, t }: { lang: Language; setLang: (l: Language) =
                 ))}
                 <li>
                   <a
-                    href="mailto:info@aluplexamp.com"
+                    href={`mailto:${contactSettings.publicEmail}`}
                     className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200 flex items-center gap-1.5 group"
                   >
                     <span className="w-0 group-hover:w-3 h-[1px] bg-primary/40 transition-all duration-300" />
@@ -2589,28 +2745,39 @@ function Footer({ lang, setLang, t }: { lang: Language; setLang: (l: Language) =
               <ul className="space-y-3">
                 <li>
                   <a
-                    href="mailto:info@aluplexamp.com"
+                    href={`mailto:${contactSettings.publicEmail}`}
                     className="flex items-start gap-2.5 text-sm text-muted-foreground hover:text-foreground transition-colors duration-200 group"
                   >
                     <Mail className="size-3.5 text-primary/40 group-hover:text-primary/60 transition-colors mt-0.5 flex-shrink-0" />
                     <div>
                       <span className="block text-foreground/60 text-xs mb-0.5">{t('footer.contact.info')}</span>
-                      info@aluplexamp.com
+                      {contactSettings.publicEmail}
                     </div>
                   </a>
                 </li>
                 <li>
                   <a
-                    href="mailto:info@aluplexamp.com"
+                    href={`mailto:${contactSettings.formEmail}`}
                     className="flex items-start gap-2.5 text-sm text-muted-foreground hover:text-foreground transition-colors duration-200 group"
                   >
                     <Mail className="size-3.5 text-primary/40 group-hover:text-primary/60 transition-colors mt-0.5 flex-shrink-0" />
                     <div>
                       <span className="block text-foreground/60 text-xs mb-0.5">{t('footer.contact.order')}</span>
-                      info@aluplexamp.com
+                      {contactSettings.formEmail}
                     </div>
                   </a>
                 </li>
+                {contactSettings.phone ? (
+                  <li className="flex items-start gap-2.5 text-sm text-muted-foreground">
+                    <Globe className="size-3.5 text-primary/40 mt-0.5 flex-shrink-0" />
+                    <a
+                      href={`tel:${contactSettings.phone.replace(/\s+/g, '')}`}
+                      className="transition-colors duration-200 hover:text-foreground"
+                    >
+                      {contactSettings.phone}
+                    </a>
+                  </li>
+                ) : null}
                 <li className="flex items-start gap-2.5 text-sm text-muted-foreground">
                   <MapPin className="size-3.5 text-primary/40 mt-0.5 flex-shrink-0" />
                   <span>{t('footer.location')}</span>
@@ -2776,10 +2943,12 @@ function MaintenancePage({
   maintenance,
   lang,
   setLang,
+  contactSettings,
 }: {
   maintenance: MaintenanceSettings;
   lang: Language;
   setLang: (language: Language) => void;
+  contactSettings: ContactSettings;
 }) {
   const serviceSpecs = ['EL34 power stage', 'ECC83 preamp', '30 W class AB', 'Turret board'];
   const copy = maintenance.localized?.[lang] ?? maintenance.localized?.sk ?? maintenance;
@@ -2898,14 +3067,14 @@ function MaintenancePage({
             ) : null}
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <a
-                href={`mailto:${CONTACT_EMAIL}`}
+                href={`mailto:${contactSettings.publicEmail}`}
                 className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-primary px-5 text-sm font-semibold text-black shadow-lg shadow-primary/20 transition hover:bg-[#ffcf4d]"
               >
                 <Mail className="size-4" />
                 {ui.primaryCta}
               </a>
               <a
-                href={`mailto:${CONTACT_EMAIL}`}
+                href={`mailto:${contactSettings.publicEmail}`}
                 className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-white/[0.10] bg-black/30 px-5 text-sm font-semibold text-white/78 backdrop-blur transition hover:border-primary/35 hover:text-white"
               >
                 {ui.secondaryCta}
@@ -2938,10 +3107,10 @@ function MaintenancePage({
               <div className="flex items-center justify-between gap-6">
                 <span>{ui.contactLabel}</span>
                 <a
-                  href={`mailto:${CONTACT_EMAIL}`}
+                  href={`mailto:${contactSettings.publicEmail}`}
                   className="font-semibold text-primary transition hover:text-[#ffcf4d]"
                 >
-                  {CONTACT_EMAIL}
+                  {contactSettings.publicEmail}
                 </a>
               </div>
             </div>
@@ -2965,6 +3134,7 @@ function MaintenancePage({
 export default function Home() {
   const { lang, setLang, t, site } = useTranslation();
   const [configInquiry, setConfigInquiry] = useState<ConfigInquiry | null>(null);
+  const contactSettings = getContactSettings(site.contactSettings);
   const maintenance = {
     ...defaultMaintenance,
     ...site.maintenance,
@@ -2975,7 +3145,14 @@ export default function Home() {
   };
 
   if (maintenance.enabled) {
-    return <MaintenancePage maintenance={maintenance} lang={lang} setLang={setLang} />;
+    return (
+      <MaintenancePage
+        maintenance={maintenance}
+        lang={lang}
+        setLang={setLang}
+        contactSettings={contactSettings}
+      />
+    );
   }
 
   return (
@@ -2995,7 +3172,7 @@ export default function Home() {
         <SectionDivider />
         <SoundArchitecture t={t} />
         <SectionDivider />
-        <SoundLibrary t={t} />
+        <SoundLibrary t={t} audioLibrary={site.audioLibrary} />
         <SectionDivider />
         <PurchasePathSection t={t} />
         <SectionDivider />
@@ -3005,11 +3182,16 @@ export default function Home() {
         <SectionDivider />
         <FAQSection t={t} />
         <SectionDivider />
-        <CTASection t={t} />
+        <CTASection t={t} contactSettings={contactSettings} />
         <SectionDivider />
-        <ContactSection lang={lang} t={t} configInquiry={configInquiry} />
+        <ContactSection
+          lang={lang}
+          t={t}
+          configInquiry={configInquiry}
+          contactSettings={contactSettings}
+        />
       </main>
-      <Footer lang={lang} setLang={setLang} t={t} />
+      <Footer lang={lang} setLang={setLang} t={t} contactSettings={contactSettings} />
       <CookieConsent t={t} />
       <ScrollToTop t={t} />
     </div>

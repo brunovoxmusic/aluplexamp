@@ -178,6 +178,43 @@ function validateSiteSettings(content: unknown): content is SiteSettings {
         (src) => typeof src === "string"
       ));
 
+  const contactSettings = value.contactSettings;
+  const validContactSettings =
+    contactSettings === undefined ||
+    (typeof contactSettings === "object" &&
+      contactSettings !== null &&
+      !Array.isArray(contactSettings) &&
+      typeof (contactSettings as Record<string, unknown>).publicEmail === "string" &&
+      typeof (contactSettings as Record<string, unknown>).formEmail === "string" &&
+      typeof (contactSettings as Record<string, unknown>).phone === "string" &&
+      typeof (contactSettings as Record<string, unknown>).instagram === "string" &&
+      typeof (contactSettings as Record<string, unknown>).youtube === "string" &&
+      typeof (contactSettings as Record<string, unknown>).facebook === "string");
+
+  const isValidAudioTrack = (track: unknown) =>
+    typeof track === "object" &&
+    track !== null &&
+    !Array.isArray(track) &&
+    typeof (track as Record<string, unknown>).id === "string" &&
+    typeof (track as Record<string, unknown>).enabled === "boolean" &&
+    typeof (track as Record<string, unknown>).src === "string" &&
+    typeof (track as Record<string, unknown>).tagKey === "string" &&
+    typeof (track as Record<string, unknown>).nameKey === "string" &&
+    typeof (track as Record<string, unknown>).gearKey === "string" &&
+    typeof (track as Record<string, unknown>).settingsKey === "string" &&
+    typeof (track as Record<string, unknown>).descKey === "string";
+
+  const audioLibrary = value.audioLibrary;
+  const validAudioLibrary =
+    audioLibrary === undefined ||
+    (typeof audioLibrary === "object" &&
+      audioLibrary !== null &&
+      !Array.isArray(audioLibrary) &&
+      Array.isArray((audioLibrary as Record<string, unknown>).tracks) &&
+      ((audioLibrary as Record<string, unknown>).tracks as unknown[]).every(
+        isValidAudioTrack
+      ));
+
   const validMaintenance =
     value.maintenance === undefined ||
     (typeof value.maintenance === "object" &&
@@ -198,6 +235,8 @@ function validateSiteSettings(content: unknown): content is SiteSettings {
     Array.isArray(value.keywords) &&
     value.keywords.every((keyword) => typeof keyword === "string") &&
     validHeroBackground &&
+    validContactSettings &&
+    validAudioLibrary &&
     validMaintenance
   );
 }

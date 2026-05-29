@@ -16,7 +16,12 @@ const geistMono = Geist_Mono({
 
 const SITE_URL = siteSettings.siteUrl;
 const MAINTENANCE_ENABLED = siteSettings.maintenance?.enabled === true;
-const verifiedSocialLinks = [] as string[];
+const CONTACT_EMAIL = siteSettings.contactSettings?.publicEmail || "info@aluplexamp.com";
+const verifiedSocialLinks = [
+  siteSettings.contactSettings?.instagram,
+  siteSettings.contactSettings?.youtube,
+  siteSettings.contactSettings?.facebook,
+].filter((url): url is string => Boolean(url && url !== "#"));
 const faqJsonLdItems = [
   {
     question: "Aké elektrónky používa ALUPLEXamp?",
@@ -61,12 +66,12 @@ const faqJsonLdItems = [
   {
     question: "Ako prebieha objednávka?",
     answer:
-      "Vyplňte dopytový formulár alebo napíšte na info@aluplexamp.com. Po prijatí dopytu sa dohodneme na konfigurácii, termíne výroby a podmienkach. Každý aparát je vyrábaný na objednávku.",
+      `Vyplňte dopytový formulár alebo napíšte na ${CONTACT_EMAIL}. Po prijatí dopytu sa dohodneme na konfigurácii, termíne výroby a podmienkach. Každý aparát je vyrábaný na objednávku.`,
   },
   {
     question: "Aká je záruka?",
     answer:
-      "Na každý ALUPLEXamp poskytujeme záruku podľa platných predpisov SR/EÚ. V prípade otázok nás kontaktujte na info@aluplexamp.com.",
+      `Na každý ALUPLEXamp poskytujeme záruku podľa platných predpisov SR/EÚ. V prípade otázok nás kontaktujte na ${CONTACT_EMAIL}.`,
   },
 ];
 
@@ -153,7 +158,7 @@ export default function RootLayout({
           url: `${SITE_URL}/logo.svg`,
         },
         description: "Premium handcrafted tube guitar amplifier with aluminium chassis.",
-        email: "info@aluplexamp.com",
+        email: CONTACT_EMAIL,
         address: {
           "@type": "PostalAddress",
           addressCountry: "SK",

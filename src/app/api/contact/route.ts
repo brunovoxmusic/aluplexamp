@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { siteSettings } from '@/lib/site';
 
 interface ContactPayload {
   name: string;
@@ -123,7 +124,11 @@ function validateAndSanitize(body: ContactPayload): SanitizedContactPayload | Ne
 
 async function sendContactEmail(payload: SanitizedContactPayload, timestamp: string) {
   const apiKey = process.env.RESEND_API_KEY;
-  const to = (process.env.CONTACT_TO_EMAIL || 'info@aluplexamp.com')
+  const to = (
+    siteSettings.contactSettings?.formEmail ||
+    process.env.CONTACT_TO_EMAIL ||
+    'info@aluplexamp.com'
+  )
     .split(',')
     .map((email) => email.trim())
     .filter(Boolean);
