@@ -28,7 +28,7 @@
     "30 W amplifier"
   ],
   "heroBackground": {
-    "mode": "static",
+    "mode": "slideshow",
     "staticImage": "/aluplex/aluplex-red-front.jpg",
     "slides": [
       "/aluplex/aluplex-red-front.jpg",
