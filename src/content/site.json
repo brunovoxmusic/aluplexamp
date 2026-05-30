@@ -41,7 +41,7 @@
   "contactSettings": {
     "publicEmail": "info@aluplexamp.com",
     "formEmail": "info@aluplexamp.com",
-    "phone": "",
+    "phone": "+421987654321",
     "instagram": "https://instagram.com/aluplexamp",
     "youtube": "https://youtube.com/@aluplexamp",
     "facebook": "https://facebook.com/aluplexamp"
@@ -121,7 +121,7 @@
     ]
   },
   "maintenance": {
-    "enabled": true,
+    "enabled": false,
     "eyebrow": "ALUPLEXamp",
     "title": "Stránku práve ladíme.",
     "message": "Pripravujeme aktualizáciu webu, aby sme mohli lepšie predstaviť zosilňovač ALUPLEXamp, jeho zvuk a možnosti výroby na objednávku.",
