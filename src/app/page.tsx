@@ -6,7 +6,7 @@ import {
   Heart, Target, Shield, Music, ThermometerSun, Weight, Magnet, ShieldCheck,
   Zap, Power, Mic2, Volume2, Headphones, Settings, ChevronDown, ChevronUp,
   ChevronLeft, ChevronRight, Menu, X, Wrench, ArrowRight, Sparkles, Flame, CircleDot,
-  MapPin, Mail, Globe, ArrowUp, Ruler, Maximize2,
+  MapPin, Mail, Phone, Globe, ArrowUp, Ruler, Maximize2,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -545,6 +545,10 @@ function getContactSettings(settings?: ContactSettings): ContactSettings {
     ...DEFAULT_CONTACT_SETTINGS,
     ...settings,
   };
+}
+
+function getPhoneHref(phone: string) {
+  return `tel:${phone.replace(/[^\d+]/g, '')}`;
 }
 
 function getAudioTracks(
@@ -2552,10 +2556,10 @@ function ContactSection({
             </a>
             {contactSettings.phone ? (
               <a
-                href={`tel:${contactSettings.phone.replace(/\s+/g, '')}`}
+                href={getPhoneHref(contactSettings.phone)}
                 className="flex items-center gap-2 text-sm text-muted-foreground/60 hover:text-primary transition-colors duration-200"
               >
-                <Globe className="size-3.5" />
+                <Phone className="size-3.5" />
                 {contactSettings.phone}
               </a>
             ) : null}
@@ -2599,6 +2603,9 @@ function Footer({
     { href: contactSettings.facebook, label: 'Facebook', svg: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="size-4"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" /></svg> },
   ];
   const currentYear = new Date().getFullYear();
+  const hasSeparateOrderEmail =
+    Boolean(contactSettings.formEmail) &&
+    contactSettings.formEmail !== contactSettings.publicEmail;
 
   return (
     <footer className="mt-auto safe-bottom" onClick={handleFooterClick}>
@@ -2708,13 +2715,24 @@ function Footer({
                 ))}
                 <li>
                   <a
-                    href={`mailto:${contactSettings.publicEmail}`}
+                    href={`mailto:${contactSettings.formEmail || contactSettings.publicEmail}`}
                     className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200 flex items-center gap-1.5 group"
                   >
                     <span className="w-0 group-hover:w-3 h-[1px] bg-primary/40 transition-all duration-300" />
                     {t('footer.support.order')}
                   </a>
                 </li>
+                {contactSettings.phone ? (
+                  <li>
+                    <a
+                      href={getPhoneHref(contactSettings.phone)}
+                      className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200 flex items-center gap-1.5 group"
+                    >
+                      <span className="w-0 group-hover:w-3 h-[1px] bg-primary/40 transition-all duration-300" />
+                      {contactSettings.phone}
+                    </a>
+                  </li>
+                ) : null}
                 <li>
                   <Link
                     href="/privacy"
@@ -2755,23 +2773,25 @@ function Footer({
                     </div>
                   </a>
                 </li>
-                <li>
-                  <a
-                    href={`mailto:${contactSettings.formEmail}`}
-                    className="flex items-start gap-2.5 text-sm text-muted-foreground hover:text-foreground transition-colors duration-200 group"
-                  >
-                    <Mail className="size-3.5 text-primary/40 group-hover:text-primary/60 transition-colors mt-0.5 flex-shrink-0" />
-                    <div>
-                      <span className="block text-foreground/60 text-xs mb-0.5">{t('footer.contact.order')}</span>
-                      {contactSettings.formEmail}
-                    </div>
-                  </a>
-                </li>
+                {hasSeparateOrderEmail ? (
+                  <li>
+                    <a
+                      href={`mailto:${contactSettings.formEmail}`}
+                      className="flex items-start gap-2.5 text-sm text-muted-foreground hover:text-foreground transition-colors duration-200 group"
+                    >
+                      <Mail className="size-3.5 text-primary/40 group-hover:text-primary/60 transition-colors mt-0.5 flex-shrink-0" />
+                      <div>
+                        <span className="block text-foreground/60 text-xs mb-0.5">{t('footer.contact.order')}</span>
+                        {contactSettings.formEmail}
+                      </div>
+                    </a>
+                  </li>
+                ) : null}
                 {contactSettings.phone ? (
                   <li className="flex items-start gap-2.5 text-sm text-muted-foreground">
-                    <Globe className="size-3.5 text-primary/40 mt-0.5 flex-shrink-0" />
+                    <Phone className="size-3.5 text-primary/40 mt-0.5 flex-shrink-0" />
                     <a
-                      href={`tel:${contactSettings.phone.replace(/\s+/g, '')}`}
+                      href={getPhoneHref(contactSettings.phone)}
                       className="transition-colors duration-200 hover:text-foreground"
                     >
                       {contactSettings.phone}
