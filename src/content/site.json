@@ -50,7 +50,7 @@
     "tracks": [
       {
         "id": "track1",
-        "enabled": true,
+        "enabled": false,
         "src": "/audio/track1-woody-clean.mp3",
         "tagKey": "sl.track1.tag",
         "nameKey": "sl.track1.name",
@@ -60,7 +60,7 @@
       },
       {
         "id": "track2",
-        "enabled": true,
+        "enabled": false,
         "src": "/audio/track2-cranked-british-crunch.mp3",
         "tagKey": "sl.track2.tag",
         "nameKey": "sl.track2.name",
@@ -70,7 +70,7 @@
       },
       {
         "id": "track3",
-        "enabled": true,
+        "enabled": false,
         "src": "/audio/track3-brown-sound-session.mp3",
         "tagKey": "sl.track3.tag",
         "nameKey": "sl.track3.name",
@@ -80,7 +80,7 @@
       },
       {
         "id": "track4",
-        "enabled": true,
+        "enabled": false,
         "src": "/audio/track4-touch-dynamics.mp3",
         "tagKey": "sl.track4.tag",
         "nameKey": "sl.track4.name",
@@ -90,7 +90,7 @@
       },
       {
         "id": "track5",
-        "enabled": true,
+        "enabled": false,
         "src": "/audio/track5-volume-rolloff.mp3",
         "tagKey": "sl.track5.tag",
         "nameKey": "sl.track5.name",
@@ -100,7 +100,7 @@
       },
       {
         "id": "track6",
-        "enabled": true,
+        "enabled": false,
         "src": "/audio/track6-lead-sustain.mp3",
         "tagKey": "sl.track6.tag",
         "nameKey": "sl.track6.name",
@@ -110,7 +110,7 @@
       },
       {
         "id": "track7",
-        "enabled": true,
+        "enabled": false,
         "src": "/audio/track7-extended-amp-journey.mp3",
         "tagKey": "sl.track7.tag",
         "nameKey": "sl.track7.name",
