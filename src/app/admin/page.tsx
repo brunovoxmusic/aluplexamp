@@ -8,9 +8,28 @@ import type {
   ContactSettings,
   HeroBackgroundSettings,
   MaintenanceSettings,
+  PublicSectionId,
   SiteSettings,
 } from "@/lib/site";
+import { PUBLIC_SECTION_IDS, isSectionVisible } from "@/lib/site";
 import type { Language, Translations } from "@/lib/translations";
+
+const publicSectionLabels: Record<
+  PublicSectionId,
+  { label: string; description: string }
+> = {
+  hero: { label: "Hero (úvod)", description: "Hlavná úvodná obrazovka s nadpisom a tlačidlami." },
+  valueProps: { label: "Prednosti", description: "Bloky s hlavnými výhodami zosilňovača." },
+  specs: { label: "Špecifikácie", description: "Technické parametre a konštrukcia." },
+  soundArchitecture: { label: "Architektúra zvuku", description: "Popis zvukového reťazca." },
+  soundlib: { label: "Ukážky zvuku", description: "Audio prehrávač s nahrávkami." },
+  purchasePath: { label: "Cesta k objednávke", description: "Postup od výberu po dodanie." },
+  config: { label: "Konfigurátor", description: "Výber farby a vybavenia s dopytom." },
+  gallery: { label: "Galéria", description: "Fotografie zosilňovača." },
+  faq: { label: "Časté otázky", description: "Otázky a odpovede." },
+  cta: { label: "Výzva na kontakt (CTA)", description: "Pás s tlačidlami kontakt a objednávka." },
+  contact: { label: "Kontakt", description: "Kontaktný formulár a údaje." },
+};
 
 const languages: Array<{ value: Language; label: string }> = [
   { value: "sk", label: "Slovenčina" },
@@ -26,6 +45,7 @@ const sections = [
   { id: "allText", label: "Všetky texty" },
   { id: "siteContact", label: "Kontaktné údaje" },
   { id: "audio", label: "Audio" },
+  { id: "visibility", label: "Viditeľnosť sekcií" },
   { id: "maintenance", label: "Maintenance" },
   { id: "seo", label: "SEO" },
   { id: "advanced", label: "JSON" },
@@ -1358,6 +1378,75 @@ export default function AdminPage() {
     );
   }
 
+  function setSectionVisible(id: PublicSectionId, visible: boolean) {
+    // Store only hidden sections so new sections default to visible.
+    const next = { ...site.sectionVisibility };
+    if (visible) {
+      delete next[id];
+    } else {
+      next[id] = false;
+    }
+    setSiteField(
+      "sectionVisibility",
+      Object.keys(next).length > 0 ? next : undefined
+    );
+  }
+
+  function renderVisibilityFields() {
+    const hiddenCount = PUBLIC_SECTION_IDS.filter(
+      (id) => !isSectionVisible(site.sectionVisibility, id)
+    ).length;
+
+    return (
+      <div className="grid gap-3">
+        <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4 text-sm leading-6 text-white/55">
+          Vypnutá sekcia sa na verejnej stránke nezobrazí a zmizne aj z menu a
+          päty. Texty ostávajú uložené, po zapnutí sa sekcia vráti. Zmena sa
+          prejaví po uložení.
+          {hiddenCount > 0 ? (
+            <span className="mt-1 block text-[#ffe5a3]">
+              Skryté sekcie: {hiddenCount} z {PUBLIC_SECTION_IDS.length}
+            </span>
+          ) : null}
+        </div>
+        {PUBLIC_SECTION_IDS.map((id) => {
+          const visible = isSectionVisible(site.sectionVisibility, id);
+          return (
+            <label
+              key={id}
+              className="flex items-center justify-between gap-4 rounded-lg border border-white/10 bg-black/25 p-4"
+            >
+              <span>
+                <span className="block text-sm font-semibold text-white">
+                  {publicSectionLabels[id].label}
+                </span>
+                <span className="mt-1 block text-xs leading-5 text-white/45">
+                  {publicSectionLabels[id].description}
+                </span>
+              </span>
+              <span className="flex items-center gap-3">
+                <span
+                  className={`text-xs font-medium ${visible ? "text-emerald-300" : "text-white/40"}`}
+                >
+                  {visible ? "Zobrazená" : "Skrytá"}
+                </span>
+                <input
+                  type="checkbox"
+                  checked={visible}
+                  aria-label={`Zobraziť sekciu ${publicSectionLabels[id].label}`}
+                  onChange={(event) =>
+                    setSectionVisible(id, event.target.checked)
+                  }
+                  className="h-5 w-5 accent-[#ffb800]"
+                />
+              </span>
+            </label>
+          );
+        })}
+      </div>
+    );
+  }
+
   function renderMaintenanceFields() {
     const maintenance = site.maintenance ?? defaultMaintenance;
     const maintenancePreview =
@@ -1680,6 +1769,7 @@ export default function AdminPage() {
     if (section === "allText") return renderAllTextFields();
     if (section === "siteContact") return renderSiteContactFields();
     if (section === "audio") return renderAudioFields();
+    if (section === "visibility") return renderVisibilityFields();
     if (section === "maintenance") return renderMaintenanceFields();
     if (section === "seo") return renderSeoFields();
     return renderAdvancedFields();

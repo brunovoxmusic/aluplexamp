@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { createContext, Fragment, useContext, useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import {
   Heart, Target, Shield, Music, ThermometerSun, Weight, Magnet, ShieldCheck,
   Zap, Power, Mic2, Volume2, Headphones, Settings, ChevronDown, ChevronUp,
@@ -29,7 +29,9 @@ import {
   type ContactSettings,
   type HeroBackgroundSettings,
   type MaintenanceSettings,
+  type PublicSectionId,
   type SiteSettings,
+  isSectionVisible,
 } from '@/lib/site';
 import { HeroAmp3D } from '@/components/hero-amp-3d';
 
@@ -53,6 +55,13 @@ type PlayerTrack = {
   src: string;
   tag: string;
 };
+
+// Sections hidden in admin are not rendered, so links to them must be hidden too.
+const SectionVisibilityContext = createContext<(id: PublicSectionId) => boolean>(() => true);
+
+function useSectionVisible() {
+  return useContext(SectionVisibilityContext);
+}
 
 // ========== HOOKS ==========
 
@@ -255,15 +264,16 @@ function Navigation({ lang, setLang, t }: { lang: Language; setLang: (l: Languag
   const scrolled = useScrolled(50);
   const [mobileOpen, setMobileOpen] = useState(false);
   const progress = useScrollProgress();
+  const isVisible = useSectionVisible();
 
-  const navLinks = [
+  const navLinks = ([
     { id: 'soundlib', label: t('nav.soundlib') },
     { id: 'specs', label: t('nav.specs') },
     { id: 'config', label: t('nav.config') },
     { id: 'gallery', label: t('nav.gallery') },
     { id: 'faq', label: t('nav.faq') },
     { id: 'contact', label: t('nav.contact') },
-  ];
+  ] satisfies Array<{ id: PublicSectionId; label: string }>).filter((link) => isVisible(link.id));
 
   const sectionIds = navLinks.map((l) => l.id);
   const activeSection = useActiveSection(sectionIds);
@@ -577,6 +587,7 @@ function HeroSection({
   t: (k: string) => string;
   heroBackground?: HeroBackgroundSettings;
 }) {
+  const isVisible = useSectionVisible();
   const scrollTo = (id: string) => {
     const el = document.getElementById(id);
     if (el) el.scrollIntoView({ behavior: 'smooth' });
@@ -713,6 +724,7 @@ function HeroSection({
             </div>
 
             <div className="hero-fade-item hero-cta-block flex flex-row flex-wrap items-start sm:items-center gap-2.5 sm:gap-4" style={{ animationDelay: '0.85s' }}>
+              {isVisible('soundlib') && (
               <Button
                 size="lg"
                 onClick={() => scrollTo('soundlib')}
@@ -721,6 +733,8 @@ function HeroSection({
                 {t('hero.cta.listen')}
                 <ArrowRight className="size-3.5 sm:size-4 ml-1 sm:ml-2 transition-transform duration-300 group-hover:translate-x-1" />
               </Button>
+              )}
+              {isVisible('config') && (
               <Button
                 variant="outline"
                 size="lg"
@@ -730,6 +744,7 @@ function HeroSection({
                 {t('hero.cta.configure')}
                 <Settings className="size-3.5 sm:size-4 ml-1 sm:ml-2 transition-transform duration-300 group-hover:rotate-90" />
               </Button>
+              )}
             </div>
 
             <div className="hero-fade-item hero-description-block" style={{ animationDelay: '0.85s' }}>
@@ -771,6 +786,7 @@ function HeroSection({
       </div>
 
       {/* Refined scroll indicator */}
+      {isVisible('soundlib') && (
       <div className="absolute bottom-6 sm:bottom-10 left-1/2 -translate-x-1/2 z-10 hidden sm:block hero-fade-item" style={{ animationDelay: '1.5s' }}>
         <button
           onClick={() => scrollTo('soundlib')}
@@ -781,6 +797,7 @@ function HeroSection({
           <ChevronDown className="size-4 text-muted-foreground/25 bounce-chevron" />
         </button>
       </div>
+      )}
     </section>
   );
 }
@@ -1768,6 +1785,7 @@ function SoundLibrary({
 
 function PurchasePathSection({ t }: { t: (k: string) => string }) {
   const ref = useScrollAnimation();
+  const isVisible = useSectionVisible();
   const scrollTo = (id: string) => {
     const el = document.getElementById(id);
     if (el) el.scrollIntoView({ behavior: 'smooth' });
@@ -1810,6 +1828,7 @@ function PurchasePathSection({ t }: { t: (k: string) => string }) {
               {t('path.subtitle')}
             </p>
             <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+              {isVisible('config') && (
               <Button
                 onClick={() => scrollTo('config')}
                 className="rounded-xl bg-primary px-6 py-5 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/20 transition-all duration-300 hover:bg-primary/90 hover:shadow-primary/30"
@@ -1817,6 +1836,8 @@ function PurchasePathSection({ t }: { t: (k: string) => string }) {
                 {t('path.cta.config')}
                 <ArrowRight className="ml-2 size-4" />
               </Button>
+              )}
+              {isVisible('soundlib') && (
               <Button
                 variant="outline"
                 onClick={() => scrollTo('soundlib')}
@@ -1825,6 +1846,7 @@ function PurchasePathSection({ t }: { t: (k: string) => string }) {
                 {t('path.cta.sound')}
                 <Headphones className="ml-2 size-4" />
               </Button>
+              )}
             </div>
           </div>
 
@@ -1881,6 +1903,7 @@ function ConfiguratorSection({
 
   const previewClass = `config-preview-${color}`;
 
+  const isVisible = useSectionVisible();
   const scrollTo = (id: string) => {
     const el = document.getElementById(id);
     if (el) el.scrollIntoView({ behavior: 'smooth' });
@@ -2027,6 +2050,7 @@ function ConfiguratorSection({
               </div>
             </div>
 
+            {isVisible('contact') && (
             <div className="mt-6">
               <Button
                 onClick={sendConfiguration}
@@ -2036,6 +2060,7 @@ function ConfiguratorSection({
                 <ArrowRight className="size-4 ml-2" />
               </Button>
             </div>
+            )}
           </div>
         </div>
       </div>
@@ -2240,6 +2265,7 @@ function CTASection({
   contactSettings: ContactSettings;
 }) {
   const ref = useScrollAnimation();
+  const isVisible = useSectionVisible();
   const scrollTo = (id: string) => {
     const el = document.getElementById(id);
     if (el) el.scrollIntoView({ behavior: 'smooth' });
@@ -2269,6 +2295,7 @@ function CTASection({
         </div>
 
         <div className="fade-in-up flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6" style={{ transitionDelay: '150ms' }}>
+          {isVisible('contact') && (
           <Button
             size="lg"
             onClick={() => scrollTo('contact')}
@@ -2277,6 +2304,7 @@ function CTASection({
             {t('cta.contact')}
             <ArrowRight className="size-4 ml-2 transition-transform duration-300 group-hover:translate-x-1" />
           </Button>
+          )}
           <a
             href={`mailto:${contactSettings.publicEmail}`}
             className="inline-flex items-center gap-2 px-8 sm:px-10 py-5 text-base font-semibold rounded-xl border border-white/[0.08] text-foreground/80 hover:bg-white/[0.06] hover:text-foreground hover:border-white/15 backdrop-blur-md transition-all duration-300 hover:scale-[1.03] active:scale-[0.98]"
@@ -2588,6 +2616,7 @@ function Footer({
   t: (k: string) => string;
   contactSettings: ContactSettings;
 }) {
+  const isVisible = useSectionVisible();
   const scrollTo = (id: string) => {
     const el = document.getElementById(id);
     if (el) el.scrollIntoView({ behavior: 'smooth' });
@@ -2678,12 +2707,12 @@ function Footer({
                 {t('footer.product')}
               </h4>
               <ul className="space-y-3">
-                {[
+                {([
                   { id: 'soundlib', label: t('footer.product.sound') },
                   { id: 'specs', label: t('footer.product.specs') },
                   { id: 'config', label: t('footer.product.config') },
                   { id: 'gallery', label: t('footer.product.gallery') },
-                ].map((link) => (
+                ] satisfies Array<{ id: PublicSectionId; label: string }>).filter((link) => isVisible(link.id)).map((link) => (
                   <li key={link.id}>
                     <button
                       onClick={() => scrollTo(link.id)}
@@ -2704,10 +2733,10 @@ function Footer({
                 {t('footer.support')}
               </h4>
               <ul className="space-y-3">
-                {[
+                {([
                   { id: 'faq', label: t('footer.support.faq') },
                   { id: 'contact', label: t('footer.support.contact') },
-                ].map((link) => (
+                ] satisfies Array<{ id: PublicSectionId; label: string }>).filter((link) => isVisible(link.id)).map((link) => (
                   <li key={link.id}>
                     <button
                       onClick={() => scrollTo(link.id)}
@@ -3169,6 +3198,31 @@ export default function Home() {
     },
   };
 
+  const isVisible = (id: PublicSectionId) => isSectionVisible(site.sectionVisibility, id);
+  const visibleSections = ([
+    { id: 'hero', node: <HeroSection t={t} heroBackground={site.heroBackground} /> },
+    { id: 'valueProps', node: <ValueProps t={t} /> },
+    { id: 'specs', node: <EngineeringSection t={t} /> },
+    { id: 'soundArchitecture', node: <SoundArchitecture t={t} /> },
+    { id: 'soundlib', node: <SoundLibrary t={t} audioLibrary={site.audioLibrary} /> },
+    { id: 'purchasePath', node: <PurchasePathSection t={t} /> },
+    { id: 'config', node: <ConfiguratorSection t={t} onInquiry={setConfigInquiry} /> },
+    { id: 'gallery', node: <GallerySection t={t} /> },
+    { id: 'faq', node: <FAQSection t={t} /> },
+    { id: 'cta', node: <CTASection t={t} contactSettings={contactSettings} /> },
+    {
+      id: 'contact',
+      node: (
+        <ContactSection
+          lang={lang}
+          t={t}
+          configInquiry={configInquiry}
+          contactSettings={contactSettings}
+        />
+      ),
+    },
+  ] satisfies Array<{ id: PublicSectionId; node: React.ReactNode }>).filter((section) => isVisible(section.id));
+
   if (maintenance.enabled) {
     return (
       <MaintenancePage
@@ -3181,6 +3235,7 @@ export default function Home() {
   }
 
   return (
+    <SectionVisibilityContext.Provider value={isVisible}>
     <div className="min-h-screen flex flex-col bg-background text-foreground grain-overlay">
       <div className="amp-global-motif" aria-hidden="true" />
       <ScrollProgressBar />
@@ -3189,36 +3244,17 @@ export default function Home() {
       </a>
       <Navigation lang={lang} setLang={setLang} t={t} />
       <main id="main-content" className="flex-1">
-        <HeroSection t={t} heroBackground={site.heroBackground} />
-        <SectionDivider />
-        <ValueProps t={t} />
-        <SectionDivider />
-        <EngineeringSection t={t} />
-        <SectionDivider />
-        <SoundArchitecture t={t} />
-        <SectionDivider />
-        <SoundLibrary t={t} audioLibrary={site.audioLibrary} />
-        <SectionDivider />
-        <PurchasePathSection t={t} />
-        <SectionDivider />
-        <ConfiguratorSection t={t} onInquiry={setConfigInquiry} />
-        <SectionDivider />
-        <GallerySection t={t} />
-        <SectionDivider />
-        <FAQSection t={t} />
-        <SectionDivider />
-        <CTASection t={t} contactSettings={contactSettings} />
-        <SectionDivider />
-        <ContactSection
-          lang={lang}
-          t={t}
-          configInquiry={configInquiry}
-          contactSettings={contactSettings}
-        />
+        {visibleSections.map((section, index) => (
+          <Fragment key={section.id}>
+            {index > 0 && <SectionDivider />}
+            {section.node}
+          </Fragment>
+        ))}
       </main>
       <Footer lang={lang} setLang={setLang} t={t} contactSettings={contactSettings} />
       <CookieConsent t={t} />
       <ScrollToTop t={t} />
     </div>
+    </SectionVisibilityContext.Provider>
   );
 }

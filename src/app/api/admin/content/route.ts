@@ -3,7 +3,7 @@ import path from "node:path";
 import { NextRequest, NextResponse } from "next/server";
 
 import { authorizeAdmin } from "@/lib/admin-auth";
-import type { SiteSettings } from "@/lib/site";
+import { PUBLIC_SECTION_IDS, type SiteSettings } from "@/lib/site";
 import type { Language, Translations } from "@/lib/translations";
 
 export const runtime = "nodejs";
@@ -183,6 +183,18 @@ function validateSiteSettings(content: unknown): content is SiteSettings {
       typeof (value.maintenance as Record<string, unknown>).imageAlt === "string" &&
       validLocalizedMaintenance);
 
+  const sectionVisibility = value.sectionVisibility;
+  const validSectionVisibility =
+    sectionVisibility === undefined ||
+    (typeof sectionVisibility === "object" &&
+      sectionVisibility !== null &&
+      !Array.isArray(sectionVisibility) &&
+      Object.entries(sectionVisibility).every(
+        ([key, visible]) =>
+          (PUBLIC_SECTION_IDS as readonly string[]).includes(key) &&
+          typeof visible === "boolean"
+      ));
+
   return (
     requiredStrings.every((key) => typeof value[key] === "string") &&
     Array.isArray(value.keywords) &&
@@ -190,7 +202,8 @@ function validateSiteSettings(content: unknown): content is SiteSettings {
     validHeroBackground &&
     validContactSettings &&
     validAudioLibrary &&
-    validMaintenance
+    validMaintenance &&
+    validSectionVisibility
   );
 }
 

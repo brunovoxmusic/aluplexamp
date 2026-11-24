@@ -15,7 +15,35 @@ export type SiteSettings = {
   contactSettings?: ContactSettings;
   audioLibrary?: AudioLibrarySettings;
   maintenance?: MaintenanceSettings;
+  sectionVisibility?: SectionVisibility;
 };
+
+// Order matches the public page layout.
+export const PUBLIC_SECTION_IDS = [
+  "hero",
+  "valueProps",
+  "specs",
+  "soundArchitecture",
+  "soundlib",
+  "purchasePath",
+  "config",
+  "gallery",
+  "faq",
+  "cta",
+  "contact",
+] as const;
+
+export type PublicSectionId = (typeof PUBLIC_SECTION_IDS)[number];
+
+// Missing keys mean the section is visible.
+export type SectionVisibility = Partial<Record<PublicSectionId, boolean>>;
+
+export function isSectionVisible(
+  visibility: SectionVisibility | undefined,
+  id: PublicSectionId
+) {
+  return visibility?.[id] !== false;
+}
 
 export type HeroBackgroundSettings = {
   mode: "static" | "slideshow";
