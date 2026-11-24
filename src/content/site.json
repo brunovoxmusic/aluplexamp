@@ -151,5 +151,8 @@
         "imageAlt": "ALUPLEXamp Röhren-Gitarrenverstärker"
       }
     }
+  },
+  "sectionVisibility": {
+    "soundlib": false
   }
 }
