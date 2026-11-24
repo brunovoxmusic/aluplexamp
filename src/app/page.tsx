@@ -595,9 +595,16 @@ function HeroSection({
   const heroMedia = getHeroImages(heroBackground);
   const isHeroSlideshow = heroMedia.mode === 'slideshow' && heroMedia.images.length > 1;
   const [activeHeroSlide, setActiveHeroSlide] = useState(0);
+  const heroSlidesKey = `${isHeroSlideshow}|${heroMedia.images.join('|')}`;
+  const [prevHeroSlidesKey, setPrevHeroSlidesKey] = useState(heroSlidesKey);
+
+  // Restart the slideshow when the CMS slides change (state adjusted during render, not in an effect).
+  if (prevHeroSlidesKey !== heroSlidesKey) {
+    setPrevHeroSlidesKey(heroSlidesKey);
+    setActiveHeroSlide(0);
+  }
 
   useEffect(() => {
-    setActiveHeroSlide(0);
     if (!isHeroSlideshow) return;
 
     const interval = window.setInterval(() => {
@@ -1129,17 +1136,15 @@ function SoundLibrary({
     trackAccentsFaded[index % trackAccentsFaded.length];
   const getTrackAccentMid = (index: number) =>
     trackAccentsMid[index % trackAccentsMid.length];
+  // Tracks can shrink when the CMS changes; fall back to the first one during render.
+  if (activeTrack !== 0 && activeTrack >= tracks.length) {
+    setActiveTrack(0);
+  }
   const currentTrack = tracks[activeTrack];
   const audioAvailable = Boolean(currentTrack?.src);
 
   const sectionRef = useRef<HTMLDivElement>(null);
   const [waveformsInitialized, setWaveformsInitialized] = useState(false);
-
-  useEffect(() => {
-    if (activeTrack >= tracks.length) {
-      setActiveTrack(0);
-    }
-  }, [activeTrack, tracks.length]);
 
   // Lazy load all waveforms when SoundLibrary section enters viewport
   useEffect(() => {

@@ -13,7 +13,7 @@ import type {
 import type { Language, Translations } from "@/lib/translations";
 
 const languages: Array<{ value: Language; label: string }> = [
-  { value: "sk", label: "Slovencina" },
+  { value: "sk", label: "Slovenčina" },
   { value: "en", label: "English" },
   { value: "de", label: "Deutsch" },
 ];
@@ -23,8 +23,8 @@ const sections = [
   { id: "cta", label: "CTA" },
   { id: "faq", label: "FAQ" },
   { id: "contact", label: "Kontakt" },
-  { id: "allText", label: "Vsetky texty" },
-  { id: "siteContact", label: "Kontakt udaje" },
+  { id: "allText", label: "Všetky texty" },
+  { id: "siteContact", label: "Kontaktné údaje" },
   { id: "audio", label: "Audio" },
   { id: "maintenance", label: "Maintenance" },
   { id: "seo", label: "SEO" },
@@ -32,6 +32,11 @@ const sections = [
 ] as const;
 
 type SectionId = (typeof sections)[number]["id"];
+
+// Vercel rejects request bodies over 4.5 MB; keep uploads and saves safely below it.
+const MAX_AUDIO_UPLOAD_BYTES = 4 * 1024 * 1024;
+const MAX_MAINTENANCE_IMAGE_BYTES = 1024 * 1024;
+const MAX_SAVE_PAYLOAD_BYTES = 4 * 1024 * 1024;
 type SaveState = "idle" | "loading" | "saving" | "saved" | "error";
 type TextField = { key: string; label: string; multiline?: boolean };
 type MaintenanceLocalizedKey =
@@ -108,40 +113,40 @@ const heroFields: TextField[] = [
 const ctaFields: TextField[] = [
   { key: "cta.title", label: "Nadpis" },
   { key: "cta.subtitle", label: "Text", multiline: true },
-  { key: "cta.contact", label: "Tlacidlo kontakt" },
-  { key: "cta.order", label: "Tlacidlo objednavka" },
+  { key: "cta.contact", label: "Tlačidlo kontakt" },
+  { key: "cta.order", label: "Tlačidlo objednávka" },
 ];
 
 const contactFields: TextField[] = [
-  { key: "form.title", label: "Nadpis formulara" },
-  { key: "form.subtitle", label: "Popis formulara", multiline: true },
+  { key: "form.title", label: "Nadpis formulára" },
+  { key: "form.subtitle", label: "Popis formulára", multiline: true },
   { key: "form.name.placeholder", label: "Placeholder meno" },
   { key: "form.email.placeholder", label: "Placeholder email" },
   { key: "form.subject.placeholder", label: "Placeholder predmet" },
-  { key: "form.message.placeholder", label: "Placeholder sprava", multiline: true },
-  { key: "form.submit", label: "Tlacidlo odoslat" },
-  { key: "form.success", label: "Success sprava", multiline: true },
-  { key: "form.error", label: "Error sprava", multiline: true },
+  { key: "form.message.placeholder", label: "Placeholder správa", multiline: true },
+  { key: "form.submit", label: "Tlačidlo odoslať" },
+  { key: "form.success", label: "Success správa", multiline: true },
+  { key: "form.error", label: "Error správa", multiline: true },
 ];
 
 const defaultMaintenance: MaintenanceSettings = {
   enabled: false,
   eyebrow: "ALUPLEXamp",
-  title: "Stranku prave ladime.",
+  title: "Stránku práve ladíme.",
   message:
-    "Pripravujeme aktualizaciu webu, aby sme mohli lepsie predstavit zosilnovac ALUPLEXamp, jeho zvuk a moznosti vyroby na objednavku.",
+    "Pripravujeme aktualizáciu webu, aby sme mohli lepšie predstaviť zosilňovač ALUPLEXamp, jeho zvuk a možnosti výroby na objednávku.",
   secondaryMessage:
-    `Ak nas potrebujes kontaktovat hned, napis na ${CONTACT_EMAIL}.`,
+    `Ak nás potrebuješ kontaktovať hneď, napíš na ${CONTACT_EMAIL}.`,
   imageUrl: "/aluplex/aluplex-1.jpg",
-  imageAlt: "ALUPLEXamp elektronkovy gitarovy zosilnovac",
+  imageAlt: "ALUPLEXamp elektrónkový gitarový zosilňovač",
   localized: {
     sk: {
       eyebrow: "ALUPLEXamp",
-      title: "Stranku prave ladime.",
+      title: "Stránku práve ladíme.",
       message:
-        "Pripravujeme aktualizaciu webu, aby sme mohli lepsie predstavit zosilnovac ALUPLEXamp, jeho zvuk a moznosti vyroby na objednavku.",
-      secondaryMessage: `Ak nas potrebujes kontaktovat hned, napis na ${CONTACT_EMAIL}.`,
-      imageAlt: "ALUPLEXamp elektronkovy gitarovy zosilnovac",
+        "Pripravujeme aktualizáciu webu, aby sme mohli lepšie predstaviť zosilňovač ALUPLEXamp, jeho zvuk a možnosti výroby na objednávku.",
+      secondaryMessage: `Ak nás potrebuješ kontaktovať hneď, napíš na ${CONTACT_EMAIL}.`,
+      imageAlt: "ALUPLEXamp elektrónkový gitarový zosilňovač",
     },
     en: {
       eyebrow: "ALUPLEXamp",
@@ -166,6 +171,54 @@ function sortEntries(entries: Record<string, string>) {
   return Object.fromEntries(
     Object.entries(entries).sort(([a], [b]) => a.localeCompare(b))
   );
+}
+
+// Keep the original key order so saving does not reshuffle the whole JSON file.
+function preserveKeyOrder(
+  original: Record<string, string>,
+  edited: Record<string, string>
+) {
+  const ordered: Record<string, string> = {};
+
+  for (const key of Object.keys(original)) {
+    if (key in edited) ordered[key] = edited[key];
+  }
+
+  for (const key of Object.keys(edited)) {
+    if (!(key in ordered)) ordered[key] = edited[key];
+  }
+
+  return ordered;
+}
+
+const apiErrorMessages: Record<string, string> = {
+  unauthorized: "Nesprávne admin heslo.",
+  rate_limited: "Príliš veľa neúspešných pokusov. Skús to znova o 15 minút.",
+  invalid_content: "Obsah má neplatný formát a nebol uložený.",
+  invalid_json: "Server dostal neplatné dáta.",
+  content_read_failed: "Obsah sa nepodarilo načítať.",
+  invalid_upload_payload: "Neplatná požiadavka na upload.",
+  invalid_audio_file: "Súbor musí byť MP3, WAV, M4A alebo OGG a mať najviac 4 MB.",
+  upload_failed: "Upload súboru zlyhal.",
+  missing_github_content_token: "Na serveri chýba GITHUB_CONTENT_TOKEN, obsah sa nedá uložiť.",
+};
+
+// API routes return machine codes; show them to the admin in plain Slovak.
+function describeMessage(message: string) {
+  if (apiErrorMessages[message]) return apiErrorMessages[message];
+  if (message.startsWith("github_")) {
+    return `Zápis do GitHubu zlyhal (${message}). Skontroluj GITHUB_CONTENT_TOKEN a skús znova.`;
+  }
+
+  return message;
+}
+
+function getEditorErrorMessage(error: unknown) {
+  if (error instanceof SyntaxError) {
+    return `Neplatný JSON: ${error.message}`;
+  }
+
+  return error instanceof Error ? error.message : "Úpravy sa nepodarilo použiť.";
 }
 
 function getFallbackSite(): SiteSettings {
@@ -252,7 +305,7 @@ export default function AdminPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Nepodarilo sa nacitat obsah.");
+        throw new Error(data.error || "Nepodarilo sa načítať obsah.");
       }
 
       const nextTranslations = data.translations ?? data.content;
@@ -272,7 +325,7 @@ export default function AdminPage() {
       sessionStorage.removeItem("aluplex-admin-password");
       setStatus("error");
       setMessage(
-        error instanceof Error ? error.message : "Nepodarilo sa nacitat obsah."
+        error instanceof Error ? error.message : "Nepodarilo sa načítať obsah."
       );
     } finally {
       setAuthChecked(true);
@@ -407,6 +460,19 @@ export default function AdminPage() {
   }
 
   function removeAudioTrack(index: number) {
+    const tracks = site.audioLibrary?.tracks ?? defaultAudioLibrary.tracks;
+
+    // normalizeSite falls back to the default tracks when the list is empty.
+    if (tracks.length <= 1) {
+      setStatus("error");
+      setMessage("Posledný audio track sa nedá odstrániť. Môžeš ho vypnúť.");
+      return;
+    }
+
+    const track = tracks[index];
+    const trackName = track ? translations?.[language][track.nameKey] || track.id : "";
+    if (!window.confirm(`Naozaj odstrániť track „${trackName}“?`)) return;
+
     setSite((current) => {
       const audioLibrary = current.audioLibrary ?? defaultAudioLibrary;
       const tracks = audioLibrary.tracks.filter((_, trackIndex) => trackIndex !== index);
@@ -426,7 +492,16 @@ export default function AdminPage() {
 
   function addAudioTrack() {
     const currentTracks = site.audioLibrary?.tracks ?? defaultAudioLibrary.tracks;
-    const nextNumber = currentTracks.length + 1;
+    // Derive the next id from existing ids and translation keys, not the track count,
+    // so removing a track can never produce a duplicate id that overwrites another track's texts.
+    const usedNumbers = [
+      ...currentTracks.map((track) => track.id),
+      ...Object.keys(translations?.sk ?? {}),
+    ]
+      .map((value) => /(?:^|\.)track(\d+)(?:\.|$)/.exec(value)?.[1])
+      .filter((value): value is string => Boolean(value))
+      .map(Number);
+    const nextNumber = Math.max(0, ...usedNumbers) + 1;
     const id = `track${nextNumber}`;
     const nextTrack: AudioTrackSettings = {
       id,
@@ -514,6 +589,12 @@ export default function AdminPage() {
   async function uploadAudioTrack(index: number, file: File | null) {
     if (!file) return;
 
+    if (file.size > MAX_AUDIO_UPLOAD_BYTES) {
+      setStatus("error");
+      setMessage("Audio súbor môže mať najviac 4 MB. Zmenši ho (napr. MP3 192 kbps) a skús znova.");
+      return;
+    }
+
     try {
       setUploadingTrackId(site.audioLibrary?.tracks[index]?.id ?? String(index));
       setStatus("saving");
@@ -531,15 +612,15 @@ export default function AdminPage() {
       const data = await response.json();
 
       if (!response.ok || typeof data.src !== "string") {
-        throw new Error(data.error || "Upload audio suboru zlyhal.");
+        throw new Error(data.error || "Upload audio súboru zlyhal.");
       }
 
       setAudioTrackField(index, "src", data.src);
       setStatus("saved");
-      setMessage("Audio subor bol nahraty. Po kontrole nezabudni ulozit obsah.");
+      setMessage("Audio súbor bol nahratý. Po kontrole nezabudni uložiť obsah.");
     } catch (error) {
       setStatus("error");
-      setMessage(error instanceof Error ? error.message : "Upload audio suboru zlyhal.");
+      setMessage(error instanceof Error ? error.message : "Upload audio súboru zlyhal.");
     } finally {
       setUploadingTrackId(null);
     }
@@ -601,7 +682,13 @@ export default function AdminPage() {
 
     if (!file.type.startsWith("image/")) {
       setStatus("error");
-      setMessage("Vybrany subor musi byt obrazok.");
+      setMessage("Vybraný súbor musí byť obrázok.");
+      return;
+    }
+
+    if (file.size > MAX_MAINTENANCE_IMAGE_BYTES) {
+      setStatus("error");
+      setMessage("Obrázok môže mať najviac 1 MB, pretože sa ukladá priamo do obsahu webu.");
       return;
     }
 
@@ -609,7 +696,7 @@ export default function AdminPage() {
     reader.onload = () => {
       if (typeof reader.result !== "string") {
         setStatus("error");
-        setMessage("Obrazok sa nepodarilo nacitat.");
+        setMessage("Obrázok sa nepodarilo načítať.");
         return;
       }
 
@@ -617,49 +704,101 @@ export default function AdminPage() {
     };
     reader.onerror = () => {
       setStatus("error");
-      setMessage("Obrazok sa nepodarilo nacitat.");
+      setMessage("Obrázok sa nepodarilo načítať.");
     };
     reader.readAsDataURL(file);
   }
 
   function changeLanguage(nextLanguage: Language) {
     if (!translations) return;
-    setLanguage(nextLanguage);
-    setJsonValue(JSON.stringify(sortEntries(translations[nextLanguage]), null, 2));
-    setStatus("idle");
-    setMessage("");
+
+    try {
+      const bundle = commitSectionEdits(section);
+      if (!bundle) return;
+
+      setLanguage(nextLanguage);
+      setJsonValue(
+        JSON.stringify(sortEntries(bundle.translations[nextLanguage]), null, 2)
+      );
+      setStatus("idle");
+      setMessage("");
+    } catch (error) {
+      setStatus("error");
+      setMessage(getEditorErrorMessage(error));
+    }
   }
 
-  function applyAdvancedEditors() {
+  function changeSection(nextSection: SectionId) {
+    if (nextSection === section) return;
+
+    try {
+      const bundle = commitSectionEdits(section);
+      if (!bundle) {
+        setSection(nextSection);
+        return;
+      }
+
+      // Re-seed editors that hold their own copy of the data, so they never show stale content.
+      if (nextSection === "advanced") {
+        setJsonValue(
+          JSON.stringify(sortEntries(bundle.translations[language]), null, 2)
+        );
+        setSiteJsonValue(JSON.stringify(bundle.site, null, 2));
+      } else if (nextSection === "seo") {
+        setKeywordValue(bundle.site.keywords.join("\n"));
+      }
+
+      setSection(nextSection);
+    } catch (error) {
+      setStatus("error");
+      setMessage(getEditorErrorMessage(error));
+    }
+  }
+
+  function commitSectionEdits(fromSection: SectionId) {
     if (!translations) return null;
 
     let nextTranslations = translations;
     let nextSite = site;
 
-    if (section === "advanced") {
+    if (fromSection === "advanced") {
       const parsedTranslations = JSON.parse(jsonValue) as Record<string, unknown>;
+      if (
+        !parsedTranslations ||
+        typeof parsedTranslations !== "object" ||
+        Array.isArray(parsedTranslations)
+      ) {
+        throw new Error("Preklady musia byť JSON objekt.");
+      }
+
       const invalidTranslation = Object.entries(parsedTranslations).find(
         ([key, value]) => typeof key !== "string" || typeof value !== "string"
       );
 
       if (invalidTranslation) {
-        throw new Error("Kazdy prekladovy kluc aj hodnota musia byt text.");
+        throw new Error("Každý prekladový kľúč aj hodnota musia byť text.");
       }
 
       const parsedSite = normalizeSite(JSON.parse(siteJsonValue) as SiteSettings);
-      if (!Array.isArray(parsedSite.keywords)) {
-        throw new Error("SEO keywords musia byt pole textov.");
+      if (
+        !Array.isArray(parsedSite.keywords) ||
+        !parsedSite.keywords.every((keyword) => typeof keyword === "string")
+      ) {
+        throw new Error("SEO keywords musia byť pole textov.");
       }
 
       nextTranslations = {
         ...translations,
-        [language]: sortEntries(parsedTranslations as Record<string, string>),
+        [language]: preserveKeyOrder(
+          translations[language],
+          parsedTranslations as Record<string, string>
+        ),
       };
       nextSite = parsedSite;
       setTranslations(nextTranslations);
       setSite(nextSite);
       setKeywordValue(nextSite.keywords.join("\n"));
-    } else if (section === "seo") {
+    } else if (fromSection === "seo") {
       nextSite = {
         ...site,
         keywords: keywordValue
@@ -679,33 +818,41 @@ export default function AdminPage() {
       setStatus("saving");
       setMessage("");
 
-      const bundle = applyAdvancedEditors();
+      const bundle = commitSectionEdits(section);
       if (!bundle) return;
+
+      const payload = JSON.stringify({
+        password: adminPassword,
+        translations: bundle.translations,
+        site: bundle.site,
+      });
+
+      if (new Blob([payload]).size > MAX_SAVE_PAYLOAD_BYTES) {
+        throw new Error(
+          "Obsah je príliš veľký na uloženie (limit 4 MB). Zmenši alebo odstráň vložený obrázok."
+        );
+      }
 
       const response = await fetch("/api/admin/content", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          password: adminPassword,
-          translations: bundle.translations,
-          site: bundle.site,
-        }),
+        body: payload,
       });
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Ulozenie zlyhalo.");
+        throw new Error(data.error || "Uloženie zlyhalo.");
       }
 
       setStatus("saved");
       setMessage(
         data.savedTo === "github"
-          ? "Obsah je ulozeny do GitHubu. Verejna stranka si nacita aktualny CMS obsah automaticky; Vercel zaroven spusti novy produkcny deploy."
-          : "Obsah je ulozeny lokalne."
+          ? "Obsah je uložený do GitHubu. Verejná stránka si načíta aktuálny CMS obsah automaticky; Vercel zároveň spustí nový produkčný deploy."
+          : "Obsah je uložený lokálne."
       );
     } catch (error) {
       setStatus("error");
-      setMessage(error instanceof Error ? error.message : "Ulozenie zlyhalo.");
+      setMessage(getEditorErrorMessage(error));
     }
   }
 
@@ -752,13 +899,13 @@ export default function AdminPage() {
               Hero pozadie
             </p>
             <p className="mt-1 text-xs leading-5 text-white/45">
-              Nastavte hlavny obrazok hero sekcie alebo zapnite slideshow z vybranych obrazkov.
+              Nastavte hlavný obrázok hero sekcie alebo zapnite slideshow z vybraných obrázkov.
             </p>
           </div>
 
           <label className="grid gap-2">
             <span className="text-xs font-medium uppercase tracking-[0.14em] text-white/45">
-              Rezim pozadia
+              Režim pozadia
             </span>
             <select
               value={heroBackground.mode}
@@ -770,14 +917,14 @@ export default function AdminPage() {
               }
               className="h-11 rounded-md border border-white/10 bg-black/35 px-3 text-sm text-white outline-none transition focus:border-[#ffb800]/70"
             >
-              <option value="static">Staticky obrazok</option>
-              <option value="slideshow">Slideshow obrazkov</option>
+              <option value="static">Statický obrázok</option>
+              <option value="slideshow">Slideshow obrázkov</option>
             </select>
           </label>
 
           <label className="mt-4 grid gap-2">
             <span className="text-xs font-medium uppercase tracking-[0.14em] text-white/45">
-              Staticky obrazok
+              Statický obrázok
             </span>
             <input
               value={heroBackground.staticImage}
@@ -791,7 +938,7 @@ export default function AdminPage() {
 
           <label className="mt-4 grid gap-2">
             <span className="text-xs font-medium uppercase tracking-[0.14em] text-white/45">
-              Slideshow obrazky
+              Slideshow obrázky
             </span>
             <textarea
               value={heroBackground.slides.join("\n")}
@@ -809,7 +956,7 @@ export default function AdminPage() {
               className="min-h-36 resize-y rounded-md border border-white/10 bg-black/35 px-3 py-3 text-sm leading-6 text-white outline-none transition placeholder:text-white/25 focus:border-[#ffb800]/70"
             />
             <span className="text-xs leading-5 text-white/40">
-              Kazdy obrazok zadajte na novy riadok. Odporucane su subory z adresara
+              Každý obrázok zadajte na nový riadok. Odporúčané sú súbory z adresára
               public/aluplex, napr. /aluplex/aluplex-red-front.jpg.
             </span>
           </label>
@@ -832,8 +979,8 @@ export default function AdminPage() {
                 </p>
                 <p className="mt-2 max-w-md text-lg font-semibold text-white">
                   {heroBackground.mode === "slideshow"
-                    ? `Slideshow: ${heroBackground.slides.length} obrazkov`
-                    : "Staticky hero obrazok"}
+                    ? `Slideshow: ${heroBackground.slides.length} obrázkov`
+                    : "Statický hero obrázok"}
                 </p>
               </div>
             </div>
@@ -861,16 +1008,16 @@ export default function AdminPage() {
       <div className="grid gap-4">
         <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
           <p className="text-sm font-semibold text-white">
-            Kompletny editor textov pre {language.toUpperCase()}
+            Kompletný editor textov pre {language.toUpperCase()}
           </p>
           <p className="mt-1 text-xs leading-5 text-white/45">
-            Tu su editovatelne vsetky textove kluce pouzite na stranke vratane
-            jazykovych mutacii. Zmeny sa ukladaju spolu s obsahom CMS.
+            Tu sú editovateľné všetky textové kľúče použité na stránke vrátane
+            jazykových mutácií. Zmeny sa ukladajú spolu s obsahom CMS.
           </p>
           <input
             value={textFilter}
             onChange={(event) => setTextFilter(event.target.value)}
-            placeholder="Filtrovat podla kluca alebo textu"
+            placeholder="Filtrovať podľa kľúča alebo textu"
             className="mt-4 h-11 w-full rounded-md border border-white/10 bg-black/35 px-3 text-sm text-white outline-none transition placeholder:text-white/25 focus:border-[#ffb800]/70"
           />
         </div>
@@ -900,12 +1047,12 @@ export default function AdminPage() {
     return (
       <div className="grid gap-5">
         <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4 text-sm leading-6 text-white/55">
-          Tieto udaje sa pouzivaju vo footeri, CTA, maintenance obrazovke,
-          Schema.org metadatoch a kontaktnom/dopytovom formulari.
+          Tieto údaje sa používajú vo footeri, CTA, maintenance obrazovke,
+          Schema.org metadátach a kontaktnom/dopytovom formulári.
         </div>
         {[
-          ["publicEmail", "Univerzalny verejny e-mail"],
-          ["formEmail", "E-mail pre kontaktny/dopyt formular"],
+          ["publicEmail", "Univerzálny verejný e-mail"],
+          ["formEmail", "E-mail pre kontaktný/dopyt formulár"],
           ["phone", "Telefon"],
           ["instagram", "Instagram URL"],
           ["youtube", "YouTube URL"],
@@ -939,12 +1086,12 @@ export default function AdminPage() {
       <div className="grid gap-5">
         <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
           <p className="text-sm font-semibold text-white">
-            Audio prehravac zvukovych ukazok
+            Audio prehrávač zvukových ukážok
           </p>
           <p className="mt-1 text-xs leading-5 text-white/45">
-            Zapni/vypni zverejnene tracky, nastav zdroj audio suboru alebo nahraj
-            novy subor. Nazvy a popisy trackov su prekladove kluce, ktore mozes
-            upravovat tu aj v sekcii Vsetky texty.
+            Zapni/vypni zverejnené tracky, nastav zdroj audio súboru alebo nahraj
+            nový súbor. Názvy a popisy trackov sú prekladové kľúče, ktoré môžeš
+            upravovať tu aj v sekcii Všetky texty.
           </p>
         </div>
 
@@ -957,7 +1104,7 @@ export default function AdminPage() {
                     {translations?.[language]?.[track.nameKey] || track.id}
                   </p>
                   <p className="mt-1 font-mono text-[11px] text-white/35">
-                    {track.src || "Bez audio suboru"}
+                    {track.src || "Bez audio súboru"}
                   </p>
                 </div>
                 <label className="inline-flex items-center gap-2 text-sm text-white/65">
@@ -969,7 +1116,7 @@ export default function AdminPage() {
                     }
                     className="h-4 w-4 accent-[#ffb800]"
                   />
-                  Zverejnit v prehravaci
+                  Zverejniť v prehrávači
                 </label>
               </div>
 
@@ -1004,7 +1151,7 @@ export default function AdminPage() {
               <div className="mt-3 grid gap-3 md:grid-cols-5">
                 {[
                   ["tagKey", "Tag"],
-                  ["nameKey", "Nazov"],
+                  ["nameKey", "Názov"],
                   ["gearKey", "Aparat"],
                   ["settingsKey", "Nastavenie"],
                   ["descKey", "Popis"],
@@ -1032,7 +1179,7 @@ export default function AdminPage() {
                 <div className="grid gap-3 md:grid-cols-2">
                   <label className="grid gap-2">
                     <span className="text-xs font-medium uppercase tracking-[0.14em] text-white/45">
-                      Nazov tracku ({language.toUpperCase()})
+                      Názov tracku ({language.toUpperCase()})
                     </span>
                     <input
                       value={translations?.[language]?.[track.nameKey] ?? ""}
@@ -1072,7 +1219,7 @@ export default function AdminPage() {
 
               <div className="mt-4 flex flex-col gap-3 sm:flex-row">
                 <label className="inline-flex h-10 cursor-pointer items-center justify-center rounded-md border border-white/10 px-4 text-xs font-semibold text-white/70 transition hover:border-[#ffb800]/50 hover:text-white">
-                  {uploadingTrackId === track.id ? "Nahravam..." : "Nahrat audio subor"}
+                  {uploadingTrackId === track.id ? "Nahrávam..." : "Nahrať audio súbor"}
                   <input
                     type="file"
                     accept="audio/*,.mp3,.wav,.m4a,.ogg"
@@ -1088,7 +1235,7 @@ export default function AdminPage() {
                   onClick={() => removeAudioTrack(index)}
                   className="inline-flex h-10 items-center justify-center rounded-md border border-red-400/20 px-4 text-xs font-semibold text-red-200/80 transition hover:border-red-400/45 hover:text-red-100"
                 >
-                  Odstranit track
+                  Odstrániť track
                 </button>
               </div>
             </div>
@@ -1100,7 +1247,7 @@ export default function AdminPage() {
           onClick={addAudioTrack}
           className="inline-flex h-11 items-center justify-center rounded-md bg-[#ffb800] px-5 text-sm font-semibold text-black transition hover:bg-[#ffc933]"
         >
-          Pridat novy audio track
+          Pridať nový audio track
         </button>
       </div>
     );
@@ -1122,11 +1269,11 @@ export default function AdminPage() {
             return (
               <div key={id} className="rounded-lg border border-white/10 bg-black/20 p-4">
                 <p className="mb-3 text-sm font-semibold text-white">
-                  Otazka {id}
+                  Otázka {id}
                 </p>
                 <label className="grid gap-2">
                   <span className="text-xs font-medium uppercase tracking-[0.14em] text-white/45">
-                    Otazka
+                    Otázka
                   </span>
                   <input
                     value={translations[language][`faq.q${id}`] ?? ""}
@@ -1138,7 +1285,7 @@ export default function AdminPage() {
                 </label>
                 <label className="mt-3 grid gap-2">
                   <span className="text-xs font-medium uppercase tracking-[0.14em] text-white/45">
-                    Odpoved
+                    Odpoveď
                   </span>
                   <textarea
                     value={translations[language][`faq.a${id}`] ?? ""}
@@ -1162,7 +1309,7 @@ export default function AdminPage() {
       <div className="grid gap-4">
         {[
           ["siteUrl", "Canonical URL"],
-          ["brandName", "Nazov brandu"],
+          ["brandName", "Názov brandu"],
           ["title", "SEO title"],
           ["description", "Meta description"],
           ["ogTitle", "Open Graph title"],
@@ -1198,7 +1345,7 @@ export default function AdminPage() {
         ))}
         <label className="grid gap-2">
           <span className="text-xs font-medium uppercase tracking-[0.14em] text-white/45">
-            Keywords - jeden vyraz na riadok
+            Keywords - jeden výraz na riadok
           </span>
           <textarea
             value={keywordValue}
@@ -1222,23 +1369,23 @@ export default function AdminPage() {
       <div className="grid gap-5">
         {maintenance.enabled ? (
           <div className="rounded-lg border border-[#ffb800]/30 bg-[#ffb800]/10 p-4 text-sm leading-6 text-[#ffe5a3]">
-            Web je momentalne prepnuty do maintenance mode. Bezny navstevnik vidi
-            iba servisnu obrazovku; administracia ostava dostupna.
+            Web je momentálne prepnutý do maintenance mode. Bežný návštevník vidí
+            iba servisnú obrazovku; administrácia ostáva dostupná.
           </div>
         ) : (
           <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4 text-sm leading-6 text-white/55">
-            Maintenance mode je vypnuty. Po zapnuti sa verejna stranka nahradi
-            servisnou obrazovkou s textami a obrazkom z tejto sekcie.
+            Maintenance mode je vypnutý. Po zapnutí sa verejná stránka nahradí
+            servisnou obrazovkou s textami a obrázkom z tejto sekcie.
           </div>
         )}
 
         <label className="flex items-center justify-between gap-4 rounded-lg border border-white/10 bg-black/25 p-4">
           <span>
             <span className="block text-sm font-semibold text-white">
-              Zapnut maintenance mode
+              Zapnúť maintenance mode
             </span>
             <span className="mt-1 block text-xs leading-5 text-white/45">
-              Pouzi len pocas priprav, oprav alebo kratkodobej odstavky webu.
+              Použi len počas príprav, opráv alebo krátkodobej odstávky webu.
             </span>
           </span>
           <input
@@ -1252,12 +1399,12 @@ export default function AdminPage() {
         </label>
 
         {[
-          ["eyebrow", "Kratky horny text", false],
-          ["title", "Hlavny nadpis", false],
-          ["message", "Hlavna informacia", true],
-          ["secondaryMessage", "Doplnkova informacia / kontakt", true],
-          ["imageUrl", "URL obrazka alebo importovany data URL obrazok", true],
-          ["imageAlt", "Alternativny popis obrazka", false],
+          ["eyebrow", "Krátky horný text", false],
+          ["title", "Hlavný nadpis", false],
+          ["message", "Hlavná informácia", true],
+          ["secondaryMessage", "Doplnková informácia / kontakt", true],
+          ["imageUrl", "URL obrázka alebo importovaný data URL obrázok", true],
+          ["imageAlt", "Alternatívny popis obrázka", false],
         ].map(([key, label, multiline]) => (
           <label key={key as string} className="grid gap-2">
             <span className="text-xs font-medium uppercase tracking-[0.14em] text-white/45">
@@ -1297,7 +1444,7 @@ export default function AdminPage() {
                 Jazyk maintenance obrazovky
               </p>
               <p className="mt-1 text-xs leading-5 text-white/45">
-                Verejna servisna obrazovka pouziva tieto texty pre SK, EN a DE.
+                Verejná servisná obrazovka používa tieto texty pre SK, EN a DE.
               </p>
             </div>
             <div className="inline-flex rounded-lg border border-white/10 bg-white/[0.03] p-1">
@@ -1319,11 +1466,11 @@ export default function AdminPage() {
           </div>
 
           {[
-            ["eyebrow", "Kratky horny text", false],
-            ["title", "Hlavny nadpis", false],
-            ["message", "Hlavna informacia", true],
-            ["secondaryMessage", "Doplnkova informacia / kontakt", true],
-            ["imageAlt", "Alternativny popis obrazka", false],
+            ["eyebrow", "Krátky horný text", false],
+            ["title", "Hlavný nadpis", false],
+            ["message", "Hlavná informácia", true],
+            ["secondaryMessage", "Doplnková informácia / kontakt", true],
+            ["imageAlt", "Alternatívny popis obrázka", false],
           ].map(([key, label, multiline]) => {
             const localizedCopy =
               maintenance.localized?.[language] ??
@@ -1369,7 +1516,7 @@ export default function AdminPage() {
 
         <label className="grid gap-2">
           <span className="text-xs font-medium uppercase tracking-[0.14em] text-white/45">
-            Import obrazka z pocitaca
+            Import obrázka z počítača
           </span>
           <input
             type="file"
@@ -1378,8 +1525,8 @@ export default function AdminPage() {
             className="rounded-md border border-white/10 bg-black/35 px-3 py-3 text-sm text-white file:mr-4 file:rounded-md file:border-0 file:bg-[#ffb800] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-black"
           />
           <span className="text-xs leading-5 text-white/40">
-            Import ulozi obrazok priamo do JSON ako data URL. Pre produkciu je
-            idealny komprimovany JPG alebo WebP do priblizne 300 kB.
+            Import uloží obrázok priamo do JSON ako data URL. Pre produkciu je
+            ideálny komprimovaný JPG alebo WebP do približne 300 kB.
           </span>
         </label>
 
@@ -1400,7 +1547,7 @@ export default function AdminPage() {
                     Preview maintenance obrazovky
                   </p>
                   <h3 className="mt-5 max-w-xl text-4xl font-semibold leading-tight text-white">
-                    {maintenancePreview.title || "Stranku prave ladime."}
+                    {maintenancePreview.title || "Stránku práve ladíme."}
                   </h3>
                   <p className="mt-4 max-w-xl text-sm leading-6 text-white/68">
                     {maintenancePreview.message}
@@ -1413,7 +1560,7 @@ export default function AdminPage() {
                 </div>
                 <div className="rounded-2xl border border-white/10 bg-black/45 p-4 backdrop-blur">
                   <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/40">
-                    Status signalu
+                    Status signálu
                   </p>
                   <p className="mt-2 text-lg font-semibold leading-tight text-white">
                     Ladenie obsahu prebieha
@@ -1454,10 +1601,10 @@ export default function AdminPage() {
               Maintenance mode
             </p>
             <p className="mt-2 text-sm font-semibold text-white">
-              {maintenance.enabled ? "Stranka je odstavena" : "Stranka je aktivna"}
+              {maintenance.enabled ? "Stránka je odstavená" : "Stránka je aktívna"}
             </p>
             <p className="mt-1 text-xs leading-5 text-white/45">
-              Zapnut/vypnut maintenance mode a potom ulozit obsah.
+              Zapnúť/vypnúť maintenance mode a potom uložiť obsah.
             </p>
           </div>
           <label className="relative mt-1 inline-flex cursor-pointer items-center">
@@ -1468,7 +1615,7 @@ export default function AdminPage() {
                 setMaintenanceField("enabled", event.target.checked)
               }
               className="peer sr-only"
-              aria-label="Zapnut alebo vypnut maintenance mode"
+              aria-label="Zapnúť alebo vypnúť maintenance mode"
             />
             <span className="h-6 w-11 rounded-full bg-white/15 transition peer-checked:bg-[#ffb800]" />
             <span className="absolute left-1 h-4 w-4 rounded-full bg-white transition peer-checked:translate-x-5 peer-checked:bg-black" />
@@ -1477,10 +1624,10 @@ export default function AdminPage() {
 
         <button
           type="button"
-          onClick={() => setSection("maintenance")}
+          onClick={() => changeSection("maintenance")}
           className="mt-4 inline-flex h-9 w-full items-center justify-center rounded-md border border-white/10 px-3 text-xs font-semibold text-white/70 transition hover:border-[#ffb800]/50 hover:text-white"
         >
-          Upravit texty a obrazok
+          Upraviť texty a obrázok
         </button>
       </div>
     );
@@ -1519,11 +1666,11 @@ export default function AdminPage() {
 
   function renderCurrentSection() {
     if (status === "loading") {
-      return <p className="text-sm text-white/55">Nacitavam obsah...</p>;
+      return <p className="text-sm text-white/55">Načítavam obsah...</p>;
     }
 
     if (!translations) {
-      return <p className="text-sm text-red-200">Obsah nie je dostupny.</p>;
+      return <p className="text-sm text-red-200">Obsah nie je dostupný.</p>;
     }
 
     if (section === "hero") return renderHeroFields();
@@ -1541,7 +1688,7 @@ export default function AdminPage() {
   if (!authChecked) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#0a0a0a] px-4 text-[#e8e6e1]">
-        <p className="text-sm text-white/55">Overujem prihlasenie...</p>
+        <p className="text-sm text-white/55">Overujem prihlásenie...</p>
       </main>
     );
   }
@@ -1557,11 +1704,11 @@ export default function AdminPage() {
             ALUPLEXamp CMS
           </p>
           <h1 className="mt-3 text-3xl font-semibold tracking-normal text-white">
-            Prihlasenie administratora
+            Prihlásenie administratora
           </h1>
           <p className="mt-3 text-sm leading-6 text-white/55">
-            Obsah administracie, upravy a ukladanie zmien su dostupne iba po
-            zadani admin hesla.
+            Obsah administrácie, úpravy a ukladanie zmien sú dostupné iba po
+            zadaní admin hesla.
           </p>
 
           <label className="mt-6 grid gap-2">
@@ -1586,20 +1733,20 @@ export default function AdminPage() {
               }}
               className="inline-flex h-11 w-full items-center justify-center rounded-md border border-white/10 bg-white/[0.03] px-5 text-sm font-semibold text-white/70 transition hover:border-white/20 hover:bg-white/[0.06] hover:text-white"
             >
-              Zrusit
+              Zrušiť
             </button>
             <button
               type="submit"
               disabled={status === "loading"}
               className="inline-flex h-11 w-full items-center justify-center rounded-md bg-[#ffb800] px-5 text-sm font-semibold text-black transition hover:bg-[#ffc933] disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {status === "loading" ? "Overujem..." : "Prihlasit sa"}
+              {status === "loading" ? "Overujem..." : "Prihlásiť sa"}
             </button>
           </div>
 
           {message ? (
             <p className="mt-4 rounded-md border border-red-500/20 bg-red-500/10 px-3 py-2 text-sm text-red-200">
-              {message === "unauthorized" ? "Nespravne admin heslo." : message}
+              {describeMessage(message)}
             </p>
           ) : null}
         </form>
@@ -1616,15 +1763,15 @@ export default function AdminPage() {
               ALUPLEXamp CMS
             </p>
             <h1 className="mt-3 text-3xl font-semibold tracking-normal text-white sm:text-4xl">
-              Sprava obsahu webu
+              Správa obsahu webu
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-white/60">
-              Bezdatabazovy editor textov, FAQ a SEO metadat. V produkcii uklada
-              zmeny priamo do GitHub repozitara.
+              Bezdatabázový editor textov, FAQ a SEO metadát. V produkcii ukladá
+              zmeny priamo do GitHub repozitára.
             </p>
             {site.maintenance?.enabled ? (
               <p className="mt-4 inline-flex rounded-md border border-[#ffb800]/30 bg-[#ffb800]/10 px-3 py-2 text-sm font-medium text-[#ffe5a3]">
-                Web je aktualne v maintenance mode.
+                Web je aktuálne v maintenance mode.
               </p>
             ) : null}
           </div>
@@ -1633,7 +1780,7 @@ export default function AdminPage() {
             href="/"
             className="inline-flex h-10 items-center justify-center rounded-md border border-white/15 px-4 text-sm font-medium text-white/80 transition hover:border-[#ffb800]/60 hover:text-white"
           >
-            Otvorit web
+            Otvoriť web
           </a>
         </header>
 
@@ -1641,17 +1788,17 @@ export default function AdminPage() {
           <aside className="space-y-5">
             <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
               <p className="text-xs font-medium uppercase tracking-[0.16em] text-white/45">
-                Prihlasenie
+                Prihlásenie
               </p>
               <p className="mt-2 text-sm font-semibold text-white">
-                Administrator prihlaseny
+                Administrátor prihlásený
               </p>
               <button
                 type="button"
                 onClick={logout}
                 className="mt-4 inline-flex h-9 w-full items-center justify-center rounded-md border border-white/10 px-3 text-xs font-semibold text-white/70 transition hover:border-[#ffb800]/50 hover:text-white"
               >
-                Odhlasit sa
+                Odhlásiť sa
               </button>
             </div>
 
@@ -1678,7 +1825,7 @@ export default function AdminPage() {
               {sections.map((item) => (
                 <button
                   key={item.id}
-                  onClick={() => setSection(item.id)}
+                  onClick={() => changeSection(item.id)}
                   className={`flex h-10 w-full items-center rounded-md px-3 text-left text-sm transition ${
                     section === item.id
                       ? "bg-white/10 text-white"
@@ -1692,7 +1839,7 @@ export default function AdminPage() {
 
             <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4 text-sm text-white/55">
               <div className="flex items-center justify-between">
-                <span>Pocet klucov</span>
+                <span>Počet kľúčov</span>
                 <strong className="text-white">{keyCount}</strong>
               </div>
               <div className="mt-3 flex items-center justify-between">
@@ -1717,8 +1864,8 @@ export default function AdminPage() {
                 </h2>
                 <p className="mt-1 text-sm text-white/50">
                   {section === "advanced"
-                    ? "Pokrocily rezim pre priame upravy JSON dat."
-                    : "Uprav texty a uloz ich do suboroveho CMS."}
+                    ? "Pokročilý režim pre priame úpravy JSON dát."
+                    : "Uprav texty a ulož ich do súborového CMS."}
                 </p>
               </div>
 
@@ -1727,7 +1874,7 @@ export default function AdminPage() {
                 disabled={!translations || status === "saving" || status === "loading"}
                 className="inline-flex h-10 items-center justify-center rounded-md bg-[#ffb800] px-5 text-sm font-semibold text-black transition hover:bg-[#ffc933] disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {status === "saving" ? "Ukladam..." : "Ulozit obsah"}
+                {status === "saving" ? "Ukladám..." : "Uložiť obsah"}
               </button>
             </div>
 
@@ -1743,7 +1890,7 @@ export default function AdminPage() {
                     : "border-emerald-500/20 bg-emerald-500/10 text-emerald-200"
                 }`}
               >
-                {message}
+                {describeMessage(message)}
               </div>
             ) : null}
           </section>

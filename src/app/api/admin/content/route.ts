@@ -1,8 +1,8 @@
-import { timingSafeEqual } from "node:crypto";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { NextRequest, NextResponse } from "next/server";
 
+import { authorizeAdmin } from "@/lib/admin-auth";
 import type { SiteSettings } from "@/lib/site";
 import type { Language, Translations } from "@/lib/translations";
 
@@ -19,9 +19,6 @@ const TRANSLATIONS_FILE = path.join(
 const SITE_FILE = path.join(process.cwd(), "src", "content", "site.json");
 const REPO = process.env.GITHUB_REPO || "brunovoxmusic/aluplexamp";
 const BRANCH = process.env.GITHUB_BRANCH || "main";
-const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
-const RATE_LIMIT_MAX_ATTEMPTS = 8;
-const authAttemptStore = new Map<string, { count: number; resetAt: number }>();
 
 type ContentBundle = {
   translations: Translations;
@@ -54,50 +51,6 @@ function jsonResponse(body: unknown, status = 200) {
       "Cache-Control": "no-store, max-age=0",
     },
   });
-}
-
-function getClientIp(request: NextRequest) {
-  return (
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-    request.headers.get("x-real-ip") ||
-    "unknown"
-  );
-}
-
-function isRateLimited(key: string) {
-  const now = Date.now();
-  const current = authAttemptStore.get(key);
-
-  if (!current || current.resetAt <= now) {
-    authAttemptStore.set(key, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
-    return false;
-  }
-
-  current.count += 1;
-  authAttemptStore.set(key, current);
-  return current.count > RATE_LIMIT_MAX_ATTEMPTS;
-}
-
-function clearRateLimit(key: string) {
-  authAttemptStore.delete(key);
-}
-
-function verifyPassword(password?: string) {
-  const expected = process.env.ADMIN_PASSWORD;
-
-  if (!expected) {
-    return process.env.NODE_ENV !== "production";
-  }
-
-  if (!password) return false;
-
-  const expectedBuffer = Buffer.from(expected);
-  const passwordBuffer = Buffer.from(password);
-
-  return (
-    expectedBuffer.length === passwordBuffer.length &&
-    timingSafeEqual(expectedBuffer, passwordBuffer)
-  );
 }
 
 function validateTranslations(content: unknown): content is Translations {
@@ -399,18 +352,12 @@ function normalizePayload(body: SavePayload): ContentBundle | null {
 
 export async function GET(request: NextRequest) {
   try {
-    const authKey = getClientIp(request);
     const password = request.headers.get("x-admin-password") ?? undefined;
+    const auth = authorizeAdmin(request, password);
 
-    if (isRateLimited(authKey)) {
-      return jsonResponse({ error: "rate_limited" }, 429);
+    if (!auth.ok) {
+      return jsonResponse({ error: auth.error }, auth.status);
     }
-
-    if (!verifyPassword(password)) {
-      return jsonResponse({ error: "unauthorized" }, 401);
-    }
-
-    clearRateLimit(authKey);
 
     const { bundle, source } = await readContentBundle();
 
@@ -427,18 +374,19 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = (await request.json()) as SavePayload;
-    const authKey = getClientIp(request);
+    let body: SavePayload;
 
-    if (isRateLimited(authKey)) {
-      return jsonResponse({ error: "rate_limited" }, 429);
+    try {
+      body = (await request.json()) as SavePayload;
+    } catch {
+      return jsonResponse({ error: "invalid_json" }, 400);
     }
 
-    if (!verifyPassword(body.password)) {
-      return jsonResponse({ error: "unauthorized" }, 401);
-    }
+    const auth = authorizeAdmin(request, body?.password);
 
-    clearRateLimit(authKey);
+    if (!auth.ok) {
+      return jsonResponse({ error: auth.error }, auth.status);
+    }
 
     const bundle = normalizePayload(body);
 

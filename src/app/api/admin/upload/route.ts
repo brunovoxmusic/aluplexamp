@@ -1,13 +1,15 @@
-import { timingSafeEqual } from "node:crypto";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { NextRequest, NextResponse } from "next/server";
+
+import { authorizeAdmin } from "@/lib/admin-auth";
 
 export const runtime = "nodejs";
 
 const REPO = process.env.GITHUB_REPO || "brunovoxmusic/aluplexamp";
 const BRANCH = process.env.GITHUB_BRANCH || "main";
-const MAX_AUDIO_SIZE_BYTES = 24 * 1024 * 1024;
+// Vercel functions reject request bodies over 4.5 MB, so larger uploads would never arrive.
+const MAX_AUDIO_SIZE_BYTES = 4 * 1024 * 1024;
 const AUDIO_EXTENSIONS = new Set([".mp3", ".wav", ".m4a", ".ogg"]);
 
 type GitHubContentFile = {
@@ -21,24 +23,6 @@ function jsonResponse(body: unknown, status = 200) {
       "Cache-Control": "no-store, max-age=0",
     },
   });
-}
-
-function verifyPassword(password?: string) {
-  const expected = process.env.ADMIN_PASSWORD;
-
-  if (!expected) {
-    return process.env.NODE_ENV !== "production";
-  }
-
-  if (!password) return false;
-
-  const expectedBuffer = Buffer.from(expected);
-  const passwordBuffer = Buffer.from(password);
-
-  return (
-    expectedBuffer.length === passwordBuffer.length &&
-    timingSafeEqual(expectedBuffer, passwordBuffer)
-  );
 }
 
 function getGitHubHeaders() {
@@ -118,8 +102,13 @@ export async function POST(request: NextRequest) {
     const kind = formData.get("kind");
     const file = formData.get("file");
 
-    if (!verifyPassword(typeof password === "string" ? password : undefined)) {
-      return jsonResponse({ error: "unauthorized" }, 401);
+    const auth = authorizeAdmin(
+      request,
+      typeof password === "string" ? password : undefined
+    );
+
+    if (!auth.ok) {
+      return jsonResponse({ error: auth.error }, auth.status);
     }
 
     if (kind !== "audio" || !(file instanceof File)) {
